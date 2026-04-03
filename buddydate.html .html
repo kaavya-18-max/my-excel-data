@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Buddy Date — Feature Slide</title>
+
+<!--
+  DESIGN COHERENCE RATIONALE
+  ─────────────────────────────────────────────────────────────
+  Parent slide  →  Syne + Nunito · soft blue-teal-pink pastels ·
+                   rounded cards · #EEF4FF base · border-radius:32px
+  Teen slide    →  Syne (shared) + Instrument Serif + Space Mono ·
+                   near-black base · acid lime + coral + violet
+  
+  Bridge points I'm pulling through:
+  • Syne for all headings — same typeface, different weight feel
+  • Border-radius language: 20–24px on key containers (matches parent)
+  • Logo mark & slide-tag chip style — identical to parent's topbar
+  • The blue #5B8FF9 from the parent appears as a subtle tint in wires
+    and the selection glow uses the same green #4DBF8A from parent
+  • Notification-strip-style bottom row echoes the parent's notif-bar
+  • Page numbering style identical to parent (03 / 12 etc.)
+  
+  What STAYS teen:
+  • Dark background, dramatic contrast
+  • Acid lime accent for interactive states
+  • Italic serif headlines, Space Mono for labels
+  • The polaroid / cork-board mechanic
+  ─────────────────────────────────────────────────────────────
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ─────────────────────────────────────────
+   TOKENS  (mirroring parent where shared)
+───────────────────────────────────────── */
+:root {
+  /* core */
+  --bg:         #0c0c16;
+  --bg-panel:   #10101e;
+  --bg-right:   #090910;
+
+  /* accent — teen */
+  --lime:       #c8f53b;
+  --lime-dim:   rgba(200,245,59,0.14);
+  --lime-bdr:   rgba(200,245,59,0.22);
+  --coral:      #ff5c87;
+  --violet:     #7c3aed;
+  --violet-l:   #a78bfa;
+
+  /* accent — shared with parent */
+  --blue:       #5B8FF9;   /* parent's primary */
+  --teal:       #4DBF8A;   /* parent's verified green */
+  --rose:       #DC3278;   /* parent's contact pink */
+
+  /* type */
+  --white:      #f0f0f8;
+  --gray-l:     #c4c4d4;
+  --gray:       #7a7a9a;
+
+  /* structure */
+  --radius:     22px;       /* matches parent 20px cards */
+  --border:     rgba(167,139,250,0.13);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: 'Nunito', sans-serif; /* matches parent body font */
+}
+
+/* ─────────────────────────────────────────
+   SLIDE SHELL
+───────────────────────────────────────── */
+#slide {
+  width: 100vw; height: 100vh;
+  display: grid;
+  grid-template-columns: 32% 68%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle grain — teen texture */
+#slide::after {
+  content: '';
+  position: absolute; inset: 0; z-index: 200;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.038'/%3E%3C/svg%3E");
+  opacity: 0.5;
+}
+
+/* ═══════════════════════════════════════
+   LEFT PANEL
+═══════════════════════════════════════ */
+#left {
+  position: relative;
+  background: var(--bg-panel);
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: clamp(1.6rem, 3.5vh, 2.4rem) clamp(1.6rem, 3vw, 2.8rem);
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+  z-index: 2;
+}
+
+/* violet ambient top */
+#left::before {
+  content: ''; position: absolute;
+  width: 280px; height: 280px; top: -80px; right: -90px;
+  background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+/* coral ambient bottom */
+#left::after {
+  content: ''; position: absolute;
+  width: 200px; height: 200px; bottom: -50px; left: -50px;
+  background: radial-gradient(circle, rgba(255,92,135,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── TOP BAR (mirrors parent topbar exactly) ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; z-index: 3;
+  opacity: 0; animation: fadeUp 0.45s 0.05s forwards;
+}
+.logo { display: flex; align-items: center; gap: 9px; }
+.logo-mark {
+  width: 34px; height: 34px; border-radius: 11px;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(91,143,249,0.3);
+}
+.logo-mark svg { width: 17px; height: 17px; }
+.logo-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 800;
+  color: var(--white); letter-spacing: .06em; text-transform: uppercase;
+}
+.logo-text span { color: var(--blue); }
+
+/* slide chip — same shape as parent's .slide-tag */
+.slide-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--lime-dim);
+  border: 1.5px solid var(--lime-bdr);
+  padding: 5px 12px; border-radius: 20px;
+}
+.chip-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--lime);
+  box-shadow: 0 0 7px var(--lime);
+  animation: chip-pulse 2s ease-in-out infinite;
+}
+@keyframes chip-pulse {
+  0%,100% { box-shadow: 0 0 7px var(--lime); }
+  50%      { box-shadow: 0 0 3px var(--lime); opacity: 0.5; }
+}
+.chip-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px; font-weight: 800;
+  color: var(--lime); letter-spacing: .1em; text-transform: uppercase;
+}
+
+/* ── HERO TEXT ── */
+.hero {
+  position: relative; z-index: 3;
+  opacity: 0; animation: fadeUp 0.5s 0.18s forwards;
+}
+.eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(167,139,250,0.6);
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.eyebrow::before {
+  content: ''; display: block;
+  width: 18px; height: 1.5px;
+  background: rgba(167,139,250,0.4); border-radius: 2px;
+}
+
+.main-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2.4rem, 4.8vw, 4.2rem);
+  font-weight: 800;
+  line-height: 0.92;
+  color: var(--white);
+  letter-spacing: -0.03em;
+}
+.main-title em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--lime);
+  display: block;
+  font-size: 1.08em;
+  letter-spacing: -0.01em;
+}
+
+.hero-sub {
+  font-size: clamp(0.72rem, 1.1vw, 0.88rem);
+  color: var(--gray);
+  line-height: 1.7;
+  font-weight: 400;
+  font-style: italic;
+  margin-top: clamp(0.9rem, 1.8vh, 1.4rem);
+  max-width: 260px;
+}
+.hero-sub em { color: var(--gray-l); font-style: normal; font-weight: 700; }
+
+/* ── CONCEPT LIST ── */
+.concept-list {
+  display: flex; flex-direction: column; gap: 0.5rem;
+  position: relative; z-index: 3;
+  opacity: 0; animation: fadeUp 0.5s 0.3s forwards;
+}
+.concept-item {
+  display: flex; align-items: center; gap: 0.7rem;
+}
+.concept-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 9px; font-weight: 800;
+  color: #0c0c16;
+  background: var(--lime);
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.concept-name {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(0.68rem, 1vw, 0.82rem);
+  color: var(--gray-l); font-weight: 700;
+}
+.concept-sub {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.78em; color: var(--gray);
+  font-style: italic; margin-left: 0.2rem;
+}
+
+/* ── BOTTOM / FOOTER ── */
+.left-footer {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  position: relative; z-index: 3;
+  opacity: 0; animation: fadeUp 0.5s 0.42s forwards;
+}
+.btm-cue {
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(0.55rem, 0.82vw, 0.68rem);
+  color: var(--violet-l);
+  display: flex; align-items: center; gap: 0.45rem;
+}
+.arrow { display: inline-block; animation: nudge 1.8s ease-in-out infinite; }
+@keyframes nudge { 0%,100%{transform:translateX(0)} 50%{transform:translateX(5px)} }
+
+/* page number — same style as parent .pgnum */
+.pgnum {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; font-weight: 800;
+  color: rgba(167,139,250,0.18); letter-spacing: .12em;
+}
+
+/* ═══════════════════════════════════════
+   RIGHT PANEL
+═══════════════════════════════════════ */
+#right {
+  position: relative;
+  background: var(--bg-right);
+  overflow: hidden;
+}
+
+/* dot grid — same pattern as parent .dots-bg but darker */
+#right::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background-image: radial-gradient(circle, rgba(91,143,249,0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+/* violet glow top-right */
+#right::after {
+  content: ''; position: absolute;
+  width: 380px; height: 180px;
+  top: -60px; right: 8%;
+  background: radial-gradient(ellipse, rgba(124,58,237,0.1) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── WIRE CANVAS ── */
+#wireCanvas {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 2; overflow: visible;
+}
+
+/* ── ROWS WRAP ── */
+#rowsWrap {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  z-index: 10;
+}
+
+/* ── ROW BAND ── */
+.row-band {
+  flex: 1; overflow: hidden;
+  display: flex; flex-direction: column;
+  position: relative; min-height: 0;
+}
+.row-band:not(:last-child)::before {
+  content: ''; position: absolute;
+  bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(91,143,249,0.1) 20%, rgba(91,143,249,0.1) 80%, transparent);
+  z-index: 20;
+}
+
+/* ── ROW TITLE ── */
+.row-title {
+  position: absolute;
+  left: clamp(14px, 2vw, 22px);
+  top: clamp(5px, 0.9vh, 10px);
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(0.78rem, 1.2vw, 0.96rem);
+  font-style: italic; color: var(--white);
+  z-index: 15; white-space: nowrap;
+}
+.row-sub {
+  font-family: 'Space Mono', monospace;
+  font-style: normal; font-size: 0.7em;
+  color: var(--violet-l); margin-left: 0.45rem; letter-spacing: .07em;
+}
+
+/* ── PICK BADGE ── */
+.row-badge {
+  position: absolute;
+  right: clamp(14px, 2vw, 22px);
+  top: clamp(5px, 0.9vh, 10px);
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(0.55rem, 0.85vw, 0.68rem);
+  font-weight: 700;
+  color: var(--gray);
+  z-index: 15;
+}
+
+/* ── SCROLL TRACK ── */
+.scroll-track {
+  position: absolute;
+  bottom: clamp(4px, 0.7vh, 8px); left: 0; right: 0;
+  height: clamp(106px, 16.5vh, 152px);
+  display: flex; align-items: flex-end;
+  gap: clamp(9px, 1.3vw, 15px);
+  padding-left: clamp(14px, 2vw, 22px);
+  padding-right: clamp(38px, 5vw, 54px);
+  overflow-x: scroll; overflow-y: hidden;
+  scrollbar-width: none; cursor: grab; z-index: 12;
+}
+.scroll-track::-webkit-scrollbar { display: none; }
+.scroll-track.dragging { cursor: grabbing; user-select: none; }
+
+/* right fade */
+.row-band::after {
+  content: ''; position: absolute;
+  bottom: clamp(4px, 0.7vh, 8px); right: 0;
+  width: clamp(38px, 5vw, 56px);
+  height: clamp(106px, 16.5vh, 152px);
+  background: linear-gradient(270deg, var(--bg-right), transparent);
+  z-index: 14; pointer-events: none;
+}
+
+/* ── GLOBAL COUNTER ─
+   same pill shape as parent's .slide-tag / .safe-chip
+── */
+#gCtr {
+  position: absolute;
+  bottom: clamp(0.6rem, 1.2vh, 1rem);
+  right: clamp(0.8rem, 1.5vw, 1.4rem);
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(0.58rem, 0.88vw, 0.72rem);
+  font-weight: 800;
+  color: var(--lime);
+  background: var(--lime-dim);
+  border: 1.5px solid var(--lime-bdr);
+  padding: 5px 13px; border-radius: 20px;
+  z-index: 20; letter-spacing: .06em; text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════
+   POLAROIDS
+═══════════════════════════════════════ */
+.pol {
+  flex-shrink: 0; position: relative;
+  cursor: pointer; transform-origin: top center;
+  will-change: transform;
+  margin-top: clamp(12px, 2vh, 20px);
+  transition: filter 0.2s ease;
+}
+.pol:hover { filter: brightness(1.07); }
+
+/* string */
+.pol-string {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  top: clamp(-26px, -4vh, -16px); width: 1px;
+  height: clamp(20px, 3.2vh, 28px);
+  background: linear-gradient(180deg, transparent, rgba(120,110,180,0.35) 30%, rgba(100,90,160,0.65));
+  z-index: 2;
+}
+
+/* clip */
+.pol-clip {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  top: clamp(-31px, -4.6vh, -19px);
+  width: clamp(8px, 1.15vw, 12px);
+  height: clamp(11px, 1.7vh, 16px);
+  background: linear-gradient(150deg, #c8c8e0 0%, #6868a0 55%, #38385a 100%);
+  border-radius: 2px 2px 1px 1px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.18);
+  z-index: 3;
+}
+.pol-clip::after {
+  content: ''; position: absolute; top: 3px; left: 50%; transform: translateX(-50%);
+  width: 1.5px; height: 50%; background: rgba(0,0,0,0.35); border-radius: 1px;
+}
+
+/* frame — crisp white polaroid */
+.pol-frame {
+  background: #f8f8fc;
+  border-radius: 1px;
+  position: relative;
+  box-shadow:
+    2px 3px 6px rgba(0,0,0,0.65),
+    5px 8px 22px rgba(0,0,0,0.4),
+    0 0 0 0.5px rgba(255,255,255,0.07);
+  padding-bottom: clamp(18px, 2.8vh, 26px);
+}
+
+/* photo cell */
+.pol-photo {
+  width: clamp(68px, 8.5vw, 115px);
+  height: clamp(63px, 8vw, 108px);
+  overflow: hidden; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(1.7rem, 2.3vw, 2.2rem);
+}
+.pol-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* tinted bg per row  (matching parent card colours, very subtly) */
+.r0 .pol-photo { background: linear-gradient(135deg, #12102a, #0a0820); }  /* violet → interest */
+.r1 .pol-photo { background: linear-gradient(135deg, #0a1a14, #060e0b); }  /* teal  → taste    */
+.r2 .pol-photo { background: linear-gradient(135deg, #1c0a10, #110609); }  /* coral → passion  */
+.r3 .pol-photo { background: linear-gradient(135deg, #0a100e, #060909); }  /* green → profession*/
+
+/* caption */
+.pol-caption {
+  background: #f8f8fc;
+  width: clamp(68px, 8.5vw, 115px);
+  text-align: center;
+  font-family: 'Syne', sans-serif;   /* ← same as parent card labels */
+  font-size: clamp(0.42rem, 0.66vw, 0.55rem);
+  font-weight: 800;
+  color: #1a1a2e;
+  padding: clamp(3px, 0.45vw, 5px) clamp(3px, 0.5vw, 6px) clamp(4px, 0.6vw, 7px);
+  line-height: 1.2; letter-spacing: .04em; text-transform: uppercase;
+}
+
+/* ── SELECTED STATE ──
+   Uses parent's teal green #4DBF8A as the selection glow
+   so the interaction language feels consistent
+── */
+.pol.sel .pol-frame {
+  box-shadow:
+    0 0 0 2.5px var(--teal),          /* same green as parent verified dot */
+    2px 3px 6px rgba(0,0,0,0.65),
+    5px 8px 22px rgba(0,0,0,0.4),
+    0 0 22px rgba(77,191,138,0.28);   /* parent teal glow */
+}
+
+.sel-tick {
+  position: absolute; top: 3px; right: 3px;
+  width: clamp(12px, 1.5vw, 16px);
+  height: clamp(12px, 1.5vw, 16px);
+  background: var(--teal);           /* parent green */
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(0); z-index: 10;
+  transition: opacity 0.15s, transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+.sel-tick svg {
+  width: 55%; height: 55%;
+  fill: none; stroke: #fff;
+  stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+.pol.sel .sel-tick { opacity: 1; transform: scale(1); }
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes polIn {
+  from { opacity: 0; transform: translateY(18px) rotate(var(--rot)); }
+  to   { opacity: 1; transform: translateY(0)    rotate(var(--rot)); }
+}
+@keyframes swayA { 0%,100%{transform:rotate(var(--rot))} 50%{transform:rotate(var(--rot2))} }
+@keyframes swayB { 0%,100%{transform:rotate(var(--rot2))} 50%{transform:rotate(var(--rot))} }
+</style>
+</head>
+<body>
+<div id="slide">
+
+  <!-- ══════ LEFT PANEL ══════ -->
+  <div id="left">
+
+    <!-- TOP BAR — same component language as parent slide -->
+    <div class="topbar">
+      <div class="logo">
+        <div class="logo-mark">
+          <svg viewBox="0 0 18 18" fill="none">
+            <path d="M4 9.5C4 6.46 6.46 4 9.5 4S15 6.46 15 9.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="9.5" cy="13" r="2.2" fill="white"/>
+          </svg>
+        </div>
+        <span class="logo-text">Ride<span>Buddy</span></span>
+      </div>
+      <div class="slide-chip">
+        <div class="chip-dot"></div>
+        <span class="chip-text">Feature 01</span>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="eyebrow">Buddy Date</div>
+      <div class="main-title">
+        Pick your<br><em>vibe,</em>
+        find your<br>buddy.
+      </div>
+      <p class="hero-sub">
+        Forget forms and checkboxes.
+        <em>Your picks speak for you</em> — we read between
+        the frames and find your perfect ride buddy
+        by vibe, not by profile.
+      </p>
+    </div>
+
+    <!-- CONCEPT LIST -->
+    <div class="concept-list">
+      <div class="concept-item">
+        <div class="concept-num">1</div>
+        <span class="concept-name">Interest <span class="concept-sub">rent free in my head</span></span>
+      </div>
+      <div class="concept-item">
+        <div class="concept-num">2</div>
+        <span class="concept-name">Taste <span class="concept-sub">strictly for the aesthetic</span></span>
+      </div>
+      <div class="concept-item">
+        <div class="concept-num">3</div>
+        <span class="concept-name">Passion <span class="concept-sub">future self loading...</span></span>
+      </div>
+      <div class="concept-item">
+        <div class="concept-num">4</div>
+        <span class="concept-name">Profession <span class="concept-sub">the academic / career arc</span></span>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="left-footer">
+      <div class="btm-cue">
+        <span class="arrow">→</span> pick 3 from each row
+      </div>
+      <div class="pgnum">03 / 12</div>
+    </div>
+
+  </div>
+
+  <!-- ══════ RIGHT PANEL ══════ -->
+  <div id="right">
+    <svg id="wireCanvas" width="100%" height="100%"
+         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 768 728"></svg>
+    <div id="rowsWrap"></div>
+    <div id="gCtr">0 / 12 picked</div>
+  </div>
+
+</div>
+
+<script>
+/* ════════════════════════════════
+   DATA
+════════════════════════════════ */
+const ROWS = [
+  {
+    id: "r0", title: "rent free in my head", sub: "interest",
+    items: [
+      { img: "images/concert .jpeg", c: "concert" },
+      { img: "images/gym.jpg",      c: "gym era loading" },
+      { img: "images/gaming .jpg",   c: "gaming" },
+      { img: "images/street.jpg", c: "street wanderer" },
+      { img: "images/tea.jpg", c: "tea kada talks" },
+      { img: "images/music.jpg", c: "playlist therapist" },
+      { img: "images/chaos.jpg", c: "last bench energy" },
+      { img: "images/cont.jpg", c: "content creator arc" },
+      
+    ]
+  },
+  {
+    id: "r1", title: "strictly for the aesthetic", sub: "taste",
+    items: [
+      { img: "images/window.jpg", c: "window seat energy" },
+      { img: "images/cricket.jpg", c: "match day adrenaline" },
+      { img: "images/meme.jpg", c: "meme architect" },
+      { img: "images/beach .jpg", c: "sunset marina person" },
+      { img: "images/food.jpg", c: "food hunt mode" },
+      { img: "images/dark.jpg", c: "city at 3am" },
+      { img: "images/reading.jpg", c: "dark academia" },
+      { img: "images/animal.jpg", c: "pet parent energy" },
+    ]
+  },
+  {
+    id: "r2", title: "current obsessions", sub: "passion",
+    items: [
+      { img: "images/paint.jpeg", c: "painting" },
+      { img: "images/camera.jpg", c: "Organized mess" },
+      { img: "images/cooking.jpg", c: "DIY phase" },
+      { img: "images/travel.jpg", c: "citizen everywhere" },
+      { img: "images/pickle.jpg", c: "The ground is my canvas" },
+      { img: "images/code.jpg", c: "code wizard" },
+      { img: "images/writing.jpg", c: "story spinner" },
+      { img: "images/stage.jpg", c: "spotlight moments" },
+    ]
+  },
+  {
+    id: "r3", title: "the academic / career arc", sub: "profession",
+    items: [
+      { img: "images/law.jpg",c: "law school szn" },
+      { img: "images/med.jpeg",       c: "healer arc" },
+      { img: "images/sports.jpg", c: "built different" },
+      { img: "images/eng.jpeg",       c: "engineer era" },
+      { img: "images/cul.jpeg",       c: "culinary era" },
+      { img: "images/pilot.jpg", c: "airport at 5am" },
+      { img: "images/lab.jpg", c: "lab coat loading" },
+      { img: "images/corporate.jpeg", c: "corporate baddie" },
+    ]
+  }
+];
+
+const SEL    = { 0: new Set(), 1: new Set(), 2: new Set(), 3: new Set() };
+const ANGLES = [-8,-3,1.5,-6,4.5,-1.5,7,-4,2.5,-7,3,-2,5.5,-3.5,1.5,-8,4,-2,6,-5];
+
+function total()    { return Object.values(SEL).reduce((s,v) => s + v.size, 0); }
+function updateCtr(){ document.getElementById('gCtr').textContent = `${total()} / 12 picked`; }
+
+/* ════════════════════════════════
+   BUILD ROWS
+════════════════════════════════ */
+function buildRows() {
+  const wrap = document.getElementById('rowsWrap');
+  ROWS.forEach((row, ri) => {
+    const band = document.createElement('div');
+    band.className = 'row-band'; band.id = `band-${ri}`;
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'row-title';
+    titleEl.innerHTML = `"${row.title}" <span class="row-sub">${row.sub}</span>`;
+    band.appendChild(titleEl);
+
+    const badge = document.createElement('div');
+    badge.className = 'row-badge'; badge.id = `badge-${ri}`;
+    badge.textContent = '0/3';
+    band.appendChild(badge);
+
+    const track = document.createElement('div');
+    track.className = 'scroll-track'; track.id = `track-${ri}`;
+
+    row.items.forEach((item, ci) => {
+      const rot  = ANGLES[(ri * 8 + ci) % ANGLES.length];
+      const rot2 = rot + (rot >= 0 ? -2.2 : 2.2);
+      const dur  = 3.4 + (ci % 4) * 0.6 + ri * 0.15;
+      const del  = (ci * 0.21 + ri * 0.08) % 1.9;
+      const inDel= ci * 0.065 + ri * 0.13;
+
+      const pol = document.createElement('div');
+      pol.className = `pol ${row.id}`;
+      pol.style.cssText = `--rot:${rot}deg;--rot2:${rot2}deg;transform:rotate(${rot}deg);animation:${ci%2?'swayB':'swayA'} ${dur}s ${del}s ease-in-out infinite,polIn .5s ${inDel}s both`;
+      pol.dataset.row = ri; pol.dataset.id = ci;
+
+      pol.appendChild(Object.assign(document.createElement('div'), { className: 'pol-string' }));
+      pol.appendChild(Object.assign(document.createElement('div'), { className: 'pol-clip' }));
+
+      const frame = document.createElement('div'); frame.className = 'pol-frame';
+
+      const tick = document.createElement('div'); tick.className = 'sel-tick';
+      tick.innerHTML = `<svg viewBox="0 0 12 10"><polyline points="1.5,5 4.5,9 10.5,1"/></svg>`;
+      frame.appendChild(tick);
+
+      const photo = document.createElement('div'); photo.className = 'pol-photo';
+      if (item.img) {
+        const img = document.createElement('img'); img.src = item.img; photo.appendChild(img);
+      } else {
+        photo.textContent = item.e;
+      }
+      frame.appendChild(photo);
+
+      const cap = document.createElement('div'); cap.className = 'pol-caption';
+      cap.textContent = item.c; frame.appendChild(cap);
+
+      pol.appendChild(frame);
+
+      pol.addEventListener('click', () => {
+        const r = +pol.dataset.row, id = +pol.dataset.id, s = SEL[r];
+        if (s.has(id)) {
+          s.delete(id); pol.classList.remove('sel');
+        } else {
+          if (s.size >= 3) {
+            const old = s.values().next().value; s.delete(old);
+            document.querySelector(`.pol[data-row="${r}"][data-id="${old}"]`)?.classList.remove('sel');
+          }
+          s.add(id); pol.classList.add('sel');
+        }
+        document.getElementById(`badge-${r}`).textContent = `${SEL[r].size}/3`;
+        updateCtr();
+      });
+
+      track.appendChild(pol);
+    });
+
+    band.appendChild(track);
+    wrap.appendChild(band);
+    enableDrag(track);
+  });
+}
+
+/* ════════════════════════════════
+   DRAG TO SCROLL
+════════════════════════════════ */
+function enableDrag(el) {
+  let down = false, sx, sl;
+  el.addEventListener('mousedown', e => {
+    down = true; el.classList.add('dragging');
+    sx = e.pageX - el.offsetLeft; sl = el.scrollLeft;
+  });
+  document.addEventListener('mouseup', () => {
+    down = false;
+    document.querySelectorAll('.scroll-track').forEach(t => t.classList.remove('dragging'));
+  });
+  el.addEventListener('mousemove', e => {
+    if (!down) return; e.preventDefault();
+    el.scrollLeft = sl - (e.pageX - el.offsetLeft - sx) * 1.1;
+  });
+  let ts, tsl;
+  el.addEventListener('touchstart', e => { ts = e.touches[0].clientX; tsl = el.scrollLeft; }, { passive: true });
+  el.addEventListener('touchmove',  e => { el.scrollLeft = tsl + (ts - e.touches[0].clientX); }, { passive: true });
+}
+
+/* ════════════════════════════════
+   WIRES  —  palette now threads
+   the parent slide's blue + teal
+════════════════════════════════ */
+function drawWires() {
+  const svg   = document.getElementById('wireCanvas');
+  const right = document.getElementById('right');
+  const W = right.clientWidth, H = right.clientHeight;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const ns = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs) => {
+    const e = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k, v));
+    return e;
+  };
+
+  const defs = el('defs', {});
+
+  // glow filter
+  const filt = el('filter', { id:'glow', x:'-80%', y:'-80%', width:'260%', height:'260%' });
+  const feG  = el('feGaussianBlur', { in:'SourceGraphic', stdDeviation:'2.8', result:'blur' });
+  const feM  = el('feMerge', {});
+  feM.appendChild(el('feMergeNode', { in:'blur' }));
+  feM.appendChild(el('feMergeNode', { in:'SourceGraphic' }));
+  filt.appendChild(feG); filt.appendChild(feM);
+
+  const filt2 = el('filter', { id:'halo', x:'-200%', y:'-200%', width:'500%', height:'500%' });
+  filt2.appendChild(el('feGaussianBlur', { in:'SourceGraphic', stdDeviation:'6.5', result:'b' }));
+
+  defs.appendChild(filt); defs.appendChild(filt2);
+  svg.appendChild(defs);
+
+  /*
+    Bulb palettes — deliberately pulled from the parent slide's card colours:
+    Row 0 → parent c1 blue  #5B8FF9
+    Row 1 → parent c2 teal  #4DBF8A
+    Row 2 → parent c4 rose  #DC3278
+    Row 3 → parent c3 amber #E8A800
+    This creates a colour echo across both slides.
+  */
+  const PALETTES = [
+    { h: 222, s: 92, l: 67 },  // blue
+    { h: 154, s: 58, l: 57 },  // teal
+    { h: 334, s: 72, l: 58 },  // rose
+    { h:  42, s: 90, l: 58 },  // amber
+  ];
+
+  const rowEls = document.querySelectorAll('.row-band');
+  const MX = 14;
+
+  rowEls.forEach((band, ri) => {
+    const rect      = band.getBoundingClientRect();
+    const rightRect = right.getBoundingClientRect();
+    const wireY = rect.top - rightRect.top + clamp(28, rect.height * 0.18, 42);
+    const x0 = MX, x1 = W - MX;
+    const sag  = clamp(12, rect.height * 0.11, 26);
+    const midX = (x0 + x1) / 2;
+    const cpY  = wireY + sag;
+    const pal  = PALETTES[ri];
+
+    // shadow
+    svg.appendChild(el('path', {
+      d: `M${x0},${wireY} Q${midX},${cpY+3} ${x1},${wireY}`,
+      fill:'none', stroke:'rgba(0,0,0,0.55)',
+      'stroke-width':'2.5', 'stroke-linecap':'round'
+    }));
+    // wire — tinted with the row's palette colour
+    svg.appendChild(el('path', {
+      d: `M${x0},${wireY} Q${midX},${cpY} ${x1},${wireY}`,
+      fill:'none', stroke:`hsla(${pal.h},${pal.s}%,${pal.l}%,0.35)`,
+      'stroke-width':'1.5', 'stroke-linecap':'round'
+    }));
+    // highlight
+    svg.appendChild(el('path', {
+      d: `M${x0},${wireY-.5} Q${midX},${cpY-.5} ${x1},${wireY-.5}`,
+      fill:'none', stroke:`hsla(${pal.h},${pal.s}%,${pal.l}%,0.12)`,
+      'stroke-width':'0.7', 'stroke-linecap':'round'
+    }));
+
+    // nails
+    const nail = (cx, cy) => {
+      svg.appendChild(el('circle', { cx, cy, r:'4', fill:'#25253a', stroke:`hsla(${pal.h},40%,40%,0.6)`, 'stroke-width':'1' }));
+      svg.appendChild(el('circle', { cx:cx-1, cy:cy-1, r:'1.1', fill:`hsla(${pal.h},60%,75%,0.3)` }));
+    };
+    nail(x0, wireY); nail(x1, wireY);
+
+    // bulbs
+    const NUM = 10;
+    for (let b = 0; b < NUM; b++) {
+      const t  = b / (NUM - 1);
+      const bx = lerp(lerp(x0,midX,t), lerp(midX,x1,t), t);
+      const by = lerp(lerp(wireY,cpY,t), lerp(cpY,wireY,t), t);
+      const cl = 7;
+
+      svg.appendChild(el('line', { x1:bx, y1:by, x2:bx, y2:by+cl, stroke:`hsla(${pal.h},30%,30%,0.5)`, 'stroke-width':'1' }));
+      svg.appendChild(el('rect', { x:bx-2.4, y:by+cl-1, width:'4.8', height:'3.2', rx:'0.8', fill:`hsla(${pal.h},25%,25%,0.8)` }));
+
+      const halo = el('circle', {
+        cx:bx, cy:by+cl+8, r:'7.5',
+        fill:`hsla(${pal.h},${pal.s}%,${pal.l}%,0.13)`,
+        filter:'url(#halo)'
+      });
+      svg.appendChild(halo);
+
+      const bulb = el('ellipse', {
+        cx:bx, cy:by+cl+6, rx:'3.2', ry:'4.8',
+        fill:`hsla(${pal.h},${pal.s}%,${pal.l}%,0.88)`,
+        filter:'url(#glow)'
+      });
+      const anim = el('animate', {
+        attributeName:'opacity', values:'0.62;1;0.62',
+        dur:`${1.8 + b*0.21}s`, begin:`${b*0.15}s`, repeatCount:'indefinite'
+      });
+      bulb.appendChild(anim);
+      svg.appendChild(bulb);
+
+      svg.appendChild(el('circle', { cx:bx-0.9, cy:by+cl+3.8, r:'0.9', fill:'rgba(255,255,255,0.72)' }));
+    }
+  });
+}
+
+function clamp(min,val,max){ return Math.max(min, Math.min(max, val)); }
+function lerp(a,b,t){ return a + (b-a)*t; }
+
+/* ════════════════════════════════
+   INIT
+════════════════════════════════ */
+buildRows();
+updateCtr();
+requestAnimationFrame(() => requestAnimationFrame(drawWires));
+window.addEventListener('resize', drawWires);
+</script>
+</body>
+</html>
