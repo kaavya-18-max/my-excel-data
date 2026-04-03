@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Buddy Date</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,800;0,900;1,500;1,700&family=DM+Sans:wght@300;400;500&family=Caveat:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#080604}
+
+#slide{
+  width:100vw;height:100vh;
+  display:grid;
+  grid-template-columns:36% 64%;
+  overflow:hidden;
+  font-family:'DM Sans',sans-serif;
+}
+
+/* ══════════════════════════════
+   LEFT PANEL
+══════════════════════════════ */
+#left{
+  position:relative;
+  background:linear-gradient(160deg,#1c1408 0%,#110d06 55%,#0a0804 100%);
+  display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(2rem,5vw,4rem) clamp(1.8rem,3.8vw,3.2rem);
+  overflow:hidden;z-index:2;
+}
+/* warm ambient left */
+#left::before{
+  content:'';position:absolute;
+  width:380px;height:380px;top:-80px;left:-120px;
+  background:radial-gradient(circle,rgba(210,110,40,.22) 0%,transparent 68%);
+  pointer-events:none;
+}
+#left::after{
+  content:'';position:absolute;
+  width:260px;height:260px;bottom:-50px;right:-80px;
+  background:radial-gradient(circle,rgba(180,80,20,.14) 0%,transparent 68%);
+  pointer-events:none;
+}
+
+/* gold divider line */
+.panel-div{
+  position:absolute;right:0;top:6%;bottom:6%;width:1px;z-index:30;
+  background:linear-gradient(180deg,transparent,rgba(210,160,70,.4) 25%,rgba(210,160,70,.65) 50%,rgba(210,160,70,.4) 75%,transparent);
+}
+
+.eyebrow{
+  font-family:'Caveat',cursive;
+  font-size:clamp(.78rem,1.25vw,.96rem);
+  color:#b86830;letter-spacing:.16em;
+  margin-bottom:clamp(.5rem,1.2vh,1rem);
+  display:flex;align-items:center;gap:.45rem;
+  opacity:0;animation:fadeUp .55s .1s forwards;
+}
+.eyebrow-dot{width:5px;height:5px;border-radius:50%;background:#b86830;flex-shrink:0}
+
+.main-title{
+  font-family:'Fraunces',serif;
+  font-size:clamp(2.8rem,5.2vw,4.8rem);
+  font-weight:900;line-height:.88;color:#f2e8d8;
+  opacity:0;animation:fadeUp .6s .2s forwards;
+}
+.main-title em{
+  display:block;font-style:italic;font-weight:700;
+  color:#d4541e;font-size:1.08em;
+}
+
+.divline{
+  width:clamp(36px,4.5vw,64px);height:2px;
+  background:linear-gradient(90deg,#d4541e,transparent);
+  margin:clamp(.8rem,1.8vh,1.5rem) 0;
+  opacity:0;animation:fadeUp .55s .32s forwards;
+}
+
+.story{
+  font-size:clamp(.78rem,1.28vw,1rem);
+  color:#c0a888;line-height:1.72;font-weight:300;
+  max-width:270px;
+  opacity:0;animation:fadeUp .55s .42s forwards;
+}
+.story strong{color:#ecdcc8;font-weight:500}
+
+.concept-list{
+  margin-top:clamp(.9rem,2.2vh,1.8rem);
+  display:flex;flex-direction:column;gap:.42rem;
+  opacity:0;animation:fadeUp .55s .54s forwards;
+}
+.concept-item{
+  display:flex;align-items:center;gap:.6rem;
+  font-family:'Caveat',cursive;
+  font-size:clamp(.72rem,1.15vw,.9rem);
+  color:#c09060;
+}
+.concept-num{
+  width:18px;height:18px;border-radius:50%;
+  border:1px solid rgba(210,150,70,.4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.62rem;color:#d4a060;flex-shrink:0;
+}
+.concept-name{color:#e0c898;font-weight:600}
+.concept-tag{color:#8a6848;font-size:.9em}
+
+.btm-cue{
+  position:absolute;bottom:clamp(1rem,2.5vh,2rem);
+  left:clamp(1.8rem,3.8vw,3.2rem);
+  font-family:'Caveat',cursive;
+  font-size:clamp(.62rem,.98vw,.8rem);color:#6a5040;
+  display:flex;align-items:center;gap:.4rem;
+  opacity:0;animation:fadeUp .55s .68s forwards;
+}
+.nudge{display:inline-block;animation:nudge 2s ease-in-out infinite}
+
+/* ══════════════════════════════
+   RIGHT PANEL
+══════════════════════════════ */
+#right{
+  position:relative;
+  background:linear-gradient(150deg,#100c08 0%,#0c0804 50%,#080604 100%);
+  overflow:hidden;
+}
+
+/* deep warm bg tone blobs */
+#right::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 55% 35% at 20% 15%,rgba(200,100,30,.1) 0%,transparent 100%),
+    radial-gradient(ellipse 40% 30% at 80% 70%,rgba(180,80,20,.08) 0%,transparent 100%),
+    radial-gradient(ellipse 50% 40% at 60% 30%,rgba(150,60,10,.07) 0%,transparent 100%);
+}
+
+/* all SVG wires + lights live here */
+#wireCanvas{
+  position:absolute;inset:0;pointer-events:none;z-index:2;
+  overflow:visible;
+}
+
+/* animated fairy light bulbs on wires — drawn by JS into SVG */
+
+/* scroll rows container */
+#rowsWrap{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  z-index:10;
+}
+
+/* individual row band */
+.row-band{
+  flex:1;
+  display:flex;flex-direction:column;
+  position:relative;
+  min-height:0;
+}
+
+/* ROW TITLE — displayed prominently */
+.row-title{
+  position:absolute;
+  left:clamp(14px,2vw,24px);
+  top:clamp(4px,.7vh,8px);
+  font-family:'Fraunces',serif;
+  font-size:clamp(.78rem,1.22vw,.98rem);
+  font-style:italic;font-weight:700;
+  color:#c89858;
+  letter-spacing:.01em;
+  z-index:15;
+  text-shadow:0 0 12px rgba(200,150,80,.5),0 1px 3px rgba(0,0,0,.8);
+  white-space:nowrap;
+}
+.row-title span{
+  font-family:'Caveat',cursive;
+  font-size:.8em;font-style:normal;font-weight:500;
+  color:#7a5c3a;margin-left:.5rem;letter-spacing:.08em;
+}
+
+/* pick badge */
+.row-badge{
+  position:absolute;
+  right:clamp(14px,2vw,22px);top:clamp(4px,.7vh,8px);
+  font-family:'Caveat',cursive;
+  font-size:clamp(.58rem,.9vw,.74rem);
+  color:#6a5040;z-index:15;letter-spacing:.05em;
+}
+
+/* SCROLL TRACK */
+.scroll-track{
+  position:absolute;
+  bottom:clamp(4px,.7vh,8px);
+  left:0;right:0;
+  height:clamp(110px,18vh,160px);
+  display:flex;align-items:flex-start;
+  gap:clamp(10px,1.5vw,18px);
+  padding-left:clamp(14px,2vw,24px);
+  padding-right:clamp(40px,5vw,56px);
+  overflow-x:scroll;overflow-y:visible;
+  scrollbar-width:none;
+  cursor:grab;
+  z-index:12;
+}
+.scroll-track::-webkit-scrollbar{display:none}
+.scroll-track.dragging{cursor:grabbing;user-select:none}
+
+/* right fade hint */
+.row-band::after{
+  content:'';position:absolute;
+  bottom:clamp(4px,.7vh,8px);right:0;
+  width:clamp(35px,4.5vw,55px);
+  height:clamp(110px,18vh,160px);
+  background:linear-gradient(270deg,rgba(8,6,4,.9),transparent);
+  z-index:14;pointer-events:none;
+}
+
+/* POLAROID */
+.pol{
+  flex-shrink:0;
+  position:relative;
+  cursor:pointer;
+  transform-origin:top center;
+  will-change:transform;
+  margin-top:clamp(22px,4vh,38px);/* space for string+clip above */
+}
+
+/* string from clip down */
+.pol-string{
+  position:absolute;
+  left:50%;transform:translateX(-50%);
+  top:clamp(-28px,-4.5vh,-18px);
+  width:1.5px;
+  height:clamp(24px,4vh,34px);
+  background:linear-gradient(180deg,rgba(150,120,80,0) 0%,rgba(160,128,80,.95) 35%,rgba(120,90,50,.9) 100%);
+  z-index:2;
+}
+/* peg */
+.pol-clip{
+  position:absolute;
+  left:50%;transform:translateX(-50%);
+  top:clamp(-34px,-5.2vh,-22px);
+  width:clamp(9px,1.3vw,14px);
+  height:clamp(13px,2vh,18px);
+  background:linear-gradient(155deg,#c8a060 0%,#8a5820 55%,#5a3010 100%);
+  border-radius:2px 2px 1px 1px;
+  box-shadow:0 1px 4px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,215,130,.2);
+  z-index:3;
+}
+.pol-clip::after{
+  content:'';position:absolute;
+  top:3px;left:50%;transform:translateX(-50%);
+  width:2px;height:50%;
+  background:rgba(0,0,0,.35);border-radius:1px;
+}
+
+/* white polaroid frame */
+.pol-frame{
+  background:#f8f5ee;
+  border-radius:1px;
+  position:relative;
+  box-shadow:
+    1px 2px 4px rgba(0,0,0,.55),
+    4px 7px 16px rgba(0,0,0,.45),
+    7px 12px 30px rgba(0,0,0,.3),
+    0 0 0 .5px rgba(255,255,255,.06);
+}
+
+/* photo */
+.pol-photo{
+  width:clamp(72px,9.5vw,128px);
+  height:clamp(68px,9vw,122px);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;position:relative;
+  font-size:clamp(1.3rem,2.3vw,2rem);
+  /* dark placeholder — replace emoji with <img> for real photos */
+  background:#18120c;
+}
+/* warm light-leak */
+.pol-photo::before{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(140deg,rgba(255,200,100,.1) 0%,transparent 55%);
+}
+/* row-tinted overlays */
+.r0 .pol-photo{background:linear-gradient(150deg,#1e1610,#120e08)}
+.r1 .pol-photo{background:linear-gradient(150deg,#101620,#080e14)}
+.r2 .pol-photo{background:linear-gradient(150deg,#101a10,#08100a)}
+.r3 .pol-photo{background:linear-gradient(150deg,#18101c,#0e0812)}
+
+/* caption strip */
+.pol-caption{
+  background:#f8f5ee;
+  width:clamp(72px,9.5vw,128px);
+  text-align:center;
+  font-family:'Caveat',cursive;
+  font-size:clamp(.56rem,.88vw,.74rem);
+  color:#2a1e10;
+  padding:clamp(3px,.5vw,6px) clamp(4px,.6vw,8px) clamp(5px,.7vw,9px);
+  line-height:1.15;letter-spacing:.01em;
+}
+
+/* selection */
+.pol.sel .pol-frame{
+  box-shadow:
+    0 0 0 2.5px #d4541e,
+    1px 2px 4px rgba(0,0,0,.55),
+    4px 7px 16px rgba(0,0,0,.45),
+    0 0 20px rgba(212,84,30,.3);
+}
+.sel-tick{
+  position:absolute;top:4px;right:4px;
+  width:clamp(13px,1.7vw,18px);height:clamp(13px,1.7vw,18px);
+  background:#d4541e;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(0);z-index:10;
+  transition:opacity .15s,transform .2s cubic-bezier(.34,1.56,.64,1);
+}
+.sel-tick svg{width:54%;height:54%;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pol.sel .sel-tick{opacity:1;transform:scale(1)}
+
+/* global counter */
+#gCtr{
+  position:absolute;bottom:clamp(.5rem,1.2vh,1rem);right:clamp(.8rem,1.5vw,1.5rem);
+  font-family:'Caveat',cursive;
+  font-size:clamp(.62rem,.98vw,.8rem);
+  color:#c4541e;
+  background:rgba(212,84,30,.1);
+  border:1px solid rgba(212,84,30,.25);
+  padding:.22rem .65rem;border-radius:20px;
+  z-index:20;letter-spacing:.04em;
+}
+
+/* ══════════ ANIMATIONS ══════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes polIn{from{opacity:0;transform:translateY(20px) rotate(var(--rot))}to{opacity:1;transform:translateY(0) rotate(var(--rot))}}
+@keyframes swayA{0%,100%{transform:rotate(var(--rot))}50%{transform:rotate(var(--rot2))}}
+@keyframes swayB{0%,100%{transform:rotate(var(--rot2))}50%{transform:rotate(var(--rot))}}
+@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+@keyframes bulbPulse{0%,100%{opacity:.75}50%{opacity:1}}
+</style>
+</head>
+<body>
+<div id="slide">
+
+  <!-- ══════ LEFT PANEL ══════ -->
+  <div id="left">
+    <div class="panel-div"></div>
+    <div class="eyebrow"><span class="eyebrow-dot"></span>feature 01</div>
+    <div class="main-title">Buddy<em>Date</em></div>
+    <div class="divline"></div>
+    <p class="story">
+      Forget forms &amp; checkboxes.<br>
+      <strong>Your photos speak for you.</strong><br><br>
+      Pick images that feel like <em>you</em> across<br>
+      four rows. We read between the frames<br>
+      and find your perfect ride buddy<br>
+      by <strong>vibe</strong>, not by profile.
+    </p>
+    <div class="concept-list">
+      <div class="concept-item">
+        <div class="concept-num">1</div>
+        <span><span class="concept-name">Interest</span> <span class="concept-tag">— rent free in my head</span></span>
+      </div>
+      <div class="concept-item">
+        <div class="concept-num">2</div>
+        <span><span class="concept-name">Taste</span> <span class="concept-tag">— strictly for the aesthetic</span></span>
+      </div>
+      <div class="concept-item">
+        <div class="concept-num">3</div>
+        <span><span class="concept-name">Passion</span> <span class="concept-tag">— future self loading...</span></span>
+      </div>
+      <div class="concept-item">
+        <div class="concept-num">4</div>
+        <span><span class="concept-name">Profession</span> <span class="concept-tag">— the academic / career arc</span></span>
+      </div>
+    </div>
+    <div class="btm-cue"><span class="nudge">→</span> pick 3 from each row</div>
+  </div>
+
+  <!-- ══════ RIGHT PANEL ══════ -->
+  <div id="right">
+    <svg id="wireCanvas" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="rowsWrap"></div>
+    <div id="gCtr">0 / 12 picked</div>
+  </div>
+
+</div>
+
+<script>
+/* ════════════════════════════════
+   DATA
+════════════════════════════════ */
+const ROWS=[
+  {
+    id:"r0",
+    title:"rent free in my head",
+    sub:"interest",
+    items:[
+      {e:"🎵",c:"main character song"},{e:"🎤",c:"front row always"},
+      {e:"🎧",c:"headphones in, world out"},{e:"🎸",c:"guitar solo weather"},
+      {e:"🥁",c:"bass-boosted friday"},{e:"🎹",c:"playlist therapist"},
+      {e:"📻",c:"coded in lo-fi"},{e:"🎭",c:"theatre kid era"},
+    ]
+  },
+  {
+    id:"r1",
+    title:"strictly for the aesthetic",
+    sub:"taste",
+    items:[
+      {e:"🏄",c:"main character moment"},{e:"🛹",c:"park rat, no notes"},
+      {e:"📸",c:"content creator arc"},{e:"🌸",c:"soft life enjoyer"},
+      {e:"☕",c:"café coded"},{e:"🌃",c:"city at 3am type"},
+      {e:"📚",c:"dark academia phase"},{e:"🌿",c:"plant parent energy"},
+    ]
+  },
+  {
+    id:"r2",
+    title:"future self loading...",
+    sub:"passion",
+    items:[
+      {e:"🎨",c:"art hoe confirmed"},{e:"💻",c:"keyboard warrior (dev)"},
+      {e:"🎬",c:"director's cut brain"},{e:"🌍",c:"citizen of everywhere"},
+      {e:"🔥",c:"delulu but it works"},{e:"🍜",c:"food tour non-negotiable"},
+      {e:"🎮",c:"in my gamer era"},{e:"🎪",c:"chaos coordinator"},
+    ]
+  },
+  {
+    id:"r3",
+    title:"the academic / career arc",
+    sub:"profession",
+    items:[
+      {e:"⚖️",c:"law school szn"},{e:"🏥",c:"healer arc incoming"},
+      {e:"📐",c:"built different (literally)"},{e:"⚽",c:"sports scholarship"},
+      {e:"🍳",c:"cottagecore chef era"},{e:"✈️",c:"airport at 5am type"},
+      {e:"🔬",c:"lab coat loading"},{e:"📊",c:"corporate baddie"},
+    ]
+  }
+];
+
+const SEL={0:new Set(),1:new Set(),2:new Set(),3:new Set()};
+const ANGLES=[-8,-3,1.5,-6,4.5,-1.5,7,-4,2.5,-7,3,-2,5.5,-3.5,1.5,-8,4,-2,6,-5];
+
+function total(){return Object.values(SEL).reduce((s,v)=>s+v.size,0)}
+function updateCtr(){document.getElementById('gCtr').textContent=`${total()} / 12 picked`}
+
+/* ════════════════════════════════
+   BUILD POLAROID ROWS
+════════════════════════════════ */
+function buildRows(){
+  const wrap=document.getElementById('rowsWrap');
+  ROWS.forEach((row,ri)=>{
+    const band=document.createElement('div');
+    band.className='row-band';band.id=`band-${ri}`;
+
+    /* Row title — BIG and clear */
+    const titleEl=document.createElement('div');
+    titleEl.className='row-title';
+    titleEl.innerHTML=`"${row.title}" <span>${row.sub}</span>`;
+    band.appendChild(titleEl);
+
+    /* badge */
+    const badge=document.createElement('div');
+    badge.className='row-badge';badge.id=`badge-${ri}`;badge.textContent='0/3';
+    band.appendChild(badge);
+
+    /* scroll track */
+    const track=document.createElement('div');
+    track.className='scroll-track';track.id=`track-${ri}`;
+
+    row.items.forEach((item,ci)=>{
+      const rot=ANGLES[(ri*8+ci)%ANGLES.length];
+      const rot2=rot+(rot>=0?-2.2:2.2);
+      const dur=3.4+(ci%4)*.6+(ri*.15);
+      const del=(ci*.21+ri*.08)%1.9;
+      const inDel=ci*.065+ri*.13;
+
+      const pol=document.createElement('div');
+      pol.className=`pol ${row.id}`;
+      pol.style.cssText=`--rot:${rot}deg;--rot2:${rot2}deg;transform:rotate(${rot}deg);animation:${ci%2?'swayB':'swayA'} ${dur}s ${del}s ease-in-out infinite,polIn .5s ${inDel}s both`;
+      pol.dataset.row=ri;pol.dataset.id=ci;
+
+      /* string */
+      const str=document.createElement('div');str.className='pol-string';pol.appendChild(str);
+      /* clip */
+      const clip=document.createElement('div');clip.className='pol-clip';pol.appendChild(clip);
+
+      /* frame */
+      const frame=document.createElement('div');frame.className='pol-frame';
+
+      /* tick */
+      const tick=document.createElement('div');tick.className='sel-tick';
+      tick.innerHTML=`<svg viewBox="0 0 12 10"><polyline points="1.5,5 4.5,9 10.5,1"/></svg>`;
+      frame.appendChild(tick);
+
+      /* photo */
+      const photo=document.createElement('div');photo.className='pol-photo';
+      photo.textContent=item.e;frame.appendChild(photo);
+
+      /* caption */
+      const cap=document.createElement('div');cap.className='pol-caption';
+      cap.textContent=item.c;frame.appendChild(cap);
+
+      pol.appendChild(frame);
+
+      pol.addEventListener('click',()=>{
+        const r=+pol.dataset.row,id=+pol.dataset.id,s=SEL[r];
+        if(s.has(id)){s.delete(id);pol.classList.remove('sel')}
+        else{
+          if(s.size>=3){
+            const old=s.values().next().value;s.delete(old);
+            document.querySelector(`.pol[data-row="${r}"][data-id="${old}"]`)?.classList.remove('sel');
+          }
+          s.add(id);pol.classList.add('sel');
+        }
+        document.getElementById(`badge-${r}`).textContent=`${SEL[r].size}/3`;
+        updateCtr();
+      });
+
+      track.appendChild(pol);
+    });
+
+    band.appendChild(track);
+    wrap.appendChild(band);
+    enableDrag(track);
+  });
+}
+
+/* ════════════════════════════════
+   DRAG TO SCROLL
+════════════════════════════════ */
+function enableDrag(el){
+  let down=false,sx,sl;
+  el.addEventListener('mousedown',e=>{
+    down=true;el.classList.add('dragging');
+    sx=e.pageX-el.offsetLeft;sl=el.scrollLeft;
+  });
+  document.addEventListener('mouseup',()=>{down=false;document.querySelectorAll('.scroll-track').forEach(t=>t.classList.remove('dragging'))});
+  el.addEventListener('mousemove',e=>{
+    if(!down)return;e.preventDefault();
+    el.scrollLeft=sl-(e.pageX-el.offsetLeft-sx)*1.1;
+  });
+  let ts,tsl;
+  el.addEventListener('touchstart',e=>{ts=e.touches[0].clientX;tsl=el.scrollLeft},{passive:true});
+  el.addEventListener('touchmove',e=>{el.scrollLeft=tsl+(ts-e.touches[0].clientX)},{passive:true});
+}
+
+/* ════════════════════════════════
+   SVG WIRES + BULB LIGHTS
+   Drawn after layout so we know
+   the real pixel positions of rows
+════════════════════════════════ */
+function drawWires(){
+  const svg=document.getElementById('wireCanvas');
+  const right=document.getElementById('right');
+  const W=right.clientWidth,H=right.clientHeight;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+
+  /* ns helper */
+  const ns='http://www.w3.org/2000/svg';
+  function el(tag,attrs){
+    const e=document.createElementNS(ns,tag);
+    Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+    return e;
+  }
+
+  /* defs: glow filter + radial for bulbs */
+  const defs=el('defs',{});
+
+  /* glow filter */
+  const filt=el('filter',{id:'glow',x:'-60%',y:'-60%',width:'220%',height:'220%'});
+  const feGauss=el('feGaussianBlur',{in:'SourceGraphic',stdDeviation:'3.5',result:'blur'});
+  const feMerge=el('feMerge',{});
+  const fm1=el('feMergeNode',{in:'blur'});
+  const fm2=el('feMergeNode',{in:'SourceGraphic'});
+  feMerge.appendChild(fm1);feMerge.appendChild(fm2);
+  filt.appendChild(feGauss);filt.appendChild(feMerge);
+
+  /* soft glow filter for bulb halo */
+  const filt2=el('filter',{id:'halo',x:'-150%',y:'-150%',width:'400%',height:'400%'});
+  const fg2=el('feGaussianBlur',{in:'SourceGraphic',stdDeviation:'6',result:'b'});
+  filt2.appendChild(fg2);
+
+  defs.appendChild(filt);defs.appendChild(filt2);
+  svg.appendChild(defs);
+
+  const rowEls=document.querySelectorAll('.row-band');
+  const MARGIN_X=14;
+
+  rowEls.forEach((band,ri)=>{
+    const rect=band.getBoundingClientRect();
+    const rightRect=right.getBoundingClientRect();
+    /* wire Y = near top of band, just below title */
+    const wireY=rect.top-rightRect.top+clamp(26,rect.height*.18,42);
+    const x0=MARGIN_X, x1=W-MARGIN_X;
+
+    /* ── CATENARY CURVE ──
+       SVG quadratic bezier to fake catenary sag
+       control point is below the endpoints */
+    const sag=clamp(8,rect.height*.08,18);
+    const midX=(x0+x1)/2;
+    const cpY=wireY+sag;
+
+    /* rope shadow */
+    const shadow=el('path',{
+      d:`M${x0},${wireY} Q${midX},${cpY+3} ${x1},${wireY}`,
+      fill:'none',
+      stroke:'rgba(0,0,0,0.55)',
+      'stroke-width':'3',
+      'stroke-linecap':'round',
+    });
+    svg.appendChild(shadow);
+
+    /* main rope */
+    const rope=el('path',{
+      d:`M${x0},${wireY} Q${midX},${cpY} ${x1},${wireY}`,
+      fill:'none',
+      stroke:'#9a7848',
+      'stroke-width':'2',
+      'stroke-linecap':'round',
+    });
+    svg.appendChild(rope);
+
+    /* rope highlight */
+    const ropeHi=el('path',{
+      d:`M${x0},${wireY-.5} Q${midX},${cpY-.5} ${x1},${wireY-.5}`,
+      fill:'none',
+      stroke:'rgba(200,170,110,.35)',
+      'stroke-width':'1',
+      'stroke-linecap':'round',
+    });
+    svg.appendChild(ropeHi);
+
+    /* wall nail left */
+    const nailL=el('circle',{cx:x0,cy:wireY,r:'5','fill':'radial-gradient(circle,#c8a060,#5a3010)'});
+    nailL.setAttribute('fill','#b88840');
+    nailL.setAttribute('stroke','#7a5020');
+    nailL.setAttribute('stroke-width','1');
+    svg.appendChild(nailL);
+    /* nail shine */
+    const nailLS=el('circle',{cx:x0-1.5,cy:wireY-1.5,r:'1.5',fill:'rgba(255,230,160,.5)'});
+    svg.appendChild(nailLS);
+
+    /* wall nail right */
+    const nailR=el('circle',{cx:x1,cy:wireY,r:'5',fill:'#b88840',stroke:'#7a5020','stroke-width':'1'});
+    svg.appendChild(nailR);
+    const nailRS=el('circle',{cx:x1-1.5,cy:wireY-1.5,r:'1.5',fill:'rgba(255,230,160,.5)'});
+    svg.appendChild(nailRS);
+
+    /* ── BULB LIGHTS along the wire ── */
+    const NUM_BULBS=10;
+    for(let b=0;b<NUM_BULBS;b++){
+      const t=b/(NUM_BULBS-1);
+      /* quadratic bezier point */
+      const bx=lerp(lerp(x0,midX,t),lerp(midX,x1,t),t);
+      const by=lerp(lerp(wireY,cpY,t),lerp(cpY,wireY,t),t);
+
+      /* wire down to cap */
+      const capLen=clamp(5,8,10);
+      const wDown=el('line',{x1:bx,y1:by,x2:bx,y2:by+capLen,stroke:'#7a6040','stroke-width':'1'});
+      svg.appendChild(wDown);
+
+      /* bulb cap (tiny rect) */
+      const cap=el('rect',{x:bx-3,y:by+capLen-1,width:'6',height:'4',rx:'1',fill:'#8a6838'});
+      svg.appendChild(cap);
+
+      /* halo glow — behind bulb */
+      const hue=b%3===0?42:b%3===1?38:50;
+      const halo=el('circle',{
+        cx:bx,cy:by+capLen+9,r:'9',
+        fill:`hsla(${hue},90%,65%,0.18)`,
+        filter:'url(#halo)',
+      });
+      svg.appendChild(halo);
+
+      /* bulb glass */
+      const bulb=el('ellipse',{
+        cx:bx,cy:by+capLen+7,rx:'4',ry:'5.5',
+        fill:`hsla(${hue},95%,75%,0.92)`,
+        filter:'url(#glow)',
+      });
+      /* animate each bulb with different timing */
+      const anim=el('animate',{
+        attributeName:'opacity',
+        values:'0.72;1;0.72',
+        dur:`${1.8+b*.23}s`,
+        begin:`${b*.18}s`,
+        repeatCount:'indefinite',
+      });
+      bulb.appendChild(anim);
+      svg.appendChild(bulb);
+
+      /* bulb specular dot */
+      const spec=el('circle',{
+        cx:bx-1.2,cy:by+capLen+4.5,r:'1.2',
+        fill:'rgba(255,255,255,0.8)',
+      });
+      svg.appendChild(spec);
+    }
+  });
+}
+
+function clamp(min,val,max){return Math.max(min,Math.min(max,val))}
+function lerp(a,b,t){return a+(b-a)*t}
+
+/* ════════════════════════════════
+   INIT
+════════════════════════════════ */
+buildRows();
+updateCtr();
+/* draw wires after browser layout */
+requestAnimationFrame(()=>requestAnimationFrame(drawWires));
+window.addEventListener('resize',()=>{
+  const svg=document.getElementById('wireCanvas');
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  drawWires();
+});
+</script>
+</body>
+</html>
