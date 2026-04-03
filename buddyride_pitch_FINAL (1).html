@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BuddyRide — Pitch</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,600;0,800;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070f;
+  --ink:#f0ecff;
+  --dim:#514d72;
+  --faint:#1a1830;
+  --line:#252240;
+  --pu:#8b83ff;
+  --pu2:#6058d4;
+  --te:#43dda0;
+  --am:#ffb547;
+  --re:#ff5f5f;
+  --soft:#c4bfff;
+}
+html{background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;scroll-behavior:smooth;overflow-x:hidden}
+body{max-width:100%;cursor:none}
+
+/* cursor */
+#cur{position:fixed;width:10px;height:10px;border-radius:50%;background:var(--pu);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s,opacity .2s;mix-blend-mode:screen}
+#cur.xl{width:50px;height:50px;opacity:.6}
+body::after{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");pointer-events:none;z-index:999}
+
+/* ── SLIDE SYSTEM ── */
+.deck{display:flex;flex-direction:column}
+.slide{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:60px 7vw;position:relative;overflow:hidden;border-bottom:0.5px solid var(--line)}
+.slide:last-child{border-bottom:none}
+
+/* slide number */
+.snum{position:absolute;top:32px;right:40px;font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--dim);font-variant-numeric:tabular-nums}
+
+/* nav dots */
+#nav{position:fixed;right:20px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:500}
+.ndot{width:6px;height:6px;border-radius:50%;background:var(--line);transition:all .3s;cursor:pointer}
+.ndot.on{background:var(--pu);height:20px;border-radius:3px}
+
+/* ── SLIDE 1: HERO ── */
+#s1{background:var(--bg);align-items:flex-start}
+.s1-eyebrow{font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--pu);margin-bottom:24px;opacity:0;animation:up .7s .2s forwards}
+.s1-headline{font-family:'Bebas Neue',sans-serif;font-size:clamp(64px,11vw,140px);line-height:.9;letter-spacing:-.01em;margin-bottom:28px;opacity:0;animation:up .7s .35s forwards}
+.s1-headline em{font-family:'Plus Jakarta Sans',sans-serif;font-style:italic;font-size:.52em;font-weight:300;color:var(--soft);letter-spacing:-.02em;line-height:1}
+.s1-sub{font-size:clamp(16px,2vw,22px);color:var(--dim);max-width:520px;line-height:1.6;font-weight:300;opacity:0;animation:up .7s .5s forwards;margin-bottom:40px}
+.s1-meta{display:flex;gap:24px;flex-wrap:wrap;opacity:0;animation:up .7s .65s forwards}
+.s1-tag{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:8px 16px;border-radius:100px;border:0.5px solid}
+.s1-tag.pu{border-color:rgba(139,131,255,.4);color:var(--pu);background:rgba(139,131,255,.07)}
+.s1-tag.te{border-color:rgba(67,221,160,.3);color:var(--te);background:rgba(67,221,160,.06)}
+.s1-tag.am{border-color:rgba(255,181,71,.3);color:var(--am);background:rgba(255,181,71,.06)}
+/* bg decoration */
+.hero-orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none}
+.ho1{width:500px;height:500px;background:rgba(96,88,212,.14);right:-100px;top:-100px}
+.ho2{width:300px;height:300px;background:rgba(67,221,160,.07);bottom:-80px;left:10%}
+.grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(139,131,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(139,131,255,.03) 1px,transparent 1px);background-size:64px 64px;pointer-events:none}
+
+/* ── SLIDE 2: THE PROBLEM ── */
+#s2{background:var(--bg)}
+.prob-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.prob-label{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--re);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.prob-label::after{content:'';flex:1;height:1px;background:rgba(255,95,95,.2)}
+.prob-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,6vw,80px);line-height:.95;margin-bottom:20px;letter-spacing:.01em}
+.prob-h span{color:var(--re)}
+.prob-body{font-size:15px;color:var(--dim);line-height:1.8;font-weight:300}
+.prob-body strong{color:var(--ink);font-weight:600}
+.stat-stack{display:flex;flex-direction:column;gap:16px}
+.stat-card{border:0.5px solid var(--line);border-radius:16px;padding:24px;background:rgba(255,255,255,.02);position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.sc-re::before{background:var(--re)}
+.sc-am::before{background:var(--am)}
+.sc-pu::before{background:var(--pu)}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:.02em;line-height:1;margin-bottom:4px}
+.stat-num.re{color:var(--re)}
+.stat-num.am{color:var(--am)}
+.stat-num.pu{color:var(--pu)}
+.stat-desc{font-size:13px;color:var(--dim);line-height:1.5;font-weight:400}
+
+/* ── SLIDE 3: MEET PRIYA ── */
+#s3{background:var(--bg)}
+.priya-layout{display:grid;grid-template-columns:1fr 1.1fr;gap:60px;align-items:center}
+.ch-label{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.ch-label.am{color:var(--am)}
+.ch-label.am::after{content:'';flex:1;height:1px;background:rgba(255,181,71,.2)}
+.priya-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,6vw,80px);line-height:.95;margin-bottom:12px;letter-spacing:.01em}
+.priya-h em{font-family:'Plus Jakarta Sans',sans-serif;font-style:italic;font-size:.55em;font-weight:300;color:var(--soft)}
+.priya-body{font-size:15px;color:var(--dim);line-height:1.8;font-weight:300;margin-bottom:20px}
+.priya-body strong{color:var(--ink);font-weight:600}
+.priya-quote{border-left:2px solid var(--am);padding:14px 18px;font-size:18px;font-style:italic;font-weight:300;color:var(--ink);line-height:1.5;margin:20px 0;border-radius:0 8px 8px 0;background:rgba(255,181,71,.04)}
+/* persona card */
+.persona{background:var(--faint);border:0.5px solid var(--line);border-radius:20px;overflow:hidden}
+.persona-top{background:linear-gradient(135deg,rgba(139,131,255,.15),rgba(67,221,160,.08));padding:28px;display:flex;align-items:center;gap:16px;border-bottom:0.5px solid var(--line)}
+.persona-av{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--pu2),var(--te));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff;letter-spacing:.06em;flex-shrink:0}
+.persona-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.06em;line-height:1}
+.persona-age{font-size:12px;color:var(--dim);margin-top:4px;font-weight:400}
+.persona-body{padding:20px 24px;display:flex;flex-direction:column;gap:12px}
+.pb-row{display:flex;justify-content:space-between;align-items:flex-start}
+.pb-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.pb-val{font-size:12px;color:var(--ink);text-align:right;max-width:200px;line-height:1.4}
+.persona-tags{display:flex;flex-wrap:wrap;gap:6px;padding:16px 24px;border-top:0.5px solid var(--line)}
+.ptag{font-size:10px;padding:4px 10px;border-radius:20px;font-weight:600;border:0.5px solid;letter-spacing:.03em}
+.ptag.pu{background:rgba(139,131,255,.1);border-color:rgba(139,131,255,.3);color:var(--pu)}
+.ptag.te{background:rgba(67,221,160,.08);border-color:rgba(67,221,160,.25);color:var(--te)}
+.ptag.am{background:rgba(255,181,71,.08);border-color:rgba(255,181,71,.25);color:var(--am)}
+
+/* ── SLIDE 4: THE EXPERIENCE ── */
+#s4{background:var(--bg)}
+.exp-layout{display:grid;grid-template-columns:1.1fr 1fr;gap:60px;align-items:center}
+.ch-label.te::after{content:'';flex:1;height:1px;background:rgba(67,221,160,.2)}
+.ch-label.te{color:var(--te)}
+.step-list{display:flex;flex-direction:column;gap:0}
+.step-item{display:flex;gap:20px;padding:20px 0;border-bottom:0.5px solid var(--line);cursor:pointer;transition:background .2s;border-radius:8px;padding-left:8px;position:relative}
+.step-item:hover{background:rgba(255,255,255,.02)}
+.step-item.active-step{background:rgba(139,131,255,.05)}
+.step-item:last-child{border-bottom:none}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--line);min-width:36px;letter-spacing:.04em;transition:color .2s;line-height:1}
+.step-item.active-step .step-num{color:var(--pu)}
+.step-content{}
+.step-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;letter-spacing:.01em}
+.step-desc{font-size:12px;color:var(--dim);line-height:1.6}
+.step-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;border:0.5px solid;margin-top:6px;letter-spacing:.05em;text-transform:uppercase}
+.sb-pu{background:rgba(139,131,255,.1);border-color:rgba(139,131,255,.3);color:var(--pu)}
+.sb-am{background:rgba(255,181,71,.08);border-color:rgba(255,181,71,.25);color:var(--am)}
+.sb-te{background:rgba(67,221,160,.08);border-color:rgba(67,221,160,.25);color:var(--te)}
+/* phone mock */
+.phone-scene{display:flex;justify-content:center}
+.phone{width:240px;background:var(--faint);border:0.5px solid var(--line);border-radius:28px;overflow:hidden;transition:all .35s}
+.phone.dark{background:#060610}
+.ph-bar{height:26px;background:rgba(255,255,255,.025);display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:0.5px solid var(--line)}
+.ph-nm{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.ph-dd{width:5px;height:5px;border-radius:50%;background:var(--line)}
+.ph-body{padding:13px 12px 14px;display:flex;flex-direction:column;gap:7px;min-height:320px}
+.m-tag{display:inline-block;font-size:8px;padding:2px 7px;border-radius:20px;font-weight:700;border:0.5px solid;letter-spacing:.07em;text-transform:uppercase}
+.m-tag.pu{background:rgba(139,131,255,.1);border-color:var(--pu2);color:var(--pu)}
+.m-tag.te{background:rgba(67,221,160,.07);border-color:var(--te);color:var(--te)}
+.m-tag.am{background:rgba(255,181,71,.08);border-color:var(--am);color:var(--am)}
+.m-title{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--ink);letter-spacing:.05em}
+.m-sub{font-size:9px;color:var(--dim);line-height:1.4}
+.m-card{background:rgba(255,255,255,.035);border:0.5px solid var(--line);border-radius:8px;padding:8px 10px}
+.m-row{display:flex;justify-content:space-between;align-items:center}
+.m-l{font-size:9px;color:var(--dim)}
+.m-v{font-size:9px;font-weight:700;color:var(--ink)}
+.m-dv{height:0.5px;background:var(--line);margin:5px 0}
+.m-input{height:26px;border:0.5px solid var(--line);border-radius:6px;background:rgba(255,255,255,.025);display:flex;align-items:center;padding:0 8px;margin-bottom:4px}
+.m-input span{font-size:8px;color:var(--dim)}
+.m-btn{width:100%;height:30px;border-radius:8px;border:0.5px solid;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:opacity .15s;margin-top:2px}
+.m-btn:hover{opacity:.8}
+.m-btn.pu{background:rgba(139,131,255,.12);border-color:var(--pu2);color:var(--pu)}
+.m-btn.te{background:rgba(67,221,160,.08);border-color:var(--te);color:var(--te)}
+.m-btn.am{background:rgba(255,181,71,.08);border-color:var(--am);color:var(--am)}
+.m-btn.ghost{background:rgba(255,255,255,.03);border-color:var(--line);color:var(--dim)}
+.m-btn.danger{background:rgba(255,95,95,.08);border-color:var(--re);color:var(--re)}
+.av{width:36px;height:36px;border-radius:50%;background:rgba(139,131,255,.15);border:1px solid var(--pu2);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--pu);flex-shrink:0}
+.badge{display:inline-flex;font-size:7.5px;padding:2px 6px;border-radius:20px;font-weight:700;border:0.5px solid;margin:1.5px;letter-spacing:.03em;text-transform:uppercase}
+.badge.gray{background:rgba(255,255,255,.04);border-color:var(--line);color:var(--dim)}
+.badge.green{background:rgba(67,221,160,.07);border-color:var(--te);color:var(--te)}
+.badge.am{background:rgba(255,181,71,.08);border-color:var(--am);color:var(--am)}
+.badge.pu{background:rgba(139,131,255,.1);border-color:var(--pu2);color:var(--pu)}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.sc{background:rgba(255,255,255,.03);border:0.5px solid var(--line);border-radius:6px;padding:6px 8px}
+.sv{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--ink);letter-spacing:.04em}
+.sl{font-size:7.5px;color:var(--dim)}
+.map-mock{height:50px;border-radius:7px;background:rgba(255,255,255,.03);border:0.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--dim)}
+.conf-b{background:rgba(67,221,160,.07);border:0.5px solid var(--te);border-radius:8px;padding:9px;text-align:center}
+.conf-t{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--te);letter-spacing:.06em}
+.conf-s{font-size:8px;color:rgba(67,221,160,.55);margin-top:1px}
+.star{font-size:16px;cursor:pointer;color:var(--line);transition:color .15s}
+.star.on{color:var(--am)}
+.ftag{font-size:8px;padding:3px 8px;border-radius:20px;border:0.5px solid var(--line);color:var(--dim);background:rgba(255,255,255,.02);cursor:pointer;transition:all .15s;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.ftag.sel{background:rgba(67,221,160,.08);border-color:var(--te);color:var(--te)}
+.vb{height:4px;border-radius:2px;background:rgba(255,255,255,.05);border:0.5px solid var(--line);position:relative;margin:3px 0 2px}
+.vbead{width:9px;height:9px;border-radius:50%;background:var(--pu2);border:1px solid var(--pu);position:absolute;top:-3px}
+.item-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:7.5px;font-weight:700;border:0.5px solid rgba(255,181,71,.3);background:rgba(255,181,71,.07);color:var(--am);margin:1.5px;letter-spacing:.03em;text-transform:uppercase}
+.feat-row{display:flex;justify-content:space-between;align-items:center;border:0.5px solid var(--line);border-radius:8px;padding:8px 10px;background:rgba(255,255,255,.018);cursor:pointer;transition:border-color .15s;margin-bottom:4px}
+.feat-row:hover{background:rgba(255,255,255,.04)}
+.fr-t{font-size:10px;font-weight:700;color:var(--ink)}
+.fr-s{font-size:8px;color:var(--dim);margin-top:1px}
+
+/* photo dump inside phone */
+.pd-wrap{padding:0;position:relative;overflow:hidden;background:#050510}
+#pd-sc{width:240px;height:300px;position:relative}
+.pd-hd{position:absolute;top:10px;left:0;right:0;text-align:center;z-index:50;pointer-events:none}
+.pd-hd-m{font-family:'Bebas Neue',sans-serif;font-size:15px;color:#f0ecff;letter-spacing:.1em}
+.pd-hd-s{font-size:8px;color:#3a3660;margin-top:2px}
+.pd-cnt{position:absolute;top:8px;right:10px;background:rgba(0,0,0,.85);border:0.5px solid var(--pu2);border-radius:20px;padding:2px 8px;font-size:8px;font-weight:700;color:var(--pu);z-index:60;letter-spacing:.06em}
+.pd-nx{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:var(--pu2);border:none;color:#fff;font-size:8px;font-weight:700;padding:6px 18px;border-radius:20px;cursor:pointer;opacity:0;transition:opacity .3s;white-space:nowrap;z-index:60;letter-spacing:.06em;text-transform:uppercase}
+.pd-nx.show{opacity:1}
+.pd-pol{position:absolute;cursor:pointer;transition:filter .25s;z-index:5}
+.pd-pi{background:#f5f0e8;border-radius:2px;padding:3px 3px 12px;position:relative}
+.pd-pi-img{width:52px;height:52px;border-radius:1px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;text-align:center;line-height:1.3}
+.pd-pi-lbl{font-size:5.5px;color:#555;text-align:center;margin-top:3px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.pd-tp{position:absolute;width:20px;height:7px;border-radius:1px;opacity:0;transition:opacity .25s;top:-3px;left:50%;transform:translateX(-50%) rotate(-4deg);pointer-events:none;z-index:2}
+.pd-tp.show{opacity:1}
+.pd-pol.pd-sl .pd-pi{outline:1.5px solid #8b83ff}
+#pd-stk{width:240px;height:300px;display:none;flex-direction:column;align-items:center;justify-content:center;background:#050510}
+.pd-sw{position:relative;width:90px;height:100px}
+.pd-sc-card{position:absolute;left:50%;top:50%;background:#f5f0e8;border-radius:2px;padding:3px 3px 12px}
+.pd-ml{font-family:'Bebas Neue',sans-serif;font-size:11px;color:var(--pu);text-align:center;margin-top:32px;opacity:0;transition:opacity .5s;letter-spacing:.1em}
+.pd-pp{display:flex;align-items:center;gap:8px;background:rgba(139,131,255,.08);border:0.5px solid var(--pu2);border-radius:8px;padding:7px 10px;margin:8px 8px 0;opacity:0;transition:opacity .5s}
+.pd-pav{width:28px;height:28px;border-radius:50%;background:rgba(139,131,255,.2);border:1px solid var(--pu2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--pu);position:relative;font-family:'Bebas Neue',sans-serif}
+.pd-pm{position:absolute;bottom:-1px;right:-1px;width:12px;height:12px;border-radius:2px;background:#050510;display:grid;grid-template-columns:1fr 1fr;gap:1px;padding:1.5px;border:0.5px solid var(--pu2)}
+.pd-pmc{width:100%;height:100%;border-radius:0.5px}
+.pd-vp{display:inline-block;background:rgba(139,131,255,.1);border:0.5px solid var(--pu2);border-radius:20px;padding:1px 6px;font-size:7px;color:var(--pu);margin-top:2px;font-weight:700;letter-spacing:.04em}
+.pd-bd{background:rgba(67,221,160,.08);border:0.5px solid var(--te);color:var(--te);font-size:8px;font-weight:700;padding:5px 16px;border-radius:20px;cursor:pointer;margin:8px auto 0;display:block;opacity:0;transition:opacity .4s;letter-spacing:.05em;text-transform:uppercase}
+.pd-bk{background:rgba(255,255,255,.04);border:0.5px solid var(--line);color:var(--dim);font-size:7.5px;font-weight:600;padding:4px 12px;border-radius:20px;cursor:pointer;margin:5px auto 0;display:block;opacity:0;transition:opacity .4s}
+
+/* ── SLIDE 5: WHY DIFFERENT ── */
+#s5{background:var(--bg)}
+.diff-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.ch-label.pu{color:var(--pu)}
+.ch-label.pu::after{content:'';flex:1;height:1px;background:rgba(139,131,255,.2)}
+.vs-table{display:flex;flex-direction:column;gap:0;border:0.5px solid var(--line);border-radius:16px;overflow:hidden}
+.vt-head{display:grid;grid-template-columns:1fr 1fr 1fr;background:rgba(255,255,255,.025);border-bottom:0.5px solid var(--line)}
+.vt-h{padding:12px 16px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.vt-h.pu{color:var(--pu);background:rgba(139,131,255,.06)}
+.vt-row{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:0.5px solid var(--line)}
+.vt-row:last-child{border-bottom:none}
+.vt-cell{padding:12px 16px;font-size:12px;color:var(--dim);line-height:1.4}
+.vt-cell.feature{font-weight:600;color:var(--ink);font-size:11px}
+.vt-cell.no{color:rgba(255,95,95,.6)}
+.vt-cell.yes{color:var(--te);font-weight:600}
+.vt-cell.pu-col{background:rgba(139,131,255,.04)}
+.diff-right{display:flex;flex-direction:column;gap:14px}
+.diff-card{border:0.5px solid var(--line);border-radius:14px;padding:20px;background:rgba(255,255,255,.02);position:relative;overflow:hidden;transition:border-color .2s,background .2s}
+.diff-card:hover{border-color:var(--pu2);background:rgba(139,131,255,.04)}
+.diff-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:2px;background:var(--pu2)}
+.diff-card.te::before{background:var(--te)}
+.diff-card.am::before{background:var(--am)}
+.dc-icon{font-size:20px;margin-bottom:8px}
+.dc-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;letter-spacing:.01em}
+.dc-desc{font-size:12px;color:var(--dim);line-height:1.6}
+
+/* ── SLIDE 6: CLOSE ── */
+#s6{background:var(--bg);align-items:center;text-align:center}
+.close-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,9vw,110px);line-height:.92;letter-spacing:-.01em;margin-bottom:24px}
+.close-h span.te{color:var(--te)}
+.close-h span.am{color:var(--am)}
+.close-sub{font-size:16px;color:var(--dim);max-width:480px;margin:0 auto 40px;line-height:1.7;font-weight:300}
+.close-tags{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:48px}
+.ctag{font-size:12px;padding:10px 20px;border-radius:100px;border:0.5px solid;font-weight:600;letter-spacing:.04em}
+.ctag.pu{border-color:rgba(139,131,255,.4);color:var(--pu);background:rgba(139,131,255,.07)}
+.ctag.te{border-color:rgba(67,221,160,.3);color:var(--te);background:rgba(67,221,160,.06)}
+.ctag.am{border-color:rgba(255,181,71,.3);color:var(--am);background:rgba(255,181,71,.06)}
+.close-logo{font-family:'Bebas Neue',sans-serif;font-size:56px;letter-spacing:.1em;background:linear-gradient(135deg,var(--pu),var(--te));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.close-contact{font-size:12px;color:var(--dim);margin-top:8px;letter-spacing:.06em}
+
+/* SHARED */
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+.back-nav{font-size:9px;color:var(--dim);cursor:pointer;border:none;background:none;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:.06em;font-weight:700;display:flex;align-items:center;gap:4px;padding:0;transition:color .15s;text-transform:uppercase}
+.back-nav:hover{color:var(--pu)}
+</style>
+</head>
+<body>
+<div id="cur"></div>
+
+<!-- NAV DOTS -->
+<div id="nav">
+  <div class="ndot on" onclick="goTo(0)"></div>
+  <div class="ndot" onclick="goTo(1)"></div>
+  <div class="ndot" onclick="goTo(2)"></div>
+  <div class="ndot" onclick="goTo(3)"></div>
+  <div class="ndot" onclick="goTo(4)"></div>
+  <div class="ndot" onclick="goTo(5)"></div>
+</div>
+
+<!-- ── SLIDE 1: HERO ── -->
+<section class="slide" id="s1">
+  <div class="grid-lines"></div>
+  <div class="hero-orb ho1"></div>
+  <div class="hero-orb ho2"></div>
+  <div class="snum">01 / 06</div>
+  <div class="s1-eyebrow">BuddyRide — Series A Deck · 2025</div>
+  <h1 class="s1-headline">
+    THE CAB APP<br>
+    THAT GETS<br>
+    <em>who you are.</em>
+  </h1>
+  <p class="s1-sub">A ride-hailing platform for teenagers (ages 11–19) where the driver isn't just vetted — they're matched to your personality.</p>
+  <div class="s1-meta">
+    <span class="s1-tag pu">Personality Matching</span>
+    <span class="s1-tag te">Verified Young Adults</span>
+    <span class="s1-tag am">Built for Gen Z</span>
+  </div>
+</section>
+
+<!-- ── SLIDE 2: PROBLEM ── -->
+<section class="slide" id="s2">
+  <div class="snum">02 / 06</div>
+  <div class="prob-grid reveal">
+    <div>
+      <div class="prob-label">The problem</div>
+      <h2 class="prob-h">TEENS HATE<br><span>RIDING ALONE.</span></h2>
+      <p class="prob-body">Every existing cab app treats a 14-year-old the same as a 40-year-old. <strong>Same cold interface. Same strangers. Same anxiety.</strong><br><br>Parents worry. Teens feel unsafe. And nobody's talking about the experience gap — the awkward silence in the backseat with a driver who has nothing in common with you.</p>
+    </div>
+    <div class="stat-stack">
+      <div class="stat-card sc-re">
+        <div class="stat-num re">68%</div>
+        <div class="stat-desc">of teens say they feel uncomfortable riding alone with a stranger — even in verified cabs</div>
+      </div>
+      <div class="stat-card sc-am">
+        <div class="stat-num am">₹4,200Cr</div>
+        <div class="stat-desc">teen mobility market in India, with zero app designed specifically for this demographic</div>
+      </div>
+      <div class="stat-card sc-pu">
+        <div class="stat-num pu">0</div>
+        <div class="stat-desc">existing platforms match passengers with drivers by personality or shared interests</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 3: MEET PRIYA ── -->
+<section class="slide" id="s3">
+  <div class="snum">03 / 06</div>
+  <div class="priya-layout reveal">
+    <div>
+      <div class="ch-label am">Meet your user</div>
+      <h2 class="priya-h">MEET PRIYA.<br><em>she's 16.</em></h2>
+      <p class="priya-body">She takes a cab to school three times a week. She's anxious about getting in with a stranger. She puts her AirPods in the moment she sits down — not because she wants to listen to music, but because <strong>she doesn't want to talk.</strong></p>
+      <p class="priya-body">Rapido gives her a driver. BuddyRide gives her <strong>Aryan — 22, graphic designer, into the same music she is.</strong> She still doesn't have to talk. But for the first time, she doesn't mind if she does.</p>
+      <div class="priya-quote">"It's not just a ride. It felt like bumping into someone who actually gets my vibe."</div>
+    </div>
+    <div>
+      <div class="persona">
+        <div class="persona-top">
+          <div class="persona-av">PR</div>
+          <div>
+            <div class="persona-name">PRIYA SHARMA</div>
+            <div class="persona-age">16 · Class 11 · Delhi</div>
+          </div>
+        </div>
+        <div class="persona-body">
+          <div class="pb-row"><span class="pb-lbl">Rides/week</span><span class="pb-val">3× school commute</span></div>
+          <div class="pb-row"><span class="pb-lbl">Anxiety level</span><span class="pb-val">High — solo rides with strangers</span></div>
+          <div class="pb-row"><span class="pb-lbl">What she wants</span><span class="pb-val">Safety + someone she won't dread sitting next to</span></div>
+          <div class="pb-row"><span class="pb-lbl">Current app</span><span class="pb-val">Rapido (parent's account)</span></div>
+        </div>
+        <div class="persona-tags">
+          <span class="ptag pu">lo-fi aesthetic</span>
+          <span class="ptag am">indie music</span>
+          <span class="ptag te">night owl</span>
+          <span class="ptag pu">film buff</span>
+          <span class="ptag am">introverted</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 4: EXPERIENCE ── -->
+<section class="slide" id="s4">
+  <div class="snum">04 / 06</div>
+  <div class="exp-layout reveal">
+    <div>
+      <div class="ch-label te">How it works</div>
+      <h2 class="prob-h" style="font-size:clamp(36px,5vw,66px);margin-bottom:8px">FOLLOW PRIYA.<br>THIS IS HER RIDE.</h2>
+      <p style="font-size:13px;color:var(--dim);margin-bottom:20px;font-weight:300">Tap each step to see exactly what she sees.</p>
+      <div class="step-list" id="step-list">
+        <div class="step-item active-step" onclick="setStep(0)">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <div class="step-title">She signs up in 10 seconds</div>
+            <div class="step-desc">Name, age, phone. OTP confirms. No 47-field form.</div>
+            <span class="step-badge sb-pu">Entry flow</span>
+          </div>
+        </div>
+        <div class="step-item" onclick="setStep(1)">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <div class="step-title">She builds her vibe profile</div>
+            <div class="step-desc">Weekend Kit + Photo Dump + Vibe Slider. Done once. Remembered forever.</div>
+            <span class="step-badge sb-am">Onboarding</span>
+          </div>
+        </div>
+        <div class="step-item" onclick="setStep(2)">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <div class="step-title">She books like a normal cab</div>
+            <div class="step-desc">Pickup. Destination. Confirm. The matching happens in the background.</div>
+            <span class="step-badge sb-te">Ride booking</span>
+          </div>
+        </div>
+        <div class="step-item" onclick="setStep(3)">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <div class="step-title">She meets Aryan</div>
+            <div class="step-desc">22, designer, into the same artists she is. The tags prove why he was matched.</div>
+            <span class="step-badge sb-pu">Buddy matched</span>
+          </div>
+        </div>
+        <div class="step-item" onclick="setStep(4)">
+          <div class="step-num">05</div>
+          <div class="step-content">
+            <div class="step-title">Ride confirmed. She's good.</div>
+            <div class="step-desc">Contact shared. Stars awarded. Report button — just in case.</div>
+            <span class="step-badge sb-te">Confirmed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-scene">
+      <div class="phone dark" id="step-phone">
+        <div class="ph-bar" style="background:#040410;border-color:#12121e"><span class="ph-nm" style="color:#3a3660">BuddyRide</span><div class="ph-dd" style="background:#12121e"></div></div>
+        <div class="ph-body" id="step-ph-body"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 5: WHY DIFFERENT ── -->
+<section class="slide" id="s5">
+  <div class="snum">05 / 06</div>
+  <div class="diff-layout reveal">
+    <div>
+      <div class="ch-label pu">The edge</div>
+      <h2 class="prob-h" style="font-size:clamp(36px,5vw,66px);margin-bottom:16px">WHAT MAKES<br>US DIFFERENT.</h2>
+      <div class="vs-table">
+        <div class="vt-head">
+          <div class="vt-h">Feature</div>
+          <div class="vt-h">Rapido / Uber</div>
+          <div class="vt-h pu">BuddyRide</div>
+        </div>
+        <div class="vt-row">
+          <div class="vt-cell feature">Teen-first design</div>
+          <div class="vt-cell no">✗ Generic</div>
+          <div class="vt-cell yes pu-col">✓ Built for 11–19</div>
+        </div>
+        <div class="vt-row">
+          <div class="vt-cell feature">Personality matching</div>
+          <div class="vt-cell no">✗ Proximity only</div>
+          <div class="vt-cell yes pu-col">✓ Vibe fingerprint</div>
+        </div>
+        <div class="vt-row">
+          <div class="vt-cell feature">Driver age range</div>
+          <div class="vt-cell no">Any age</div>
+          <div class="vt-cell yes pu-col">✓ 18–26 only</div>
+        </div>
+        <div class="vt-row">
+          <div class="vt-cell feature">Parental trust layer</div>
+          <div class="vt-cell no">✗ None</div>
+          <div class="vt-cell yes pu-col">✓ Arrival alerts</div>
+        </div>
+        <div class="vt-row">
+          <div class="vt-cell feature">Comfort in the ride</div>
+          <div class="vt-cell no">✗ Awkward silence</div>
+          <div class="vt-cell yes pu-col">✓ Relatable buddy</div>
+        </div>
+      </div>
+    </div>
+    <div class="diff-right">
+      <div class="diff-card">
+        <div class="dc-title">Vibe fingerprint matching</div>
+        <div class="dc-desc">Weekend Kit captures interests. Photo Dump captures aesthetic. Vibe Slider captures social energy. Three layers, one personality profile — used to find your Buddy, not just the nearest driver.</div>
+      </div>
+      <div class="diff-card te">
+        <div class="dc-title">Young adult Buddies</div>
+        <div class="dc-desc">Every driver is 18–26. Background checked, license verified, employer or university verified. Close enough in age to actually relate. Old enough to be responsible.</div>
+      </div>
+      <div class="diff-card am">
+        <div class="dc-title">No forced interaction</div>
+        <div class="dc-desc">Priya doesn't have to say a word. Buddies are briefed to follow the user's lead. The right person in the seat is the value — conversation is optional.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 6: CLOSE ── -->
+<section class="slide" id="s6">
+  <div class="snum">06 / 06</div>
+  <div class="hero-orb ho1" style="opacity:.6"></div>
+  <div class="hero-orb ho2" style="opacity:.7"></div>
+  <h2 class="close-h reveal">
+    PRIYA GETS<br>
+    IN THE CAR.<br>
+    <span class="te">SMILES.</span><br>
+    <span class="am">THAT'S THE PRODUCT.</span>
+  </h2>
+  <p class="close-sub reveal">Every teenager deserves a ride that feels safe, relatable, and theirs. BuddyRide is the first platform built to make that happen at scale.</p>
+  
+  <div class="close-logo reveal">BUDDYRIDE</div>
+  <div class="close-contact reveal">hello@buddyride.in · buddyride.in</div>
+</section>
+
+<script>
+// cursor
+const cur=document.getElementById('cur');
+document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
+document.querySelectorAll('button,[onclick],a,.step-item,.feat-row,.diff-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cur.classList.add('xl'));
+  el.addEventListener('mouseleave',()=>cur.classList.remove('xl'));
+});
+
+// nav dots + scroll
+const slides=document.querySelectorAll('.slide');
+const dots=document.querySelectorAll('.ndot');
+function updateNav(){
+  let curr=0;
+  slides.forEach((s,i)=>{if(s.getBoundingClientRect().top<=window.innerHeight/2)curr=i;});
+  dots.forEach((d,i)=>d.classList.toggle('on',i===curr));
+}
+function goTo(i){slides[i].scrollIntoView({behavior:'smooth'})}
+window.addEventListener('scroll',updateNav);
+
+// scroll reveal
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')});},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// Step phone screens
+let curStep=0;
+const stepScreens=[mockSignup,mockOnboard,mockBook,mockBuddy,mockConfirm];
+
+function setStep(i){
+  curStep=i;
+  document.querySelectorAll('.step-item').forEach((el,j)=>el.classList.toggle('active-step',j===i));
+  renderStepPhone();
+}
+
+function renderStepPhone(){
+  const body=document.getElementById('step-ph-body');
+  body.innerHTML=stepScreens[curStep]();
+  if(curStep===4){bindStars();bindTags();}
+}
+
+function mockSignup(){return `
+  <span class="m-tag pu">Entry</span>
+  <div class="m-title">Hey Priya.</div>
+  <div class="m-sub" style="margin-bottom:5px">quick setup — takes 10 seconds</div>
+  <div class="m-card">
+    <div class="m-input"><span>Your name</span></div>
+    <div class="m-input"><span>Age (11–19)</span></div>
+    <div class="m-input" style="margin-bottom:0"><span>Phone number</span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:4px;margin-top:5px">
+    <div style="display:flex;gap:6px;align-items:center"><div style="width:5px;height:5px;border-radius:50%;background:var(--am);flex-shrink:0"></div><div class="m-l">Weekend Kit — drag your essentials</div></div>
+    <div style="display:flex;gap:6px;align-items:center"><div style="width:5px;height:5px;border-radius:50%;background:var(--am);flex-shrink:0"></div><div class="m-l">Photo Dump — claim your aesthetic</div></div>
+    <div style="display:flex;gap:6px;align-items:center"><div style="width:5px;height:5px;border-radius:50%;background:var(--pu);flex-shrink:0"></div><div class="m-l">Vibe Slider — set your energy</div></div>
+  </div>
+  <button class="m-btn pu" style="margin-top:7px" onclick="setStep(1)">Continue → build my vibe</button>`;}
+
+function mockOnboard(){
+  const ob=document.getElementById('step-ph-body');
+  if(ob&&ob.dataset.sub==='photo'){return mockPhoto();}
+  return `<span class="m-tag am">Onboarding</span>
+  <div class="m-title">Priya's vibe.</div>
+  <div class="m-sub" style="margin-bottom:7px">done once · remembered forever</div>
+  <div class="feat-row" style="border-color:rgba(255,181,71,.25)" onclick="handleOnboard(this)">
+    <div><div class="fr-t">Weekend Kit</div><div class="fr-s">drag 3–4 items into the bag</div></div>
+    <span style="font-size:10px;color:var(--am)">→</span>
+  </div>
+  <div class="feat-row" style="border-color:rgba(139,131,255,.25)" onclick="handleOnboard(this)">
+    <div><div class="fr-t">Photo Dump</div><div class="fr-s">pick 3 vibes — claim your aesthetic</div></div>
+    <span style="font-size:10px;color:var(--pu)">→</span>
+  </div>
+  <div class="feat-row" style="border-color:rgba(67,221,160,.25)" onclick="handleOnboard(this)">
+    <div><div class="fr-t">Vibe Slider</div><div class="fr-s">productive vs vibing · budget vs treat</div></div>
+    <span style="font-size:10px;color:var(--te)">→</span>
+  </div>
+  <button class="m-btn am" style="margin-top:5px" onclick="setStep(2)">Profile built → book ride</button>`;}
+
+function mockPhoto(){
+  const body=document.getElementById('step-ph-body');
+  body.dataset.sub='photo';
+  body.innerHTML=buildPDContent();
+  initPD();
+  return '';
+}
+
+function buildPDContent(){
+  return `<div class="pd-wrap">
+    <div id="pd-sc">
+      <div class="pd-hd"><div class="pd-hd-m">CLAIM YOUR AESTHETIC</div><div class="pd-hd-s">tap 3 photos that feel like you</div></div>
+      <div class="pd-cnt" id="pd-cnt">0 / 3</div>
+      <button class="pd-nx" id="pd-nx" onclick="pdStack()">CREATE DUMP →</button>
+    </div>
+    <div id="pd-stk">
+      <div class="pd-sw" id="pd-sw"></div>
+      <div class="pd-ml" id="pd-ml">LO-FI · LIVE · NOCTURNAL</div>
+      <div class="pd-pp" id="pd-pp">
+        <div class="pd-pav">PR<div class="pd-pm" id="pd-pm"></div></div>
+        <div><div style="font-family:'Bebas Neue',sans-serif;font-size:11px;color:var(--ink);letter-spacing:.06em">Priya's profile</div><div style="font-size:7.5px;color:var(--dim)">Photo Dump saved</div><div class="pd-vp">lo-fi · live · nocturnal</div></div>
+      </div>
+      <button class="pd-bd" id="pd-bd" onclick="setStep(2)">BOOK YOUR RIDE →</button>
+      <button class="pd-bk" id="pd-bk" onclick="setStep(1)">← back to features</button>
+    </div>
+  </div>`;}
+
+function showPhoto(){
+  const body=document.getElementById('step-ph-body');
+  body.innerHTML=buildPDContent();
+  initPD();
+}
+
+const pdPhotos=[
+  {label:"lo-fi room",bg:"#2d1f3d",tc:"#c4a8e0"},
+  {label:"golden hour",bg:"#3d2800",tc:"#f0b860"},
+  {label:"concert",bg:"#1a1a2e",tc:"#7eb8f7"},
+  {label:"cafe",bg:"#1f2d1f",tc:"#90c47a"},
+  {label:"night drive",bg:"#0d1a2d",tc:"#5ba3d4"},
+  {label:"rooftop",bg:"#2d1a10",tc:"#e07a40"}
+];
+const pdTC=["#b8e0ff","#ffd6e8","#d4f1c0","#fff3b0","#e8d4f1","#ffd4b0"];
+const pdRots=[-7,5,-4,6,-5,8];
+const PW=240,PH=300,HH=52,BH=40;
+const UH=PH-HH-BH,CW=58,CH=70;
+const GX=Math.floor((PW-20-3*CW)/2),GY=Math.floor((UH-12-2*CH)/1);
+const pdG=[];
+for(let r=0;r<2;r++)for(let c=0;c<3;c++)pdG.push({x:10+c*(CW+GX),y:HH+6+r*(CH+GY)});
+
+let pdSel=new Set(),pdCards=[],pdAnim=false,pdDrop=false;
+
+function initPD(){
+  pdSel=new Set();pdCards=[];pdAnim=false;pdDrop=false;
+  const st=document.getElementById('pd-sc');if(!st)return;
+  pdPhotos.forEach((p,i)=>{
+    const el=document.createElement('div');el.className='pd-pol';
+    const rot=pdRots[i],gp=pdG[i];
+    el.style.cssText=`left:${gp.x}px;top:${gp.y-120}px;transform:rotate(${rot}deg);opacity:0;z-index:${5+i}`;
+    const tp=document.createElement('div');tp.className='pd-tp';tp.style.background=pdTC[i];
+    tp.style.backgroundImage='repeating-linear-gradient(45deg,rgba(255,255,255,.3) 0,rgba(255,255,255,.3) 2px,transparent 2px,transparent 6px)';
+    el.appendChild(tp);
+    const inn=document.createElement('div');inn.className='pd-pi';
+    const img=document.createElement('div');img.className='pd-pi-img';
+    img.style.cssText=`background:${p.bg};color:${p.tc}`;img.textContent=p.label;
+    const lb=document.createElement('div');lb.className='pd-pi-lbl';lb.textContent=p.label;
+    inn.appendChild(img);inn.appendChild(lb);el.appendChild(inn);
+    el.addEventListener('click',()=>pdToggle(i));
+    st.appendChild(el);pdCards.push({el,tp,rot,gp});
+    setTimeout(()=>{el.style.transition='top .45s cubic-bezier(.2,.85,.4,1.1),opacity .18s';el.style.opacity='1';el.style.top=gp.y+'px';},70+i*85);
+  });
+  pdDrop=true;
+}
+
+function pdToggle(i){
+  if(pdAnim||!pdDrop)return;
+  const {el,tp,rot}=pdCards[i];
+  if(pdSel.has(i)){
+    pdSel.delete(i);el.classList.remove('pd-sl');tp.classList.remove('show');
+    el.style.transition='transform .18s,filter .18s';el.style.transform=`rotate(${rot}deg) scale(1)`;el.style.zIndex=5+i;
+  } else {
+    if(pdSel.size>=3)return;
+    pdSel.add(i);el.classList.add('pd-sl');tp.classList.add('show');
+    el.style.transition='transform .18s,filter .18s';el.style.transform=`rotate(${rot}deg) scale(1.06)`;el.style.zIndex=30+pdSel.size;
+  }
+  pdCards.forEach(({el:e},j)=>{
+    if(pdSel.size===0)e.style.filter='';
+    else if(pdSel.has(j))e.style.filter='';
+    else e.style.filter='blur(1px) brightness(0.32)';
+  });
+  const cnt=document.getElementById('pd-cnt');if(cnt)cnt.textContent=pdSel.size+' / 3';
+  const nx=document.getElementById('pd-nx');if(nx)nx.classList.toggle('show',pdSel.size===3);
+}
+
+function pdStack(){
+  pdAnim=true;
+  const sel=[...pdSel];
+  pdCards.forEach(({el,rot},i)=>{
+    if(!sel.includes(i)){el.style.transition='opacity .25s,transform .25s';el.style.opacity='0';el.style.transform=`rotate(${rot}deg) scale(0.7)`;}
+  });
+  setTimeout(()=>{
+    const cx=PW/2-CW/2,cy=PH/2-CH/2;
+    sel.forEach((idx,j)=>{
+      const {el}=pdCards[idx];
+      const off=[[-5,-3],[4,5],[-2,1]][j]||[0,0];
+      el.style.transition='left .42s cubic-bezier(.4,0,.2,1),top .42s cubic-bezier(.4,0,.2,1),transform .42s';
+      el.style.left=(cx+off[0])+'px';el.style.top=(cy+off[1])+'px';
+      el.style.transform=`rotate(${[-10,2,-6][j]||0}deg) scale(1)`;el.style.filter='';el.style.zIndex=30+j;
+    });
+    setTimeout(()=>{
+      sel.forEach((idx,j)=>{
+        const {el}=pdCards[idx];
+        el.style.transition='left .45s ease,top .45s ease,transform .45s ease,opacity .45s ease';
+        el.style.left='10px';el.style.top='8px';
+        el.style.transform=`rotate(${[-6,0,4][j]||0}deg) scale(0.28)`;el.style.opacity='.75';
+      });
+      const cnt=document.getElementById('pd-cnt');if(cnt)cnt.style.opacity='0';
+      const nx=document.getElementById('pd-nx');if(nx)nx.style.opacity='0';
+      setTimeout(()=>{
+        const s1=document.getElementById('pd-sc');const s2=document.getElementById('pd-stk');
+        if(s1)s1.style.display='none';
+        if(s2){s2.style.display='flex';pdBuildStack(sel);}
+      },480);
+    },520);
+  },300);
+}
+
+function pdBuildStack(sel){
+  const w=document.getElementById('pd-sw');if(!w)return;w.innerHTML='';
+  sel.forEach((idx,j)=>{
+    const p=pdPhotos[idx];
+    const card=document.createElement('div');card.className='pd-sc-card';
+    card.style.cssText=`transform:translate(calc(-50% + ${[-5,4,-3][j]||0}px),calc(-50% + ${[-3,5,1][j]||0}px)) rotate(${[-8,3,-5][j]||0}deg);z-index:${10+j}`;
+    const img=document.createElement('div');
+    img.style.cssText=`width:58px;height:58px;border-radius:1px;background:${p.bg};display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:${p.tc}`;
+    img.textContent=p.label;card.appendChild(img);w.appendChild(card);
+  });
+  const pm=document.getElementById('pd-pm');if(pm){pm.innerHTML='';sel.forEach(idx=>{const d=document.createElement('div');d.className='pd-pmc';d.style.background=pdPhotos[idx].bg;pm.appendChild(d);});}
+  setTimeout(()=>{const m=document.getElementById('pd-ml');if(m)m.style.opacity='1';},300);
+  setTimeout(()=>{const p=document.getElementById('pd-pp');if(p)p.style.opacity='1';},720);
+  setTimeout(()=>{const d=document.getElementById('pd-bd');if(d)d.style.opacity='1';const b=document.getElementById('pd-bk');if(b)b.style.opacity='1';},1050);
+}
+
+function mockBook(){return `
+  <span class="m-tag te">Ride</span>
+  <div class="m-title">Where is Priya going?</div>
+  <div class="map-mock" style="margin:5px 0">map preview</div>
+  <div class="m-card">
+    <div class="m-input"><span>Pickup — Home, Lajpat Nagar</span></div>
+    <div class="m-input" style="margin-bottom:0"><span>DPS School, RK Puram</span></div>
+    <div class="m-dv"></div>
+    <div class="m-row"><span class="m-l">Fare</span><span class="m-v">₹120</span></div>
+    <div class="m-row"><span class="m-l">ETA</span><span class="m-v">8 min</span></div>
+  </div>
+  <div style="font-size:8px;color:var(--dim);line-height:1.5;padding:3px 0">Her vibe fingerprint (Kit + Mosaic + Vibe Title) starts matching the moment she confirms.</div>
+  <button class="m-btn te" onclick="setStep(3)">Confirm → find my Buddy</button>`;}
+
+function mockBuddy(){return `
+  <span class="m-tag pu">Matched for Priya</span>
+  <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+    <div class="av">AP</div>
+    <div>
+      <div class="m-title">ARYAN P., 22</div>
+      <div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:2px">
+        <span class="badge gray">Graphic designer</span>
+        <span class="badge green">Verified</span>
+      </div>
+      <div style="font-size:7.5px;color:var(--dim);margin-top:2px;font-style:italic">"chill ride or great convo — your call"</div>
+    </div>
+  </div>
+  <div style="font-size:7.5px;color:var(--dim);margin:2px 0;font-weight:600;letter-spacing:.06em;text-transform:uppercase">Why he matched Priya</div>
+  <div style="display:flex;flex-wrap:wrap;gap:2px;margin-bottom:5px">
+    <span class="badge am">indie music</span><span class="badge am">film</span><span class="badge am">skating</span>
+    <span class="badge pu">lo-fi</span><span class="badge pu">night owl</span>
+  </div>
+  <div class="sg" style="margin-bottom:5px">
+    <div class="sc"><div class="sv">4.9★</div><div class="sl">Rating</div></div>
+    <div class="sc"><div class="sv">312</div><div class="sl">Rides</div></div>
+    <div class="sc"><div class="sv">2 yrs</div><div class="sl">Exp.</div></div>
+    <div class="sc"><div class="sv">0</div><div class="sl">Incidents</div></div>
+  </div>
+  <button class="m-btn pu" onclick="setStep(4)">Ride with Aryan →</button>
+  <button class="m-btn ghost" style="margin-top:3px" onclick="alert('Up to 3 skips per booking.')">See another →</button>`;}
+
+function mockConfirm(){return `
+  <span class="m-tag te">Confirmed</span>
+  <div class="conf-b" style="margin-top:3px">
+    <div class="conf-t">ARYAN ACCEPTED</div>
+    <div class="conf-s">arriving ~8 min · KA 01 AB 2345</div>
+  </div>
+  <div class="m-card" style="margin-top:5px">
+    <div class="m-row"><span class="m-l">Pickup</span><span class="m-v">Home</span></div>
+    <div class="m-row"><span class="m-l">Drop</span><span class="m-v">DPS School</span></div>
+    <div class="m-dv"></div>
+    <div class="m-row"><span class="m-l">Fare</span><span class="m-v">₹120</span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;margin:4px 0">
+    <div class="av" style="width:26px;height:26px;font-size:9px">AP</div>
+    <div><div style="font-size:10px;font-weight:700;color:var(--ink)">Aryan P.</div><div style="font-size:8px;color:var(--dim)">+91 98xxx xxxxx</div></div>
+  </div>
+  <div style="display:flex;gap:3px;justify-content:center;margin:3px 0" id="star-row">
+    ${[1,2,3,4,5].map(i=>`<span class="star" id="star-${i}" data-v="${i}">★</span>`).join('')}
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:3px;margin:3px 0" id="tag-row">
+    ${['Punctual','Friendly','Safe','Chill'].map(t=>`<span class="ftag" data-tag="${t}">${t}</span>`).join('')}
+  </div>
+  <button class="m-btn te" onclick="alert('Ratings shape Buddy priority in real-time.')">Submit →</button>
+  <button class="m-btn danger" style="margin-top:3px" onclick="alert('Report: unsafe driving · inappropriate behaviour · identity mismatch · other. 2hr response.')">Report</button>`;}
+
+let sRating=0,sTags=new Set();
+function bindStars(){
+  document.querySelectorAll('.star').forEach(s=>{
+    s.onclick=()=>{sRating=parseInt(s.dataset.v);document.querySelectorAll('.star').forEach((st,i)=>st.classList.toggle('on',i<sRating));};
+  });
+}
+function bindTags(){
+  document.querySelectorAll('.ftag').forEach(t=>{
+    t.onclick=()=>{const tg=t.dataset.tag;if(sTags.has(tg))sTags.delete(tg);else sTags.add(tg);t.classList.toggle('sel',sTags.has(tg));};
+  });
+}
+
+
+function handleOnboard(el){
+  const title = el.querySelector('.fr-t').innerText;
+
+  if(title.includes('Weekend')){
+    document.getElementById('step-ph-body').innerHTML = `
+      <span class="m-tag am">Weekend Kit</span>
+      <div class="m-title">What’s in her bag?</div>
+      <div class="m-sub">Pick what defines her weekends</div>
+      <div class="m-card">
+        <div class="item-tag">headphones</div>
+        <div class="item-tag">sketchbook</div>
+        <div class="item-tag">coffee</div>
+        <div class="item-tag">netflix</div>
+      </div>
+      <button class="m-btn am" onclick="setStep(1)">Back</button>
+    `;
+  }
+
+  else if(title.includes('Photo')){
+    showPhoto();
+  }
+
+  else if(title.includes('Vibe')){
+    document.getElementById('step-ph-body').innerHTML = `
+      <span class="m-tag te">Vibe Slider</span>
+      <div class="m-title">Her energy today</div>
+      <div class="m-sub">quiet ↔ social</div>
+      <div class="vb"><div class="vbead" style="left:60%"></div></div>
+      <div class="m-sub">budget ↔ treat</div>
+      <div class="vb"><div class="vbead" style="left:30%"></div></div>
+      <button class="m-btn te" onclick="setStep(1)">Back</button>
+    `;
+  }
+}
+
+// init
+setStep(0);
+</script>
+</body>
+</html>
