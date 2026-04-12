@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardian Protocol | Final Pitch Deck</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* REFERENCE PALETTE MAPPING */
+            --bg:      #050812;               /* Deep Dark Blue */
+            --surf:    rgba(255, 255, 255, 0.03); /* Glass Surface */
+            --pr:      #2A3F8F;               /* Royal Blue */
+            --ac:      #A78BFA;               /* Lavender Purple */
+            --ac-lo:   rgba(167, 139, 250, 0.15);
+            --ac-glow: rgba(167, 139, 250, 0.3);
+            --w:       #F5F7FF;               /* Ice White */
+            --mu:      #9AA3B2;               /* Muted Blue-Grey */
+            --border:  rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #02040a;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--w);
+            overflow: hidden;
+        }
+
+        .screen-fit {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Fixed 16:9 Slide Canvas */
+        .slide-canvas {
+            width: 1280px;
+            height: 720px;
+            background: radial-gradient(circle at center, #0d1224 0%, var(--bg) 100%);
+            border: 2px solid var(--ac);
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 0 100px rgba(0,0,0,1), 0 0 40px var(--ac-glow);
+            display: flex;
+            flex-direction: column;
+            padding: 40px 60px;
+            overflow: hidden;
+            animation: slideFadeIn 1.2s ease-out;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 52px;
+            font-weight: 800;
+            color: var(--w);
+            letter-spacing: -1px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: var(--ac);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 400;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* Left Section: Blueprint Card */
+        .blueprint-container {
+            display: flex;
+            justify-content: center;
+            animation: fadeInLeft 1s ease-out forwards;
+        }
+
+        .data-card {
+            background: var(--surf);
+            backdrop-filter: blur(15px);
+            width: 100%;
+            max-width: 460px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 35px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+
+        .emblem {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--ac), var(--pr));
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            color: var(--bg);
+            box-shadow: 0 0 20px var(--ac-glow);
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            margin-bottom: 5px;
+            color: var(--w);
+        }
+
+        .card-subtitle {
+            font-size: 11px;
+            color: var(--ac);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            text-align: left;
+            margin-bottom: 25px;
+        }
+
+        .data-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 12px;
+            border-left: 3px solid var(--ac);
+        }
+
+        .data-item label {
+            display: block;
+            font-size: 10px;
+            color: var(--mu);
+            text-transform: uppercase;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+
+        .data-item span {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--w);
+        }
+
+        .action-footer {
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .phone-display {
+            font-size: 16px;
+            color: var(--w);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .btn-message {
+            width: 100%;
+            max-width: 300px;
+            height: 50px;
+            background: linear-gradient(to right, var(--ac), var(--pr));
+            color: var(--bg);
+            border-radius: 12px;
+            text-decoration: none;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-message:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px var(--ac-glow);
+            filter: brightness(1.1);
+        }
+
+        .btn-message::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 3s infinite;
+            pointer-events: none;
+        }
+
+        /* Right Section: Timeline */
+        .timeline-container {
+            position: relative;
+            padding-left: 30px;
+            animation: fadeInRight 1s ease-out forwards;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 10px;
+            top: 20px;
+            bottom: 20px;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, var(--ac), transparent);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .dot {
+            width: 18px;
+            height: 18px;
+            background: var(--bg);
+            border: 2px solid var(--ac);
+            border-radius: 50%;
+            z-index: 2;
+            box-shadow: 0 0 10px var(--ac);
+            animation: pulse 2s infinite;
+        }
+
+        .pill {
+            background: var(--surf);
+            padding: 15px 20px;
+            border-radius: 18px;
+            flex-grow: 1;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .pill:hover {
+            background: var(--ac-lo);
+            border-color: var(--ac);
+            transform: translateX(10px);
+        }
+
+        .pill-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .icon-circle {
+            width: 35px;
+            height: 35px;
+            background: var(--ac-lo);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--ac);
+            font-size: 16px;
+        }
+
+        .pill-text h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            margin-bottom: 2px;
+            color: var(--w);
+        }
+
+        .pill-text p {
+            font-size: 12px;
+            color: var(--mu);
+        }
+
+        @keyframes slideFadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 var(--ac-glow); }
+            70% { box-shadow: 0 0 0 12px transparent; }
+            100% { box-shadow: 0 0 0 0 transparent; }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="screen-fit">
+        <div class="slide-canvas">
+            <div class="header">
+                <h1>The Guardian Protocol</h1>
+                <p>Transparency • Trust • Absolute Security</p>
+            </div>
+
+            <div class="main-content">
+                <div class="blueprint-container">
+                    <div class="data-card">
+                        <div class="emblem">🛡️</div>
+                        <div class="card-title">Buddy Blueprint</div>
+                        <span class="card-subtitle">Verification Data Points</span>
+                        
+                        <div class="data-grid">
+                            <div class="data-item">
+                                <label>Identity</label>
+                                <span>Full Name & Age</span>
+                            </div>
+                            <div class="data-item">
+                                <label>Credential</label>
+                                <span>Profession/University</span>
+                            </div>
+                            <div class="data-item">
+                                <label>Location</label>
+                                <span>Verified Residence</span>
+                            </div>
+                            <div class="data-item">
+                                <label>Vehicle</label>
+                                <span>Model & Plate Status</span>
+                            </div>
+                        </div>
+
+                        <div class="action-footer">
+                            <div class="phone-display">
+                                <span>📞</span>
+                                <span>Verified Mobile Number</span>
+                            </div>
+                            <a href="#" class="btn-message">
+                                Direct Message Buddy
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-container">
+                    <div class="timeline-line"></div>
+                    
+                    <div class="timeline-item">
+                        <div class="dot"></div>
+                        <div class="pill">
+                            <div class="pill-content">
+                                <div class="icon-circle">🔔</div>
+                                <div class="pill-text">
+                                    <h4>Ride Assigned</h4>
+                                    <p>Immediate alert when a verified buddy is locked.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="dot"></div>
+                        <div class="pill">
+                            <div class="pill-content">
+                                <div class="icon-circle">📍</div>
+                                <div class="pill-text">
+                                    <h4>Pickup Confirmed</h4>
+                                    <p>Real-time alert when the ride officially begins.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="dot"></div>
+                        <div class="pill">
+                            <div class="pill-content">
+                                <div class="icon-circle">🛡️</div>
+                                <div class="pill-text">
+                                    <h4>Transit Milestone</h4>
+                                    <p>Automatic check-in during the journey.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="dot"></div>
+                        <div class="pill">
+                            <div class="pill-content">
+                                <div class="icon-circle">✅</div>
+                                <div class="pill-text">
+                                    <h4>Arrival Secured</h4>
+                                    <p>Final notification upon reaching destination.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
