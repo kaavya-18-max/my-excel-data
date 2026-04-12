@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuddyDate | Where Journeys Become Stories</title>
+    <!-- Using the fonts from your reference file for a consistent look -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* EXACT PALETTE FROM YOUR REFERENCE FILE */
+            --bg:      #050812;               /* Deep Dark Blue */
+            --surf:    rgba(255, 255, 255, 0.03); /* Ultra-thin Glass */
+            --pr:      #2A3F8F;               /* Deep Royal Blue */
+            --pr-lo:   rgba(42, 63, 143, 0.10);
+            --ac:      #A78BFA;               /* Lavender Purple */
+            --ac-lo:   rgba(167, 139, 250, 0.09);
+            --ac-md:   rgba(167, 139, 250, 0.24);
+            --w:       #F5F7FF;               /* Ice White */
+            --w80:     rgba(245, 247, 255, 0.80);
+            --border:  rgba(255, 255, 255, 0.08);
+            --mu:      #9AA3B2;               /* Muted Blue-Grey */
+            --mu-hi:   #B2BBD0;               /* Lighter Muted Blue-Grey */
+            
+            --transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            --glow-color: rgba(167, 139, 250, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--w);
+            font-family: 'DM Sans', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* --- Reference-style Mesh Background --- */
+        .mesh-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 20% 30%, var(--pr-lo) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, var(--ac-lo) 0%, transparent 40%),
+                        radial-gradient(circle at 50% 50%, #0a0d1a 0%, var(--bg) 100%);
+            filter: blur(60px);
+            animation: meshMove 15s infinite alternate ease-in-out;
+        }
+        @keyframes meshMove {
+            0% { transform: scale(1) rotate(0deg); }
+            100% { transform: scale(1.2) rotate(5deg); }
+        }
+
+        /* --- Layout --- */
+        .pitch-container {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            width: 90vw;
+            max-width: 1250px;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .text-section {
+            animation: fadeInUp 1.2s ease-out;
+            z-index: 2;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif; /* Switched to reference serif */
+            font-style: italic;
+            font-size: 4.8rem;
+            font-weight: 700;
+            line-height: 1.05;
+            margin-bottom: 28px;
+            letter-spacing: -1px;
+            color: var(--w);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--ac) 0%, var(--pr) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block;
+        }
+
+        .description {
+            font-size: 1.4rem;
+            color: var(--mu);
+            line-height: 1.7;
+            max-width: 580px;
+            font-weight: 400;
+        }
+
+        .description b {
+            color: var(--w);
+            font-weight: 600;
+        }
+
+        /* --- High-Fidelity Device Frame --- */
+        .phone-frame {
+            position: relative;
+            width: 340px;
+            height: 700px;
+            background: #000;
+            border-radius: 55px;
+            box-shadow: 
+                0 60px 120px rgba(0,0,0,0.8),
+                inset 0 0 0 12px #111;
+            overflow: hidden;
+            margin: 0 auto;
+            animation: float 6s ease-in-out infinite;
+            border: 1px solid var(--border);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-25px) rotate(1deg); }
+        }
+
+        .phone-frame::before {
+            content: "";
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110px;
+            height: 30px;
+            background: #000;
+            border-radius: 20px;
+            z-index: 100;
+        }
+
+        .app-screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top, #12162a 0%, var(--bg) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 60px;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .app-header h2 {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            color: var(--mu);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 500;
+        }
+
+        .card-stack {
+            position: relative;
+            width: 280px;
+            height: 520px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .choice-card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--surf);
+            backdrop-filter: blur(25px);
+            border-radius: 40px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .question {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-top: 20px;
+            color: var(--w);
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            width: 100%;
+            height: 140px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--w80);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            transform: translateY(-8px) scale(1.03);
+            border-color: var(--ac);
+            background: var(--ac-lo);
+            box-shadow: 0 10px 30px var(--glow-color);
+            color: var(--w);
+        }
+
+        /* --- Animations --- */
+        .swipe-left {
+            transform: translateX(-150%) rotate(-20deg) !important;
+            opacity: 0;
+        }
+        .swipe-right {
+            transform: translateX(150%) rotate(20deg) !important;
+            opacity: 0;
+        }
+        .card-pop {
+            animation: popIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8) translateY(40px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .dot {
+            width: 6px; height: 6px; background: var(--border); border-radius: 50%; transition: 0.3s;
+        }
+        .dot.active { background: var(--ac); width: 20px; border-radius: 10px; box-shadow: 0 0 10px var(--ac); }
+
+    </style>
+</head>
+<body>
+
+    <div class="mesh-bg"></div>
+
+    <div class="pitch-container">
+       <div class="text-section">
+            <h1>BuddyDate: <br><span class="gradient-text">Where Journeys Become Stories.</span></h1>
+            <p class="description">
+                We’re turning lonely rides into shared stories. 
+                <br><br>
+                BuddyDate replaces boring forms with <b>instant chemistry</b>—connecting teens not just by where they are going, but by who they are.
+            </p>
+        </div>
+
+        <div class="phone-frame">
+            <div class="app-screen">
+                <div class="app-header">
+                    <h2>Find your frequency</h2>
+                </div>
+                
+                <div class="card-stack" id="stack">
+                    <!-- Cards injected by JS -->
+                </div>
+
+                <div class="progress-bar" id="progress">
+                    <!-- Dots injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const data = [
+            {
+                q: "Your Friday night energy?",
+                opt1: "Peaceful gaming sanctuary 🎮",
+                opt2: "Electric city energy 🍕"
+            },
+            {
+                q: "The rhythm of the ride?",
+                opt1: "Soul-searching talks 💬",
+                opt2: "High-voltage beats 🎵"
+            },
+            {
+                q: "The spark of your future?",
+                opt1: "The Next Big Innovation 🚀",
+                opt2: "The Next Great Artwork 🎨"
+            },
+            {
+                q: "Your world's aesthetic?",
+                opt1: "Serene & Minimal 🍎",
+                opt2: "Vivid & Chaotic 🖥️"
+            }
+        ];
+
+        let currentIndex = 0;
+        const stack = document.getElementById('stack');
+        const progress = document.getElementById('progress');
+
+        function createDots() {
+            progress.innerHTML = data.map((_, i) => 
+                `<div class="dot ${i === 0 ? 'active' : ''}"></div>`
+            ).join('');
+        }
+
+        function createCard() {
+            if (currentIndex >= data.length) {
+                stack.innerHTML = `<div class="choice-card card-pop" style="justify-content: center; background: linear-gradient(135deg, var(--ac) 0%, var(--pr) 100%); border: none;">
+                    <h2 style="font-family: 'Cormorant Garamond'; font-style: italic; font-size: 2.2rem; color: #fff; margin-bottom: 15px;">Vibe Matched! ✨</h2>
+                    <p style="color: #fff; font-size: 1.1rem; opacity: 0.9; font-family: 'DM Sans';">We've found a buddy who speaks your language.</p>
+                </div>`;
+                return;
+            }
+
+            const item = data[currentIndex];
+            const card = document.createElement('div');
+            card.className = 'choice-card card-pop';
+            card.innerHTML = `
+                <div class="question">${item.q}</div>
+                <div class="options-container">
+                    <div class="option" onclick="swipe('left')">${item.opt1}</div>
+                    <div class="option" onclick="swipe('right')">${item.opt2}</div>
+                </div>
+                <div style="margin-bottom: 10px; font-size: 0.7rem; color: var(--mu); letter-spacing: 1px; text-transform: uppercase;">Discover your match</div>
+            `;
+            stack.innerHTML = '';
+            stack.appendChild(card);
+        }
+
+        window.swipe = function(direction) {
+            const card = document.querySelector('.choice-card');
+            if (!card) return;
+
+            if (direction === 'left') {
+                card.classList.add('swipe-left');
+            } else {
+                card.classList.add('swipe-right');
+            }
+
+            setTimeout(() => {
+                currentIndex++;
+                updateDots();
+                createCard();
+            }, 400);
+        };
+
+        function updateDots() {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentIndex);
+            });
+        }
+
+        createDots();
+        createCard();
+    </script>
+</body>
+</html>
