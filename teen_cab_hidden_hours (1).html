@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teen Cab — Hidden Hours</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --tc-black: #0E0E12;
+    --tc-surface: #16161C;
+    --tc-card: #1E1E26;
+    --tc-border: rgba(255,255,255,0.07);
+    --tc-green: #2ECC8A;
+    --tc-green-dim: rgba(46,204,138,0.12);
+    --tc-green-glow: rgba(46,204,138,0.25);
+    --tc-text: #F0EFE8;
+    --tc-text-2: rgba(240,239,232,0.55);
+    --tc-text-3: rgba(240,239,232,0.3);
+    --font-display: 'Sora', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: #0A0A0F;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-body);
+    padding: 2rem 1rem;
+  }
+  .scene {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 420px;
+  }
+  .scene-label {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.18);
+  }
+
+  .phone {
+    width: 375px;
+    background: var(--tc-black);
+    border-radius: 50px;
+    border: 1.5px solid rgba(255,255,255,0.1);
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 0 0 7px rgba(255,255,255,0.025),
+      0 48px 96px rgba(0,0,0,0.8),
+      inset 0 1px 0 rgba(255,255,255,0.07);
+  }
+
+  .statusbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 28px 0;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--tc-text);
+  }
+  .statusbar-icons { display: flex; align-items: center; gap: 5px; }
+
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px 0;
+  }
+  .app-logo { display: flex; align-items: center; gap: 9px; }
+  .app-logo-mark {
+    width: 34px; height: 34px;
+    background: var(--tc-green);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .app-logo-text { display: flex; flex-direction: column; line-height: 1; }
+  .app-logo-name {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--tc-text);
+    letter-spacing: -0.4px;
+  }
+  .app-logo-tagline {
+    font-size: 10px;
+    color: var(--tc-green);
+    font-weight: 500;
+    margin-top: 2px;
+    letter-spacing: 0.01em;
+  }
+  .app-notif {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: var(--tc-card);
+    border: 1px solid var(--tc-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    position: relative;
+    cursor: pointer;
+  }
+  .notif-dot {
+    position: absolute;
+    top: 7px; right: 7px;
+    width: 7px; height: 7px;
+    background: var(--tc-green);
+    border-radius: 50%;
+    border: 1.5px solid var(--tc-black);
+  }
+
+  .scroll-area {
+    padding: 0 20px 32px;
+    overflow-y: auto;
+    max-height: 660px;
+  }
+  .scroll-area::-webkit-scrollbar { display: none; }
+
+  .greeting { padding: 18px 0 16px; }
+  .greeting-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .greeting-name {
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--tc-text);
+    letter-spacing: -0.3px;
+  }
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2ECC8A, #1a9e68);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    color: #0A2018;
+  }
+  .greeting-sub { font-size: 13px; color: var(--tc-text-2); }
+
+  .deal-banner {
+    background: var(--tc-green-dim);
+    border: 1px solid rgba(46,204,138,0.28);
+    border-radius: 22px;
+    padding: 18px;
+    margin-bottom: 22px;
+    position: relative;
+    overflow: hidden;
+    animation: bannerPulse 3s ease-in-out infinite;
+  }
+  @keyframes bannerPulse {
+    0%,100% { box-shadow: 0 0 0 0 var(--tc-green-glow); }
+    50%      { box-shadow: 0 0 28px 5px var(--tc-green-glow); }
+  }
+  .deal-banner::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 130px; height: 130px;
+    background: radial-gradient(circle, rgba(46,204,138,0.11) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .deal-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--tc-green);
+    color: #0A2018;
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 11px;
+  }
+  .deal-tag-dot {
+    width: 6px; height: 6px;
+    background: #0A2018;
+    border-radius: 50%;
+    animation: blink 1.2s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  .deal-title {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--tc-text);
+    line-height: 1.2;
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+  }
+  .deal-title span { color: var(--tc-green); }
+  .deal-subtitle {
+    font-size: 12.5px;
+    color: var(--tc-text-2);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .deal-timer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .timer-boxes { display: flex; gap: 4px; align-items: center; }
+  .timer-box {
+    background: rgba(0,0,0,0.32);
+    border: 1px solid rgba(46,204,138,0.18);
+    border-radius: 9px;
+    padding: 6px 9px;
+    text-align: center;
+    min-width: 42px;
+  }
+  .timer-num {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--tc-green);
+    line-height: 1;
+    display: block;
+    letter-spacing: -0.5px;
+  }
+  .timer-lbl {
+    font-size: 8px;
+    color: var(--tc-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+    display: block;
+  }
+  .timer-colon {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--tc-green);
+    opacity: 0.4;
+    animation: blink 1s step-end infinite;
+    padding-bottom: 12px;
+  }
+  .deal-cta {
+    background: var(--tc-green);
+    color: #0A2018;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    border-radius: 13px;
+    padding: 11px 18px;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+    letter-spacing: -0.1px;
+    white-space: nowrap;
+  }
+  .deal-cta:active { transform: scale(0.96); opacity: 0.85; }
+
+  .section-hd {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .section-hd-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tc-text);
+    letter-spacing: -0.2px;
+  }
+  .section-hd-link { font-size: 12px; color: var(--tc-green); font-weight: 500; cursor: pointer; }
+
+  .ride-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+  .ride-card {
+    background: var(--tc-card);
+    border: 1px solid var(--tc-border);
+    border-radius: 17px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.2s;
+    position: relative;
+  }
+  .ride-card:active { transform: scale(0.985); }
+  .ride-card.featured {
+    border-color: rgba(46,204,138,0.2);
+    background: linear-gradient(135deg, var(--tc-card) 75%, rgba(46,204,138,0.04) 100%);
+  }
+  .ride-icon {
+    width: 44px; height: 44px;
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .ri-tuition { background: rgba(74,158,255,0.12); }
+  .ri-music   { background: rgba(196,124,255,0.12); }
+  .ri-sports  { background: rgba(245,166,35,0.12); }
+  .ride-info { flex: 1; min-width: 0; }
+  .ride-name {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tc-text);
+    letter-spacing: -0.2px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ride-meta { font-size: 12px; color: var(--tc-text-2); }
+  .ride-price { text-align: right; flex-shrink: 0; }
+  .ride-original {
+    font-size: 11px;
+    color: var(--tc-text-3);
+    text-decoration: line-through;
+    margin-bottom: 1px;
+  }
+  .ride-deal {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--tc-green);
+    line-height: 1;
+  }
+  .ride-badge {
+    position: absolute;
+    top: 10px; right: 14px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--tc-green);
+    color: #0A2018;
+    padding: 2px 7px;
+    border-radius: 20px;
+  }
+
+  .savings-card {
+    background: var(--tc-card);
+    border: 1px solid var(--tc-border);
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 8px;
+  }
+  .savings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .savings-label { font-size: 12px; color: var(--tc-text-2); margin-bottom: 4px; }
+  .savings-amount {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--tc-green);
+    letter-spacing: -0.5px;
+  }
+  .savings-rides { font-size: 12px; color: var(--tc-text-2); margin-top: 2px; }
+  .savings-badge {
+    background: var(--tc-green-dim);
+    border: 1px solid rgba(46,204,138,0.2);
+    border-radius: 10px;
+    padding: 7px 12px;
+    text-align: center;
+  }
+  .savings-badge-num {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--tc-green);
+    display: block;
+  }
+  .savings-badge-label { font-size: 10px; color: var(--tc-text-3); }
+  .savings-bar-wrap {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 5px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .savings-bar-fill {
+    height: 100%;
+    width: 70%;
+    background: linear-gradient(90deg, var(--tc-green), #1EB876);
+    border-radius: 4px;
+  }
+  .savings-bar-hint { font-size: 11px; color: var(--tc-text-3); }
+  .savings-bar-hint span { color: var(--tc-green); }
+
+  .bottom-nav {
+    background: rgba(14,14,18,0.97);
+    border-top: 1px solid var(--tc-border);
+    display: flex;
+    padding: 12px 0 22px;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+  .nav-icon { font-size: 18px; }
+  .nav-label { font-size: 10px; font-weight: 500; color: var(--tc-text-3); }
+  .nav-item.active .nav-label { color: var(--tc-green); }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--tc-surface);
+    border-radius: 28px 28px 0 0;
+    padding: 20px 22px 40px;
+    width: 375px;
+    transform: translateY(100%);
+    transition: transform 0.36s cubic-bezier(0.32,0.72,0,1);
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-pill {
+    width: 36px; height: 4px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+
+  .modal-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--tc-border);
+  }
+  .modal-brand-mark {
+    width: 28px; height: 28px;
+    background: var(--tc-green);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+  .modal-brand-name {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--tc-text);
+    letter-spacing: -0.3px;
+  }
+  .modal-brand-name span { color: var(--tc-green); }
+
+  .modal-deal-highlight {
+    background: var(--tc-green-dim);
+    border: 1px solid rgba(46,204,138,0.22);
+    border-radius: 14px;
+    padding: 13px 14px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .modal-deal-icon {
+    width: 38px; height: 38px;
+    background: var(--tc-green);
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .modal-deal-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tc-green);
+    margin-bottom: 2px;
+  }
+  .modal-deal-sub { font-size: 11.5px; color: var(--tc-text-2); }
+
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--tc-text);
+    margin-bottom: 3px;
+    letter-spacing: -0.3px;
+  }
+  .modal-sub { font-size: 13px; color: var(--tc-text-2); margin-bottom: 18px; }
+  .modal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--tc-border);
+  }
+  .modal-row:last-of-type { border-bottom: none; }
+  .modal-row-label { font-size: 13px; color: var(--tc-text-2); }
+  .modal-row-val {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tc-text);
+  }
+  .modal-row-val.green { color: var(--tc-green); }
+  .modal-row-val.strike {
+    font-size: 12px;
+    color: var(--tc-text-3);
+    text-decoration: line-through;
+    font-weight: 400;
+    font-family: var(--font-body);
+  }
+
+  .modal-rule {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    background: rgba(245,166,35,0.07);
+    border: 1px solid rgba(245,166,35,0.22);
+    border-radius: 13px;
+    padding: 12px 14px;
+    margin: 14px 0 2px;
+  }
+  .modal-rule-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .modal-rule-text {
+    font-size: 12.5px;
+    color: rgba(245,166,35,0.9);
+    line-height: 1.55;
+    font-weight: 500;
+  }
+
+  .modal-confirm {
+    width: 100%;
+    background: var(--tc-green);
+    color: #0A2018;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: 16px;
+    padding: 15px;
+    cursor: pointer;
+    margin-top: 16px;
+    letter-spacing: -0.2px;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .modal-confirm:active { transform: scale(0.97); opacity: 0.85; }
+  .modal-close {
+    background: rgba(255,255,255,0.06);
+    color: var(--tc-text-2);
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 110px;
+    left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--tc-green);
+    color: #0A2018;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px 22px;
+    border-radius: 30px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    z-index: 300;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="scene">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
+    <div class="scene-label">Teen Cab · Teen App · Hidden Hours</div>
+
+    <div class="phone">
+
+      <div class="statusbar">
+        <span id="live-time">10:17 AM</span>
+        <div class="statusbar-icons">
+          <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
+            <rect x="0" y="4" width="3" height="7" rx="1" fill="white" opacity="0.35"/>
+            <rect x="4.5" y="2.5" width="3" height="8.5" rx="1" fill="white" opacity="0.6"/>
+            <rect x="9" y="0.5" width="3" height="10.5" rx="1" fill="white" opacity="0.88"/>
+          </svg>
+          <svg width="15" height="11" viewBox="0 0 15 11" fill="none">
+            <path d="M7.5 2.5C9.8 2.5 11.9 3.5 13.3 5.1L14.5 3.8C12.8 1.8 10.3 0.5 7.5 0.5C4.7 0.5 2.2 1.8 0.5 3.8L1.7 5.1C3.1 3.5 5.2 2.5 7.5 2.5Z" fill="white" opacity="0.4"/>
+            <path d="M7.5 5C9 5 10.4 5.6 11.4 6.7L12.6 5.4C11.3 4 9.5 3.1 7.5 3.1C5.5 3.1 3.7 4 2.4 5.4L3.6 6.7C4.6 5.6 6 5 7.5 5Z" fill="white" opacity="0.7"/>
+            <circle cx="7.5" cy="9" r="1.5" fill="white"/>
+          </svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="white" stroke-opacity="0.3"/>
+            <rect x="2" y="2" width="16" height="8" rx="1.5" fill="white"/>
+            <path d="M23 4.5V7.5C23.8 7.2 24.5 6.5 24.5 6C24.5 5.5 23.8 4.8 23 4.5Z" fill="white" opacity="0.45"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="app-header">
+        <div class="app-logo">
+          <div class="app-logo-mark">🚖</div>
+          <div class="app-logo-text">
+            <div class="app-logo-name">Teen Cab</div>
+            <div class="app-logo-tagline">Safe rides for teens</div>
+          </div>
+        </div>
+        <div class="app-notif">
+          🔔
+          <div class="notif-dot"></div>
+        </div>
+      </div>
+
+      <div class="scroll-area">
+
+        <div class="greeting">
+          <div class="greeting-top">
+            <div class="greeting-name">Hi, Deepthi 👋</div>
+            <div class="avatar">D</div>
+          </div>
+          <div class="greeting-sub">Afternoon deal is live — 20% off your rides</div>
+        </div>
+
+        <div class="deal-banner">
+          <div class="deal-tag">
+            <div class="deal-tag-dot"></div>
+            Live deal
+          </div>
+          <div class="deal-title">Hidden Hours<br><span>20% off right now</span></div>
+          <div class="deal-subtitle">Book any ride between 1–4 PM and save automatically. No codes, no hassle.</div>
+          <div class="deal-timer-row">
+            <div class="timer-boxes">
+              <div class="timer-box">
+                <span class="timer-num" id="t-hr">00</span>
+                <span class="timer-lbl">hrs</span>
+              </div>
+              <span class="timer-colon">:</span>
+              <div class="timer-box">
+                <span class="timer-num" id="t-min">43</span>
+                <span class="timer-lbl">min</span>
+              </div>
+              <span class="timer-colon">:</span>
+              <div class="timer-box">
+                <span class="timer-num" id="t-sec">00</span>
+                <span class="timer-lbl">sec</span>
+              </div>
+            </div>
+            <button class="deal-cta" onclick="openModal('general')">Book now →</button>
+          </div>
+        </div>
+
+        <div class="section-hd">
+          <div class="section-hd-title">My saved rides</div>
+          <div class="section-hd-link">See all</div>
+        </div>
+        <div class="ride-cards">
+          <div class="ride-card featured" onclick="openModal('tuition')">
+            <div class="ride-icon ri-tuition">📚</div>
+            <div class="ride-info">
+              <div class="ride-name">Tuition — T. Nagar</div>
+              <div class="ride-meta">2:30 PM · 4.2 km · ~14 min</div>
+            </div>
+            <div class="ride-price">
+              <div class="ride-original">₹140</div>
+              <div class="ride-deal">₹112</div>
+            </div>
+            <div class="ride-badge">20% off</div>
+          </div>
+          <div class="ride-card featured" onclick="openModal('music')">
+            <div class="ride-icon ri-music">🎵</div>
+            <div class="ride-info">
+              <div class="ride-name">Carnatic — Mylapore</div>
+              <div class="ride-meta">3:15 PM · 2.8 km · ~10 min</div>
+            </div>
+            <div class="ride-price">
+              <div class="ride-original">₹120</div>
+              <div class="ride-deal">₹96</div>
+            </div>
+            <div class="ride-badge">20% off</div>
+          </div>
+          <div class="ride-card featured" onclick="openModal('sports')">
+            <div class="ride-icon ri-sports">⚽</div>
+            <div class="ride-info">
+              <div class="ride-name">Football practice</div>
+              <div class="ride-meta">3:45 PM · 6.1 km · ~20 min</div>
+            </div>
+            <div class="ride-price">
+              <div class="ride-original">₹170</div>
+              <div class="ride-deal">₹136</div>
+            </div>
+            <div class="ride-badge">20% off</div>
+          </div>
+        </div>
+
+        <div class="section-hd">
+          <div class="section-hd-title">My savings this month</div>
+        </div>
+        <div class="savings-card">
+          <div class="savings-row">
+            <div>
+              <div class="savings-label">Total saved — July</div>
+              <div class="savings-amount">₹840</div>
+              <div class="savings-rides">across 12 Hidden Hours rides</div>
+            </div>
+            <div class="savings-badge">
+              <span class="savings-badge-num">12</span>
+              <span class="savings-badge-label">rides</span>
+            </div>
+          </div>
+          <div class="savings-bar-wrap">
+            <div class="savings-bar-fill"></div>
+          </div>
+          <div class="savings-bar-hint">₹840 saved of <span>₹1,200 possible</span> this month</div>
+        </div>
+
+      </div>
+
+      <div class="bottom-nav">
+        <div class="nav-item active">
+          <div class="nav-icon">🏠</div>
+          <div class="nav-label" style="color:var(--tc-green);">Home</div>
+        </div>
+        <div class="nav-item">
+          <div class="nav-icon">🗓</div>
+          <div class="nav-label">Schedule</div>
+        </div>
+        <div class="nav-item">
+          <div class="nav-icon">📋</div>
+          <div class="nav-label">Trips</div>
+        </div>
+        <div class="nav-item">
+          <div class="nav-icon">👤</div>
+          <div class="nav-label">Profile</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-pill"></div>
+
+    <div class="modal-brand">
+      <div class="modal-brand-mark">🚖</div>
+      <div class="modal-brand-name">Teen <span>Cab</span></div>
+    </div>
+
+    <div class="modal-deal-highlight">
+      <div class="modal-deal-icon">✅</div>
+      <div>
+        <div class="modal-deal-title">Hidden Hours deal applied</div>
+        <div class="modal-deal-sub">20% off auto-applied. No coupon code needed.</div>
+      </div>
+    </div>
+
+    <div class="modal-title" id="modal-title">Tuition — T. Nagar</div>
+    <div class="modal-sub" id="modal-sub">My ride · 2:30 PM today · 4.2 km</div>
+
+    <div class="modal-row">
+      <div class="modal-row-label">Standard fare</div>
+      <div class="modal-row-val strike" id="modal-orig">₹140</div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-row-label">Hidden Hours (20% off)</div>
+      <div class="modal-row-val green" id="modal-saving">−₹28</div>
+    </div>
+    <div class="modal-row" style="border-top:1px solid rgba(255,255,255,0.08);padding-top:13px;margin-top:2px;border-bottom:none;">
+      <div class="modal-row-label" style="font-size:15px;color:var(--tc-text);font-weight:600;">I pay</div>
+      <div class="modal-row-val" style="font-size:20px;color:var(--tc-green);" id="modal-final">₹112</div>
+    </div>
+
+    <div class="modal-rule">
+      <div class="modal-rule-icon">⚠️</div>
+      <div class="modal-rule-text">To keep the discount, the ride must start and be completed before 4:30 PM.</div>
+    </div>
+
+    <button class="modal-confirm" onclick="confirmRide()">Confirm ride →</button>
+    <button class="modal-close" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">Ride booked! Driver assigned ✓</div>
+
+<script>
+  function updateClock() {
+    const now = new Date();
+    let h = now.getHours();
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    document.getElementById('live-time').textContent = h + ':' + m + ' ' + ampm;
+  }
+  updateClock();
+  setInterval(updateClock, 15000);
+
+  const SESSION_START = Date.now();
+  const TOTAL_SECS = 43 * 60;
+
+  function updateTimer() {
+    const elapsed = Math.floor((Date.now() - SESSION_START) / 1000);
+    const remaining = Math.max(TOTAL_SECS - elapsed, 0);
+    const hrs  = Math.floor(remaining / 3600);
+    const mins = Math.floor((remaining % 3600) / 60);
+    const secs = remaining % 60;
+    document.getElementById('t-hr').textContent  = String(hrs).padStart(2, '0');
+    document.getElementById('t-min').textContent = String(mins).padStart(2, '0');
+    document.getElementById('t-sec').textContent = String(secs).padStart(2, '0');
+    if (remaining === 0) clearInterval(timerInterval);
+  }
+
+  updateTimer();
+  const timerInterval = setInterval(updateTimer, 1000);
+
+  const rides = {
+    tuition: { title: 'Tuition — T. Nagar',   sub: 'My ride · 2:30 PM today · 4.2 km', orig: 140, final: 112, saving: 28 },
+    music:   { title: 'Carnatic — Mylapore',   sub: 'My ride · 3:15 PM today · 2.8 km', orig: 120, final: 96,  saving: 24 },
+    sports:  { title: 'Football practice',      sub: 'My ride · 3:45 PM today · 6.1 km', orig: 170, final: 136, saving: 34 },
+    general: { title: 'New ride — deal price',  sub: 'Choose your destination',           orig: 150, final: 120, saving: 30 },
+  };
+
+  function openModal(type) {
+    const d = rides[type] || rides.general;
+    document.getElementById('modal-title').textContent  = d.title;
+    document.getElementById('modal-sub').textContent    = d.sub;
+    document.getElementById('modal-orig').textContent   = '₹' + d.orig;
+    document.getElementById('modal-saving').textContent = '−₹' + d.saving;
+    document.getElementById('modal-final').textContent  = '₹' + d.final;
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+  function confirmRide() {
+    closeModal();
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>
