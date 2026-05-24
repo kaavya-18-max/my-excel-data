@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>BuddyDate · TeenCab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --coral:    #FF5757;
+      --bg:       #F0EBE4;
+      --surface:  #FFFFFF;
+      --text:     #181825;
+      --sub:      #8A8A9A;
+      --card-r:   34px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { touch-action: none; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0f0f1a;
+      background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(78,168,222,.1) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(155,138,255,.08) 0%, transparent 50%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ══ PHONE ══ */
+    .phone {
+      width: 390px; height: 844px;
+      background: var(--bg);
+      border-radius: 52px;
+      box-shadow:
+  0 20px 60px rgba(0,0,0,.10),
+  0 8px 24px rgba(0,0,0,.06),
+  0 1px 0 rgba(255,255,255,.7) inset;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .notch {
+      position: absolute; top: 12px; left: 50%;
+      transform: translateX(-50%);
+      width: 118px; height: 34px;
+      background: #080810;
+      border-radius: 99px;
+      z-index: 999;
+    }
+
+    .status {
+      position: absolute; top: 6px; left: 0; right: 0;
+      height: 48px;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      padding: 0 28px 6px; z-index: 998;
+    }
+    .status span { font-size: 12px; font-weight: 600; color: var(--text); opacity: .55; }
+
+    /* ══ HEADER ══ */
+    .header {
+      padding: 58px 22px 0;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0;
+    }
+    .buddy-brand { display: flex; flex-direction: column; line-height: 1; }
+    .buddy-main {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px;
+      color: var(--text); letter-spacing: -1px;
+    }
+    .buddy-main em { font-style: normal; color: var(--coral); }
+    .buddy-sub {
+      font-size: 9.5px; font-weight: 600; color: var(--sub);
+      letter-spacing: 1.8px; text-transform: uppercase; margin-top: 2px;
+    }
+    .buddy-sub span { color: var(--coral); }
+
+    /* Vibe counter */
+    .vibe-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+    .vibe-progress-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: rgba(0,0,0,.32);
+}
+    .vibe-rings { display: flex; gap: 3px; align-items: center; }
+    .vibe-ring {
+  width: 18px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.08);
+  transition: all .35s ease;
+}
+
+.vibe-ring.filled {
+  background: linear-gradient(90deg, #111, #444);
+  transform: scaleX(1.05);
+  box-shadow: 0 1px 6px rgba(0,0,0,.12);
+}
+
+.vibe-ring.filled::after {
+  display: none;
+}
+    .vibe-count-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: -0.3px;
+  line-height: 1;
+}
+    .vibe-count-text span {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(0,0,0,.35);
+}
+
+    .progress-strip {
+      margin: 12px 22px 0; height: 3px;
+      background: rgba(0,0,0,.07); border-radius: 99px; overflow: hidden; flex-shrink: 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--coral), #FFAA3B);
+      border-radius: 99px;
+      width: 0%;
+      transition: width .5s cubic-bezier(.34,1.56,.64,1);
+    }
+
+    .hint-row {
+      padding: 8px 22px 0;
+      display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+    }
+    .hint-text { font-size: 11px; font-weight: 500; color: var(--sub); }
+    .hint-action { font-size: 11px; font-weight: 600; color: var(--text); opacity: .45; }
+
+    /* ══ CARD STACK ══ */
+    .stack-area {
+      flex: 1; position: relative; margin: 12px 0 0; overflow: hidden;
+    }
+    .stack-area::after {
+  content: '';
+
+  position: absolute;
+
+  left: 50%;
+  transform: translateX(-50%);
+
+  bottom: -10px;
+
+  width: 82%;
+  height: 38px;
+
+  background: rgba(0,0,0,.10);
+
+  filter: blur(22px);
+
+  border-radius: 50%;
+
+  z-index: 0;
+}
+
+    .card {
+      position: absolute;
+      left: 18px; right: 18px; bottom: 90px; top: 20px;z-index: 2;
+      background: var(--surface);
+      border-radius: var(--card-r);
+      overflow: hidden;
+      user-select: none;
+      will-change: transform;
+      box-shadow: 0 12px 40px rgba(0,0,0,.15), 0 2px 8px rgba(0,0,0,.07);
+    }
+    
+
+    .card.behind-1 { z-index: 1; pointer-events: none; transform: scale(0.956) translateY(16px); }
+    .card.behind-2 { z-index: 0; pointer-events: none; transform: scale(0.912) translateY(32px); opacity: .72; }
+    .card.top { z-index: 10; cursor: grab; }
+    .card.top.is-dragging { cursor: grabbing; }
+
+    .card-img-wrap {
+      height: 58%; position: relative; overflow: hidden;
+      border-radius: var(--card-r) var(--card-r) 0 0;
+    }
+    .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; display: block; }
+    .card-img-wrap::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.28) 0%, transparent 55%);
+    }
+
+    .cat-badge {
+      position: absolute; top: 14px; left: 14px;
+      padding: 5px 12px; border-radius: 99px;
+      font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
+      backdrop-filter: blur(14px); z-index: 2;
+    }
+
+    /* Swipe stamps */
+    .stamp {
+      position: absolute; top: 26px;
+      font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800;
+      letter-spacing: 3px; text-transform: uppercase;
+      padding: 6px 14px; border-radius: 8px; border: 2.5px solid;
+      opacity: 0; pointer-events: none; z-index: 20;
+    }
+    .stamp-like { right: 16px; color: #22D3A5; border-color: #22D3A5; background: rgba(34,211,165,.1); }
+    .stamp-nope { left: 16px; color: var(--coral); border-color: var(--coral); background: rgba(255,87,87,.1); }
+
+    .card-body { padding: 16px 20px 14px; display: flex; flex-direction: column; gap: 8px; }
+    .card-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -.3px; line-height: 1.1; }
+    .card-desc { font-size: 12.5px; color: var(--sub); line-height: 1.55; max-width: 94%; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+    .tag { font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 99px; background: var(--bg); color: var(--text); }
+    .tag.accent { background: var(--text); color: var(--bg); }
+
+    /* ══ ACTIONS hidden — merged into bottom-nav ══ */
+    .actions { display: none; }
+
+    /* ══ BOTTOM NAV — organic SVG curve ══ */
+    .nav {
+  position: relative;
+  height: 110px;
+  margin: 0;
+  flex-shrink: 0;
+  overflow: hidden;
+  left: -8px;
+   width: calc(100% + 16px);
+}
+
+    /* SVG shape fills the container */
+    .nav-svg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 110px;
+  filter: drop-shadow(0 -8px 24px rgba(0,0,0,.35));
+}
+
+    /* Nav item rows sit inside the bar */
+    .nav-items-row {
+      position: absolute;
+      bottom: 8px;
+      left: 0; right: 0;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      z-index: 5;
+    }
+    .nav-side {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
+    }
+    .nav-centre-slot { width: 80px; flex-shrink: 0; }
+
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 8.5px; font-weight: 600; color: rgba(255,255,255,.45);
+      letter-spacing: .4px; cursor: pointer;
+    }
+    .nav-item.active { color: rgba(255,255,255,.95); }
+    .nav-item span { font-size: 17px; line-height: 1; }
+    .nav-dot { width: 4px; height: 4px; border-radius: 50%; background: #9b8aff; opacity: 0; margin-top: 1px; }
+    .nav-item.active .nav-dot { opacity: 1; }
+
+    /* Lightning button — sits in the centre bump */
+    .btn-vibe-wrap {
+      position: absolute;
+      bottom: 46px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+
+    /* ✕ and ★ — just above bar, flanking the bump */
+    .btn-skip-wrap, .btn-super-wrap {
+      position: absolute;
+      bottom: 44px;
+      z-index: 10;
+    }
+    .btn-skip-wrap  { left: calc(50% - 54px); transform: translateX(-50%); }
+    .btn-super-wrap { left: calc(50% + 54px); transform: translateX(-50%); }
+
+    .btn-action {
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; cursor: pointer; border: none; outline: none;
+      transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s;
+      background: none;
+    }
+    .btn-action:active { transform: scale(0.88) !important; }
+
+    .btn-skip {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.1);
+      color: rgba(255,255,255,.85); font-size: 15px;
+    }
+    .btn-skip:hover { transform: scale(1.12); }
+
+    .btn-vibe {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #a855f7, #7c3aed);
+      box-shadow: 0 6px 22px rgba(124,58,237,.65);
+      font-size: 25px;
+      position: relative; overflow: hidden;
+    }
+    .btn-vibe:hover { transform: scale(1.08); }
+
+    .btn-super {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.1);
+      color: rgba(255,255,255,.85); font-size: 17px;
+    }
+    .btn-super:hover { transform: scale(1.12); }
+    
+    
+
+    /* Fly out */
+    .card.fly-right { animation: flyR .36s cubic-bezier(.4,0,.6,1) forwards; }
+    .card.fly-left  { animation: flyL .36s cubic-bezier(.4,0,.6,1) forwards; }
+    @keyframes flyR { to { transform: translateX(150%) rotate(30deg) !important; opacity: 0; } }
+    @keyframes flyL { to { transform: translateX(-150%) rotate(-30deg) !important; opacity: 0; } }
+
+    /* Ripple */
+    .ripple-ring { position: absolute; border-radius: 50%; background: rgba(255,255,255,.3); pointer-events: none; animation: rp .5s ease-out forwards; }
+    @keyframes rp { 0% { width:0;height:0;opacity:1;top:50%;left:50%;transform:translate(-50%,-50%); } 100% { width:100px;height:100px;opacity:0;top:50%;left:50%;transform:translate(-50%,-50%); } }
+
+    @keyframes cardIn { from { opacity:0; transform:scale(.96) translateY(10px); } to { opacity:1; transform:none; } }
+    .card.top { animation: cardIn .3s ease forwards; }
+    .card.top.is-dragging { animation: none; }
+
+    /* ════════════════════════════
+       RESULT SCREEN
+    ════════════════════════════ */
+    #result-screen {
+      position: absolute; inset: 0; z-index: 300;
+      display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none;
+      transform: translateY(100%);
+      transition: transform .65s cubic-bezier(.34,1.1,.64,1), opacity .4s ease;
+      overflow: hidden;
+    }
+    #result-screen.show { opacity: 1; pointer-events: all; transform: translateY(0); }
+
+    /* Full screen dynamic color bg */
+    .result-full-bg {
+      position: absolute; inset: 0; z-index: 0;
+      transition: background 1s ease;
+    }
+    /* Animated orbs */
+    .orb {
+      position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+    #result-screen.show .orb { opacity: 1; }
+    .orb-1 { width: 300px; height: 300px; top: -100px; left: -80px; animation: o1 7s ease-in-out infinite; }
+    .orb-2 { width: 220px; height: 220px; top: 20%; right: -70px; animation: o2 9s ease-in-out infinite; }
+    .orb-3 { width: 180px; height: 180px; bottom: 15%; left: 5%; animation: o3 8s ease-in-out infinite; }
+    .orb-4 { width: 120px; height: 120px; bottom: 30%; right: 10%; animation: o4 6s ease-in-out infinite; }
+    @keyframes o1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(25px,18px) scale(1.08); } }
+    @keyframes o2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-18px,25px) scale(1.06); } }
+    @keyframes o3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(20px,-20px) scale(1.1); } }
+    @keyframes o4 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-10px,15px) scale(1.05); } }
+
+    /* Grid */
+    .result-grid {
+      position: absolute; inset: 0; z-index: 1;
+      background-image: linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
+
+    /* Particles */
+    .particles { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+
+    .tc-watermark {
+      position: absolute; top: 18px; right: 22px; z-index: 20;
+      font-family: 'Syne', sans-serif; font-size: 9px; font-weight: 700;
+      color: rgba(255,255,255,.22); letter-spacing: 1px; text-transform: uppercase;
+    }
+
+    /* ── Top hero ── */
+    .result-content { position: relative; z-index: 10; display: flex; flex-direction: column; height: 100%; }
+
+    .result-top {
+      flex: 0 0 auto;
+      padding: 52px 24px 0;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+    }
+
+    .result-badge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .result-badge-line { width: 28px; height: 1px; background: rgba(255,255,255,.2); }
+    .result-badge-text { font-size: 9px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,.4); }
+
+    .result-emoji-wrap {
+      position: relative; margin-bottom: 12px;
+      animation: emojiIn .8s .35s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes emojiIn { from { transform:scale(0) rotate(-15deg); opacity:0; } to { transform:scale(1) rotate(0); opacity:1; } }
+    .glow-ring {
+      position: absolute; border-radius: 50%; border: 2px solid rgba(255,255,255,.22);
+      animation: ringPulse 2.4s ease-in-out infinite;
+    }
+    .gr1 { inset: -14px; }
+    .gr2 { inset: -26px; border-width: 1.5px; border-color: rgba(255,255,255,.1); animation-delay: .5s; }
+    @keyframes ringPulse { 0%,100% { transform:scale(1); opacity:.25; } 50% { transform:scale(1.06); opacity:.4; } }
+    .result-big-emoji { font-size: 72px; display: block; filter: drop-shadow(0 0 28px rgba(0,0,0,.25)); }
+
+    .result-profile-title {
+      font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800;
+      color: #fff; letter-spacing: -1.2px; line-height: 1;
+      animation: titleUp .7s .55s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes titleUp { from { transform:translateY(18px); opacity:0; } to { transform:none; opacity:1; } }
+
+    .result-divider { width: 40px; height: 2.5px; border-radius: 99px; margin: 12px auto 0; animation: divGrow .5s .85s ease both; }
+    @keyframes divGrow { from { width:0; opacity:0; } to { opacity:1; } }
+
+    /* ── Stats row ── */
+    .result-stats {
+      display: flex; gap: 0; margin: 16px 0 0; width: 100%;
+      border-radius: 14px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.1);
+      animation: statsIn .6s .95s ease both;
+    }
+    @keyframes statsIn { from { transform:translateY(14px); opacity:0; } to { transform:none; opacity:1; } }
+    .stat-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      padding: 12px 6px; background: rgba(255,255,255,.07);
+      border-right: 1px solid rgba(255,255,255,.07);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-val { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; color: #fff; line-height: 1; margin-bottom: 4px; }
+    .stat-lbl { font-size: 8.5px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.38); }
+
+    /* ── Bottom panel — matches accent color ── */
+    .result-bottom {
+      flex: 1;
+      border-radius: 26px 26px 0 0;
+      margin-top: 20px;
+      padding: 26px 22px 0;
+      display: flex; flex-direction: column; gap: 14px;
+      overflow: hidden; position: relative;
+      /* bg set dynamically */
+    }
+    .result-bottom::before {
+      content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      width: 36px; height: 3px; border-radius: 99px; background: rgba(255,255,255,.22);
+    }
+
+    .result-desc-text {
+      font-size: 13px; line-height: 1.65;
+      color: rgba(255,255,255,.75);
+      padding-top: 4px;
+    }
+
+    /* ── Uniqueness section ── */
+    .uniqueness-section {
+      display: flex; flex-direction: column; gap: 8px;
+      animation: statsIn .6s 1.1s ease both;
+    }
+    .uniqueness-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+    }
+    .rarity-bar-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .rarity-row { display: flex; align-items: center; gap: 10px; }
+    .rarity-name { font-size: 10.5px; font-weight: 600; color: rgba(255,255,255,.7); width: 68px; flex-shrink: 0; }
+    .rarity-track { flex: 1; height: 5px; background: rgba(255,255,255,.1); border-radius: 99px; overflow: hidden; }
+    .rarity-fill { height: 100%; border-radius: 99px; background: rgba(255,255,255,.6); transition: width 1.2s cubic-bezier(.34,1.2,.64,1); width: 0; }
+    .rarity-pct { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.55); width: 32px; text-align: right; flex-shrink: 0; }
+
+    /* Rarity badge */
+    .rarity-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 99px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.18);
+      font-size: 11px; font-weight: 700; color: #fff;
+      align-self: flex-start;
+    }
+    .rarity-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: #fff; }
+
+    /* Trait chips */
+    .trait-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .trait-chip {
+      padding: 7px 14px; border-radius: 99px;
+      font-size: 11px; font-weight: 700;
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.85);
+      border: 1px solid rgba(255,255,255,.15);
+    }
+    .trait-chip.hot { background: rgba(255,255,255,.9); color: var(--text); border-color: transparent; }
+
+    /* CTAs */
+    .result-cta { display: flex; flex-direction: column; gap: 8px; }
+    .btn-find-buddy {
+      width: 100%; padding: 15px 18px;
+      background: rgba(255,255,255,.95);
+      color: var(--text);
+      font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+      border: none; border-radius: 16px; cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0,0,0,.2);
+      transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-find-buddy:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(0,0,0,.28); }
+    .btn-find-buddy:active { transform: scale(.97); }
+
+    .btn-share-row { display: flex; gap: 8px; }
+    .btn-share-main {
+      flex: 1; padding: 13px 18px;
+      background: rgba(255,255,255,.1);
+      color: rgba(255,255,255,.85);
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+      border: 1px solid rgba(255,255,255,.18); border-radius: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: transform .15s, background .15s;
+    }
+    .btn-share-main:hover { background: rgba(255,255,255,.16); transform: translateY(-1px); }
+
+    .btn-redo {
+      background: none; border: none; cursor: pointer;
+      font-size: 11.5px; font-weight: 600; color: rgba(255,255,255,.35);
+      padding: 8px 0 12px; margin: 0 auto;
+      display: flex; align-items: center; gap: 5px;
+      transition: color .15s;
+    }
+    .btn-redo:hover { color: rgba(255,255,255,.6); }
+
+    .share-toast {
+      position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(12px);
+      background: rgba(255,255,255,.95); color: var(--text);
+      padding: 10px 20px; border-radius: 99px;
+      font-size: 12px; font-weight: 600; white-space: nowrap;
+      opacity: 0; transition: all .3s ease; z-index: 400; pointer-events: none;
+    }
+    .share-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"></div>
+  <div class="status">
+    <span>9:41</span>
+    <span>▌▌▌ 🔋</span>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="buddy-brand">
+      <div class="buddy-main">Buddy<em>Date</em></div>
+      <div class="buddy-sub">by <span>TeenCab</span></div>
+    </div>
+    <div class="vibe-progress">
+      <div class="vibe-progress-label">MATCHES</div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div class="vibe-rings">
+          <div class="vibe-ring" id="vr0"></div>
+          <div class="vibe-ring" id="vr1"></div>
+          <div class="vibe-ring" id="vr2"></div>
+          <div class="vibe-ring" id="vr3"></div>
+        </div>
+        <div class="vibe-count-text" id="counter-num">0<span>/4</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-strip"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="hint-row">
+    <div class="hint-text">Swipe right to vibe ⚡</div>
+    <div class="hint-action" id="cards-left-text" style="display:none;"></div>
+  </div>
+
+  <div class="stack-area" id="stack"></div>
+
+  <div class="actions"><!-- merged below --></div>
+
+  <div class="nav">
+
+    <!-- SVG shape: pill with smooth organic dip in the centre top -->
+    <!-- viewBox is 360×90. The shape: left rounded cap → curves up to centre dip → right rounded cap -->
+    <svg class="nav-svg" viewBox="0 0 360 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="
+      M 0 110
+L 0 30
+
+C 90 30, 120 30, 150 48
+C 170 60, 190 60, 210 60
+C 230 68, 250 60, 270 48
+C 300 30, 330 30, 360 30
+
+L 360 110
+Z
+      " fill="#160b2c"/>
+    </svg>
+
+    <!-- Nav items row inside the bar -->
+    <div class="nav-items-row">
+      <div class="nav-side">
+        <div class="nav-item"><span>🏠</span>Home</div>
+        <div class="nav-item active"><span>✨</span>BuddyDate<div class="nav-dot"></div></div>
+      </div>
+      <div class="nav-centre-slot"></div>
+      <div class="nav-side">
+        <div class="nav-item"><span>💬</span>Chats</div>
+        <div class="nav-item"><span>👤</span>Me</div>
+      </div>
+    </div>
+
+    <!-- ✕ left of lightning -->
+    <div class="btn-skip-wrap">
+      <button class="btn-action btn-skip" id="btn-nope">✕</button>
+    </div>
+
+    <!-- ⚡ centre bump -->
+    <div class="btn-vibe-wrap">
+      <button class="btn-action btn-vibe" id="btn-like">⚡</button>
+    </div>
+
+    <!-- ★ right of lightning -->
+    <div class="btn-super-wrap">
+      <button class="btn-action btn-super" id="btn-super">★</button>
+    </div>
+
+  </div>
+
+  <!-- ══ RESULT SCREEN ══ -->
+  <div id="result-screen">
+    <div class="result-full-bg" id="result-full-bg"></div>
+    <div class="orb orb-1" id="orb1"></div>
+    <div class="orb orb-2" id="orb2"></div>
+    <div class="orb orb-3" id="orb3"></div>
+    <div class="orb orb-4" id="orb4"></div>
+    <div class="result-grid"></div>
+    <div class="particles" id="particles"></div>
+    <div class="tc-watermark">TeenCab · BuddyDate</div>
+
+    <div class="result-content">
+      <div class="result-top">
+        <div class="result-badge-row">
+          <div class="result-badge-line"></div>
+          <div class="result-badge-text">Your BuddyDate Profile</div>
+          <div class="result-badge-line"></div>
+        </div>
+        <div class="result-emoji-wrap">
+          <div class="glow-ring gr1"></div>
+          <div class="glow-ring gr2"></div>
+          <span class="result-big-emoji" id="res-emoji">🎨</span>
+        </div>
+        <div class="result-profile-title" id="res-title">The Creative Soul</div>
+        <div class="result-divider" id="res-divider"></div>
+        <div class="result-stats" id="res-stats">
+          <div class="stat-item">
+            <div class="stat-val" id="stat-rarity-val">—</div>
+            <div class="stat-lbl">Rarity</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-val" id="stat-rank">—</div>
+            <div class="stat-lbl">Global Rank</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-val" id="stat-users">—</div>
+            <div class="stat-lbl">Have This Type</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-val" id="stat-match">—</div>
+            <div class="stat-lbl">Match Potential</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-bottom" id="result-bottom">
+        <p class="result-desc-text" id="res-desc"></p>
+
+        <div class="uniqueness-section" id="uniqueness-section">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div class="uniqueness-label">How rare is your vibe?</div>
+            <div class="rarity-badge" id="rarity-badge"><div class="rarity-badge-dot" id="rarity-dot"></div><span id="rarity-label">Rare</span></div>
+          </div>
+          <div class="rarity-bar-wrap" id="rarity-bars"></div>
+        </div>
+
+        <div class="trait-chips" id="res-chips"></div>
+
+        <div class="result-cta">
+          <button class="btn-find-buddy" onclick="restart()">🚗 Find My Buddy on TeenCab</button>
+          <div class="btn-share-row">
+            <button class="btn-share-main" id="btn-share">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              Share my vibe
+            </button>
+            <button class="btn-share-main" style="flex:0 0 auto;width:50px;" onclick="restart()">↩</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="share-toast" id="share-toast">✓ Copied to clipboard!</div>
+  </div>
+</div>
+
+<script>
+// ══ DATA ══
+const ALL_CARDS = [
+  { title: "Digital Creator",    desc: "Reels, edits, and content that stops the scroll. Building something from nothing.",            tags: ["Content","Camera","Aesthetic"],   badge: "Creative",  badgeBg: "rgba(255,87,87,.15)",   badgeColor: "#FF5757",  emoji: "🎬", category: "creative",  img: "https://images.unsplash.com/photo-1598300056393-4aac492f4344?auto=format&fit=crop&w=600&q=80" },
+  { title: "Street Art",         desc: "Spray cans, bold lines, and city walls as your canvas. Art belongs everywhere.",              tags: ["Urban","Paint","Visual"],         badge: "Fine Arts", badgeBg: "rgba(255,170,59,.15)",  badgeColor: "#FFAA3B",  emoji: "🎨", category: "creative",  img: "https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?auto=format&fit=crop&w=600&q=80" },
+  { title: "Photography",        desc: "Golden hour, candid moments, and finding beauty in the ordinary. One click at a time.",       tags: ["Lens","Light","Composition"],     badge: "Creative",  badgeBg: "rgba(255,87,87,.15)",   badgeColor: "#FF5757",  emoji: "📸", category: "creative",  img: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=600&q=80" },
+  { title: "Fashion Design",     desc: "Thrifted, layered, original. Your outfit is your mood board and your statement.",             tags: ["Style","Design","Trends"],        badge: "Fashion",   badgeBg: "rgba(155,138,255,.15)", badgeColor: "#9B8AFF",  emoji: "👗", category: "creative",  img: "https://images.unsplash.com/photo-1523381210434-271e8be11523?auto=format&fit=crop&w=600&q=80" },
+  { title: "Film & Storytelling",desc: "Every story needs a camera. Scripts, cuts, and colour grades keep you up at night.",         tags: ["Film","Story","Vision"],          badge: "Creative",  badgeBg: "rgba(255,87,87,.15)",   badgeColor: "#FF5757",  emoji: "🎥", category: "creative",  img: "https://images.unsplash.com/photo-1568607689150-17e625c1586e?auto=format&fit=crop&w=600&q=80" },
+  { title: "Code & Build",       desc: "Turning blank screens into apps that actually work. Terminal open, ideas running.",           tags: ["Tech","Code","Logic"],            badge: "Tech",      badgeBg: "rgba(78,168,222,.15)",  badgeColor: "#4EA8DE",  emoji: "💻", category: "tech",      img: "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?auto=format&fit=crop&w=600&q=80" },
+  { title: "Robotics & AI",      desc: "Wiring circuits, training models, and wondering if your robot will take your job.",           tags: ["Robots","AI","Engineering"],      badge: "Tech",      badgeBg: "rgba(78,168,222,.15)",  badgeColor: "#4EA8DE",  emoji: "🤖", category: "tech",      img: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80" },
+  { title: "UI/UX Design",       desc: "Every tap, every pixel, every second of someone's experience matters to you.",               tags: ["Design","Interface","User"],      badge: "Tech",      badgeBg: "rgba(78,168,222,.15)",  badgeColor: "#4EA8DE",  emoji: "🖥️", category: "tech",      img: "https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=600&q=80" },
+  { title: "Cybersecurity",      desc: "Thinking like a hacker to protect the world. Ethical, curious, and two steps ahead.",        tags: ["Security","Hacking","Logic"],     badge: "Tech",      badgeBg: "rgba(78,168,222,.15)",  badgeColor: "#4EA8DE",  emoji: "🔐", category: "tech",      img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80" },
+  { title: "Music Producer",     desc: "DAWs, sample packs, and that chord progression stuck in your head at 2 AM.",                 tags: ["Beats","Sound","Studio"],         badge: "Music",     badgeBg: "rgba(155,138,255,.15)", badgeColor: "#9B8AFF",  emoji: "🎧", category: "music",     img: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=600&q=80" },
+  { title: "Live Performer",     desc: "Stage lights, crowd energy, and giving everything in three minutes. Pure adrenaline.",        tags: ["Stage","Band","Energy"],          badge: "Music",     badgeBg: "rgba(155,138,255,.15)", badgeColor: "#9B8AFF",  emoji: "🎸", category: "music",     img: "https://images.unsplash.com/photo-1501386761578-eaa54b4e3e8c?auto=format&fit=crop&w=600&q=80" },
+  { title: "DJ & Mixing",        desc: "Reading a crowd, dropping the right track, and making a room lose its mind.",                tags: ["Mix","Crowd","Vibe"],             badge: "Music",     badgeBg: "rgba(155,138,255,.15)", badgeColor: "#9B8AFF",  emoji: "🎚️", category: "music",     img: "https://images.unsplash.com/photo-1601643157091-ce5c665179ab?auto=format&fit=crop&w=600&q=80" },
+  { title: "Songwriter",         desc: "Turning 2 AM feelings into verses that hit way too close to home.",                          tags: ["Lyrics","Chords","Feels"],        badge: "Music",     badgeBg: "rgba(155,138,255,.15)", badgeColor: "#9B8AFF",  emoji: "🎵", category: "music",     img: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=600&q=80" },
+  { title: "Fitness & Training", desc: "Early mornings, cold sessions, and the quiet satisfaction of one more rep.",                  tags: ["Gym","Athlete","Discipline"],     badge: "Sports",    badgeBg: "rgba(34,211,165,.15)", badgeColor: "#22D3A5",  emoji: "🏋️", category: "sports",    img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80" },
+  { title: "Football / Soccer",  desc: "Team play, set pieces, and the moment you've been training for years.",                      tags: ["Football","Team","Goals"],        badge: "Sports",    badgeBg: "rgba(34,211,165,.15)", badgeColor: "#22D3A5",  emoji: "⚽", category: "sports",    img: "https://images.unsplash.com/photo-1529900748604-07564a03e7a6?auto=format&fit=crop&w=600&q=80" },
+  { title: "Skateboarding",      desc: "Learning a trick for weeks and landing it once. That feeling is the whole point.",            tags: ["Skate","Streets","Flow"],         badge: "Sports",    badgeBg: "rgba(34,211,165,.15)", badgeColor: "#22D3A5",  emoji: "🛹", category: "sports",    img: "https://images.unsplash.com/photo-1520045892732-304bc3ac5d8e?auto=format&fit=crop&w=600&q=80" },
+  { title: "Gamer & Streamer",   desc: "Marathon sessions, ranked climbs, and a community that actually gets you.",                  tags: ["Gaming","Strategy","Stream"],     badge: "Gaming",    badgeBg: "rgba(78,168,222,.15)", badgeColor: "#4EA8DE",  emoji: "🎮", category: "gaming",    img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80" },
+  { title: "Game Development",   desc: "Building worlds people can get lost in. Engines, shaders, and way too many bugs.",           tags: ["Dev","Unity","Levels"],           badge: "Gaming",    badgeBg: "rgba(78,168,222,.15)", badgeColor: "#4EA8DE",  emoji: "🕹️", category: "gaming",    img: "https://images.unsplash.com/photo-1556438064-2d7646166914?auto=format&fit=crop&w=600&q=80" },
+  { title: "Young Entrepreneur", desc: "Side hustles, pitch decks, and notebooks full of 'what ifs'. Always building something.",    tags: ["Business","Ideas","Hustle"],      badge: "Business",  badgeBg: "rgba(255,170,59,.15)",  badgeColor: "#FFAA3B",  emoji: "🚀", category: "business",  img: "https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5?auto=format&fit=crop&w=600&q=80" },
+  { title: "Social Media Growth",desc: "Analytics, hooks, and algorithms. Growing accounts from zero is your favourite puzzle.",     tags: ["Growth","Content","Strategy"],    badge: "Business",  badgeBg: "rgba(255,170,59,.15)",  badgeColor: "#FFAA3B",  emoji: "📈", category: "business",  img: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=600&q=80" },
+  { title: "Science & Research",  desc: "Experiments, hypotheses, and the joy of figuring something out nobody explained to you.",  tags: ["Science","Lab","Curious"],        badge: "STEM",      badgeBg: "rgba(168,230,61,.2)",   badgeColor: "#6EA803",  emoji: "🔬", category: "learning",  img: "https://images.unsplash.com/photo-1532094349884-543559d9b9f4?auto=format&fit=crop&w=600&q=80" },
+  { title: "Writing & Blogging",  desc: "Essays, stories, threads — words have weight and you choose yours carefully.",             tags: ["Write","Ideas","Voice"],          badge: "Writing",   badgeBg: "rgba(255,87,87,.15)",   badgeColor: "#FF5757",  emoji: "📝", category: "learning",  img: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=600&q=80" },
+  { title: "Travel & Explore",   desc: "New cities, street food, and conversations with strangers. The world is your classroom.",   tags: ["Travel","Adventure","Culture"],   badge: "Lifestyle", badgeBg: "rgba(34,211,165,.15)", badgeColor: "#22D3A5",  emoji: "✈️", category: "lifestyle", img: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=600&q=80" },
+  { title: "Cooking & Food",     desc: "Recipes, plating, and feeding everyone around you. The kitchen is where things happen.",   tags: ["Food","Cook","Taste"],            badge: "Lifestyle", badgeBg: "rgba(255,170,59,.15)",  badgeColor: "#FFAA3B",  emoji: "🍜", category: "lifestyle", img: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=600&q=80" },
+];
+
+// Population % per category — realistic-ish distribution
+const categoryPopulation = {
+  creative:  18,   // most common creative type
+  gaming:    22,   // largest teen demographic
+  sports:    20,
+  music:     12,
+  tech:      10,
+  business:   7,
+  learning:   6,
+  lifestyle:  5,
+};
+
+const NEED_APPROVALS = 4;
+let queue = [], queueIndex = 0, approvals = 0, pickedCats = [];
+
+const heroColors = {
+  creative: "#E8445A", tech: "#3B9FDB", music: "#8B7AFF",
+  sports: "#17C99A", gaming: "#4B80F7", business: "#F0A020",
+  learning: "#7BC220", lifestyle: "#F0703A", default: "#E8445A"
+};
+
+const profiles = {
+  creative: {
+    title: "The Creative Soul", emoji: "🎨",
+    desc: "You see the world differently — every surface is a canvas, every moment potential content. You don't just consume culture; you make it.",
+    chips: ["Visionary","Artist","Storyteller"],
+    rarityBars: [
+      { name: "Creative",  pct: 18 },
+      { name: "Expressive", pct: 31 },
+      { name: "Aesthetic",  pct: 27 },
+    ],
+    rarityLabel: "Selective", rarityColor: "#E8A020",
+    rank: "Top 18%", matchPct: "94%",
+  },
+  tech: {
+    title: "The Builder", emoji: "⚙️",
+    desc: "Logic meets curiosity. You love making things work and solving problems no one else even noticed. You build stuff — real stuff.",
+    chips: ["Problem Solver","Builder","Maker"],
+    rarityBars: [
+      { name: "Technical",  pct: 10 },
+      { name: "Logical",    pct: 22 },
+      { name: "Curious",    pct: 35 },
+    ],
+    rarityLabel: "Rare", rarityColor: "#4B80F7",
+    rank: "Top 10%", matchPct: "91%",
+  },
+  music: {
+    title: "The Soundmaker", emoji: "🎧",
+    desc: "You live in frequencies. Music is your mother tongue and rhythm is your heartbeat. Your buddy hears the world like you do.",
+    chips: ["Musician","Listener","Creator"],
+    rarityBars: [
+      { name: "Musical",    pct: 12 },
+      { name: "Emotional",  pct: 28 },
+      { name: "Creative",   pct: 32 },
+    ],
+    rarityLabel: "Rare", rarityColor: "#8B7AFF",
+    rank: "Top 12%", matchPct: "97%",
+  },
+  sports: {
+    title: "The Athlete", emoji: "⚡",
+    desc: "Discipline, drive, and the quiet joy of pushing your limit just a little further every session. Effort is your love language.",
+    chips: ["Active","Focused","Driven"],
+    rarityBars: [
+      { name: "Athletic",   pct: 20 },
+      { name: "Disciplined",pct: 15 },
+      { name: "Competitive",pct: 30 },
+    ],
+    rarityLabel: "Common", rarityColor: "#17C99A",
+    rank: "Top 20%", matchPct: "88%",
+  },
+  gaming: {
+    title: "The Strategist", emoji: "🎮",
+    desc: "Patient, tactical, and community-first. You see patterns others miss and turn them into wins. The meta is always evolving — so are you.",
+    chips: ["Gamer","Thinker","Team Player"],
+    rarityBars: [
+      { name: "Gamer",      pct: 22 },
+      { name: "Strategic",  pct: 18 },
+      { name: "Social",     pct: 40 },
+    ],
+    rarityLabel: "Common", rarityColor: "#4B80F7",
+    rank: "Top 22%", matchPct: "85%",
+  },
+  business: {
+    title: "The Hustler", emoji: "🚀",
+    desc: "Ideas keep coming and you know how to move on them. Your buddy is always building something — usually at midnight, always with conviction.",
+    chips: ["Ambitious","Hustler","Visionary"],
+    rarityBars: [
+      { name: "Ambitious",  pct: 7 },
+      { name: "Driven",     pct: 19 },
+      { name: "Creative",   pct: 24 },
+    ],
+    rarityLabel: "Very Rare", rarityColor: "#F0A020",
+    rank: "Top 7%", matchPct: "96%",
+  },
+  learning: {
+    title: "The Deep Thinker", emoji: "🧠",
+    desc: "Curious about everything. You want to understand, not just know. You ask the third question after everyone else stopped at the first.",
+    chips: ["Curious","Articulate","Sharp"],
+    rarityBars: [
+      { name: "Intellectual",pct: 6 },
+      { name: "Curious",     pct: 14 },
+      { name: "Analytical",  pct: 20 },
+    ],
+    rarityLabel: "Ultra Rare", rarityColor: "#7BC220",
+    rank: "Top 6%", matchPct: "98%",
+  },
+  lifestyle: {
+    title: "The Connector", emoji: "🌍",
+    desc: "You collect experiences, stories, and people. Your energy brings everyone together without you even trying. Life is better with you in it.",
+    chips: ["Explorer","Warm","Social"],
+    rarityBars: [
+      { name: "Social",     pct: 5 },
+      { name: "Adventurous",pct: 22 },
+      { name: "Empathetic", pct: 38 },
+    ],
+    rarityLabel: "Ultra Rare", rarityColor: "#F0703A",
+    rank: "Top 5%", matchPct: "99%",
+  },
+  default: {
+    title: "The One-of-a-Kind", emoji: "🌟",
+    desc: "No single box fits you — you're a bit of everything. Unexpected, interesting, and genuinely hard to predict. That's rare.",
+    chips: ["Unique","Open","Eclectic"],
+    rarityBars: [
+      { name: "Unique",     pct: 3 },
+      { name: "Versatile",  pct: 45 },
+      { name: "Open",       pct: 60 },
+    ],
+    rarityLabel: "Legendary", rarityColor: "#E8445A",
+    rank: "Top 3%", matchPct: "100%",
+  }
+};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function initQueue() {
+  queue = shuffle(ALL_CARDS);
+  queueIndex = 0; approvals = 0; pickedCats = [];
+  updateUI();
+}
+
+function updateUI() {
+  for (let i = 0; i < 4; i++)
+    document.getElementById('vr' + i).classList.toggle('filled', i < approvals);
+  document.getElementById('counter-num').innerHTML = `${approvals}<span>/4</span>`;
+  document.getElementById('progress-fill').style.width = `${(approvals / 4) * 100}%`;
+  const rem = queue.length - queueIndex;
+  document.getElementById('cards-left-text').textContent = rem > 0 ? `${rem} cards` : '';
+}
+
+function buildCard(data, depthClass) {
+  const c = document.createElement('div');
+  c.className = 'card ' + depthClass;
+  c.innerHTML = `
+    <div class="stamp stamp-like">VIBE ⚡</div>
+    <div class="stamp stamp-nope">PASS ✕</div>
+    <div class="card-img-wrap">
+      <img src="${data.img}" alt="${data.title}" loading="lazy">
+      <div class="cat-badge" style="background:${data.badgeBg};color:${data.badgeColor};">${data.badge}</div>
+    </div>
+    <div class="card-body">
+      <div class="card-title">${data.emoji} ${data.title}</div>
+      <div class="card-desc">${data.desc}</div>
+      <div class="card-tags">${data.tags.map((t,i)=>`<div class="tag${i===0?' accent':''}">#${t}</div>`).join('')}</div>
+    </div>`;
+  return c;
+}
+
+const stackEl = document.getElementById('stack');
+
+function renderStack() {
+  stackEl.innerHTML = '';
+  for (let offset = 2; offset >= 0; offset--) {
+    const idx = queueIndex + offset;
+    if (idx >= queue.length) continue;
+    const depth = offset === 0 ? 'top' : offset === 1 ? 'behind-1' : 'behind-2';
+    const card = buildCard(queue[idx], depth);
+    if (offset === 0) attachSwipe(card, queue[idx]);
+    stackEl.appendChild(card);
+  }
+  updateUI();
+}
+
+// ══════════════════════════════════
+// SMOOTH RAF-BASED SWIPE ENGINE
+// ══════════════════════════════════
+function attachSwipe(card, data) {
+  const stampLike = card.querySelector('.stamp-like');
+  const stampNope = card.querySelector('.stamp-nope');
+
+  // State
+  let active = false;
+  let startX = 0, startY = 0;
+  let curX = 0, curY = 0;
+  let velX = 0;
+  let prevClientX = 0, prevT = 0;
+  let rafId = null;
+  let decided = false;
+  let isVertical = false;
+
+  // Rendered state (written in RAF only)
+  let rendX = 0, rendY = 0;
+
+  function renderFrame() {
+    rafId = null;
+    if (!active && !decided) {
+      // Spring back
+      rendX += (0 - rendX) * 0.22;
+      rendY += (0 - rendY) * 0.22;
+      if (Math.abs(rendX) > 0.1 || Math.abs(rendY) > 0.1) {
+        applyTransform(rendX, rendY);
+        rafId = requestAnimationFrame(renderFrame);
+      } else {
+        rendX = 0; rendY = 0;
+        applyTransform(0, 0);
+        stampLike.style.opacity = '0';
+        stampNope.style.opacity = '0';
+        // Restore behind cards
+        const b1 = stackEl.querySelector('.card.behind-1');
+        const b2 = stackEl.querySelector('.card.behind-2');
+        if (b1) b1.style.transform = '';
+        if (b2) b2.style.transform = '';
+      }
+      return;
+    }
+    if (!active) return;
+
+    rendX = curX;
+    rendY = curY * 0.15;
+
+    const rot = rendX / 16;
+    applyTransform(rendX, rendY);
+
+    // Stamps
+    const absX = Math.abs(rendX);
+    const thresh = 25;
+    if (rendX > thresh) {
+      stampLike.style.opacity = Math.min((rendX - thresh) / 60, 1).toFixed(3);
+      stampNope.style.opacity = '0';
+    } else if (rendX < -thresh) {
+      stampNope.style.opacity = Math.min((-rendX - thresh) / 60, 1).toFixed(3);
+      stampLike.style.opacity = '0';
+    } else {
+      stampLike.style.opacity = '0';
+      stampNope.style.opacity = '0';
+    }
+
+    // Animate behind cards live
+    const prog = Math.min(Math.abs(rendX) / 100, 1);
+    const b1 = stackEl.querySelector('.card.behind-1');
+    const b2 = stackEl.querySelector('.card.behind-2');
+    if (b1) {
+      const s = 0.956 + prog * 0.044;
+      const ty = 16 * (1 - prog);
+      b1.style.transform = `scale(${s.toFixed(4)}) translateY(${ty.toFixed(1)}px)`;
+      b1.style.transition = 'none';
+    }
+    if (b2) {
+      const s = 0.912 + prog * 0.044;
+      const ty = 32 * (1 - prog * 0.5);
+      const op = 0.72 + prog * 0.18;
+      b2.style.transform = `scale(${s.toFixed(4)}) translateY(${ty.toFixed(1)}px)`;
+      b2.style.opacity = op.toFixed(3);
+      b2.style.transition = 'none';
+    }
+
+    rafId = requestAnimationFrame(renderFrame);
+  }
+
+  function applyTransform(x, y) {
+    const rot = x / 16;
+    card.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) rotate(${rot.toFixed(3)}deg)`;
+  }
+
+  function onStart(e) {
+    if (decided) return;
+    const pt = e.touches ? e.touches[0] : e;
+    startX = pt.clientX; startY = pt.clientY;
+    prevClientX = pt.clientX; prevT = Date.now();
+    curX = 0; curY = 0; velX = 0;
+    active = true; isVertical = false;
+    card.classList.add('is-dragging');
+    card.style.transition = 'none';
+    card.style.animation = 'none';
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(renderFrame);
+  }
+
+  function onMove(e) {
+    if (!active || decided) return;
+    const pt = e.touches ? e.touches[0] : e;
+    const dx = pt.clientX - startX;
+    const dy = pt.clientY - startY;
+
+    // After small movement, decide axis
+    if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+    if (!isVertical && Math.abs(dy) > Math.abs(dx) * 1.6 && Math.abs(dy) > 8) {
+      isVertical = true;
+    }
+    if (isVertical) { active = false; return; }
+
+    curX = dx;
+    curY = dy;
+
+    // Velocity
+    const now = Date.now();
+    const dt = now - prevT;
+    if (dt > 0) velX = (pt.clientX - prevClientX) / dt;
+    prevClientX = pt.clientX; prevT = now;
+  }
+
+  function onEnd() {
+    if (!active || decided) return;
+    active = false;
+    card.classList.remove('is-dragging');
+
+    const DIST_THRESH = 88;
+    const VEL_THRESH  = 0.42;
+
+    if (curX > DIST_THRESH || velX > VEL_THRESH) {
+      decided = true;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      flyOut('right');
+    } else if (curX < -DIST_THRESH || velX < -VEL_THRESH) {
+      decided = true;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      flyOut('left');
+    } else {
+      // Spring back via RAF
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(renderFrame);
+    }
+  }
+
+  function flyOut(dir) {
+    stampLike.style.opacity = '0';
+    stampNope.style.opacity = '0';
+    // Remove event listeners first
+    cleanup();
+
+    const targetX = dir === 'right' ? 500 : -500;
+    const targetRot = dir === 'right' ? 28 : -28;
+    card.style.transition = 'transform 0.34s cubic-bezier(0.4,0,1,1), opacity 0.34s ease';
+    card.style.transform = `translate3d(${targetX}px, ${rendY.toFixed(1)}px, 0) rotate(${targetRot}deg)`;
+    card.style.opacity = '0';
+
+    // Restore behind cards with transition
+    const b1 = stackEl.querySelector('.card.behind-1');
+    const b2 = stackEl.querySelector('.card.behind-2');
+    if (b1) { b1.style.transition = 'transform .32s cubic-bezier(.34,1.3,.64,1)'; b1.style.transform = ''; }
+    if (b2) { b2.style.transition = 'transform .32s cubic-bezier(.34,1.3,.64,1)'; b2.style.transform = ''; b2.style.opacity = ''; }
+
+    dismiss(card, dir, data);
+  }
+
+  function cleanup() {
+    card.removeEventListener('mousedown', onStart);
+    card.removeEventListener('touchstart', onStart);
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+  }
+  card._cleanup = cleanup;
+
+  card.addEventListener('mousedown', onStart);
+  card.addEventListener('touchstart', onStart, { passive: true });
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+  document.addEventListener('touchmove', onMove, { passive: true });
+  document.addEventListener('touchend', onEnd, { passive: true });
+}
+
+function dismiss(card, dir, data) {
+  if (dir === 'right') {
+    pickedCats.push(data.category);
+    approvals = Math.min(approvals + 1, NEED_APPROVALS);
+    updateUI();
+  }
+  queueIndex++;
+  if (queueIndex >= queue.length && approvals < NEED_APPROVALS)
+    queue = [...queue, ...shuffle(ALL_CARDS)];
+
+  setTimeout(() => {
+    if (approvals >= NEED_APPROVALS) showResult();
+    else renderStack();
+  }, 350);
+}
+
+// Buttons
+document.getElementById('btn-like').addEventListener('click', () => {
+  const top = stackEl.querySelector('.card.top');
+  if (!top) return;
+  const ring = document.createElement('div'); ring.className = 'ripple-ring';
+  document.getElementById('btn-like').appendChild(ring);
+  setTimeout(() => ring.remove(), 500);
+  if (top._cleanup) top._cleanup();
+  top.style.transition = 'transform 0.32s cubic-bezier(0.4,0,1,1), opacity 0.32s ease';
+  top.style.transform = 'translate3d(500px,0,0) rotate(28deg)'; top.style.opacity = '0';
+  const b1 = stackEl.querySelector('.card.behind-1');
+  const b2 = stackEl.querySelector('.card.behind-2');
+  if (b1) { b1.style.transition = 'transform .32s cubic-bezier(.34,1.3,.64,1)'; b1.style.transform = ''; }
+  if (b2) { b2.style.transition = 'transform .32s cubic-bezier(.34,1.3,.64,1)'; b2.style.transform = ''; b2.style.opacity = ''; }
+  dismiss(top, 'right', queue[queueIndex]);
+});
+
+document.getElementById('btn-nope').addEventListener('click', () => {
+  const top = stackEl.querySelector('.card.top');
+  if (!top) return;
+  if (top._cleanup) top._cleanup();
+  top.style.transition = 'transform 0.32s cubic-bezier(0.4,0,1,1), opacity 0.32s ease';
+  top.style.transform = 'translate3d(-500px,0,0) rotate(-28deg)'; top.style.opacity = '0';
+  const b1 = stackEl.querySelector('.card.behind-1');
+  if (b1) { b1.style.transition = 'transform .32s cubic-bezier(.34,1.3,.64,1)'; b1.style.transform = ''; }
+  dismiss(top, 'left', queue[queueIndex]);
+});
+
+document.getElementById('btn-super').addEventListener('click', () => {
+  const top = stackEl.querySelector('.card.top');
+  if (!top) return;
+  if (top._cleanup) top._cleanup();
+  top.style.transition = 'transform 0.32s cubic-bezier(0.4,0,1,1), opacity 0.32s ease';
+  top.style.transform = 'translate3d(500px,0,0) rotate(28deg)'; top.style.opacity = '0';
+  const b1 = stackEl.querySelector('.card.behind-1');
+  if (b1) { b1.style.transition = 'transform .32s cubic-bezier(.34,1.3,.64,1)'; b1.style.transform = ''; }
+  dismiss(top, 'right', queue[queueIndex]);
+});
+
+// ══ RESULT ══
+function spawnParticles(color) {
+  const el = document.getElementById('particles');
+  el.innerHTML = '';
+  const colors = [color, '#fff', color + 'aa'];
+  for (let i = 0; i < 28; i++) {
+    const p = document.createElement('div');
+    const size = 3 + Math.random() * 6;
+    const isSquare = Math.random() > 0.6;
+    p.style.cssText = `
+      position:absolute;
+      width:${size}px; height:${size}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${isSquare ? '2px' : '50%'};
+      left:${10 + Math.random() * 80}%;
+      top:${20 + Math.random() * 50}%;
+      opacity:0;
+      animation: pf${i} ${1 + Math.random() * 1.8}s ${Math.random() * 0.7}s ease-out forwards;
+    `;
+    el.appendChild(p);
+    const dxv = (Math.random() - 0.5) * 70;
+    const dyv = -(30 + Math.random() * 90);
+    const rotv = (Math.random() - 0.5) * 360;
+    const s = document.createElement('style');
+    s.textContent = `@keyframes pf${i} {
+      0%   { opacity:0; transform:translate(0,0) rotate(0deg) scale(0); }
+      15%  { opacity:1; transform:translate(${dxv*0.1}px,${dyv*0.1}px) rotate(${rotv*0.1}deg) scale(1); }
+      100% { opacity:0; transform:translate(${dxv}px,${dyv}px) rotate(${rotv}deg) scale(0.3); }
+    }`;
+    document.head.appendChild(s);
+  }
+}
+
+function showResult() {
+  const counts = pickedCats.reduce((a, c) => { a[c] = (a[c]||0)+1; return a; }, {});
+  const topCat = Object.keys(counts).sort((a,b) => counts[b]-counts[a])[0] || 'default';
+  const prof = profiles[topCat] || profiles.default;
+  const color = heroColors[topCat] || heroColors.default;
+  const pop = categoryPopulation[topCat] || 5;
+
+  // Users count — realistic
+  const baseUsers = Math.round((pop / 100) * 180000);
+  const usersStr = baseUsers >= 1000 ? `${(baseUsers/1000).toFixed(1)}k` : baseUsers.toString();
+
+  // BG orbs
+  const c1 = color, c2 = color + 'bb', c3 = color + '77', c4 = color + '44';
+  document.getElementById('result-full-bg').style.background =
+    `linear-gradient(160deg, ${c1}55 0%, #0f0f1a 60%)`;
+  document.getElementById('orb1').style.background = c1;
+  document.getElementById('orb2').style.background = c2;
+  document.getElementById('orb3').style.background = c3;
+  document.getElementById('orb4').style.background = c4;
+
+  // Bottom panel matches color
+  const rb = document.getElementById('result-bottom');
+  rb.style.background = `linear-gradient(160deg, ${color}ee 0%, ${color}cc 100%)`;
+
+  // Divider
+  document.getElementById('res-divider').style.background = '#fff';
+
+  // Stats
+  document.getElementById('stat-rarity-val').textContent = prof.rarityLabel;
+  document.getElementById('stat-rank').textContent = prof.rank;
+  document.getElementById('stat-users').textContent = usersStr;
+  document.getElementById('stat-match').textContent = prof.matchPct;
+
+  document.getElementById('res-emoji').textContent = prof.emoji;
+  document.getElementById('res-title').textContent = prof.title;
+  document.getElementById('res-desc').textContent = prof.desc;
+  document.getElementById('res-chips').innerHTML =
+    prof.chips.map((c,i)=>`<div class="trait-chip${i===0?' hot':''}">${c}</div>`).join('');
+
+  // Rarity badge
+  document.getElementById('rarity-label').textContent = prof.rarityLabel;
+  document.getElementById('rarity-dot').style.background = '#fff';
+
+  // Rarity bars — animate after reveal
+  const barsEl = document.getElementById('rarity-bars');
+  barsEl.innerHTML = prof.rarityBars.map(b => `
+    <div class="rarity-row">
+      <div class="rarity-name">${b.name}</div>
+      <div class="rarity-track"><div class="rarity-fill" data-pct="${b.pct}"></div></div>
+      <div class="rarity-pct">${b.pct}%</div>
+    </div>`).join('');
+
+  spawnParticles(color);
+  document.getElementById('result-screen').classList.add('show');
+
+  // Animate bars after screen is visible
+  setTimeout(() => {
+    barsEl.querySelectorAll('.rarity-fill').forEach(el => {
+      el.style.width = el.dataset.pct + '%';
+    });
+  }, 600);
+}
+
+document.getElementById('btn-share').addEventListener('click', () => {
+  const title = document.getElementById('res-title').textContent;
+  const rank = document.getElementById('stat-rank').textContent;
+  const text = `I'm "${title}" (${rank}) on BuddyDate by TeenCab 🚗⚡ Find your vibe buddy → teencab.app/buddydate`;
+  if (navigator.share) {
+    navigator.share({ title: 'My BuddyDate Profile', text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).catch(() => {});
+    const t = document.getElementById('share-toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+});
+
+function restart() {
+  document.getElementById('result-screen').classList.remove('show');
+  setTimeout(() => { initQueue(); renderStack(); }, 300);
+}
+
+initQueue();
+renderStack();
+</script>
+</body>
+</html>
