@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Parent Notifications · TeenCab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream:  #F8F4F0;
+      --white:  #FFFFFF;
+      --ink:    #1C1917;
+      --muted:  #78716C;
+      --soft:   #A8A29E;
+      --border: #EDE8E3;
+      --peach:  #FEF0E8;
+      --terra:  #E07A5F;
+      --mint:   #6BAF9A;
+      --sky:    #5B9EC9;
+      --amber:  #F59E0B;
+      --red:    #EF4444;
+      --shadow: rgba(28,25,23,0.08);
+      --shadow-lg: rgba(28,25,23,0.15);
+    }
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    html,body { touch-action:none; }
+
+    body {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      background: #D6CEC8;
+      display:flex; align-items:center; justify-content:center;
+      min-height:100vh;
+      overflow:hidden;
+      gap: 24px;
+    }
+
+    /* ── PHONE SHELL ── */
+    .phone {
+      width:375px; height:812px;
+      background:var(--cream);
+      border-radius:44px;
+      box-shadow: 0 30px 80px rgba(28,25,23,.22), 0 2px 0 rgba(255,255,255,.9) inset;
+      position:relative; overflow:hidden;
+      display:flex; flex-direction:column;
+      flex-shrink:0;
+    }
+    .notch {
+      position:absolute; top:12px; left:50%; transform:translateX(-50%);
+      width:110px; height:30px; background:#111; border-radius:99px; z-index:999;
+    }
+
+    /* ── STATUS BAR ── */
+    .status {
+      position:absolute; top:6px; left:0; right:0; height:48px;
+      display:flex; justify-content:space-between; align-items:flex-end;
+      padding:0 24px 6px; z-index:998;
+    }
+    .status span { font-size:11px; font-weight:600; color:var(--ink); opacity:.7; }
+
+    /* ── SCREEN LABEL (top right corner) ── */
+    .screen-num {
+      position:absolute; top:56px; right:20px; z-index:100;
+      font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
+      color:var(--soft);
+    }
+
+    /* ── LOCK / HOME WALLPAPER ── */
+    .wallpaper {
+      position:absolute; inset:0; z-index:0;
+      background: linear-gradient(160deg, #EDE4DC 0%, #D9CFC7 100%);
+    }
+    /* subtle grain */
+    .wallpaper::after {
+      content:''; position:absolute; inset:0; pointer-events:none; opacity:.04;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size:128px;
+    }
+
+    /* ── NOTIFICATION BANNER ── */
+    .notif-banner {
+      position:absolute; left:16px; right:16px;
+      background:rgba(255,255,255,0.82);
+      backdrop-filter:blur(20px) saturate(1.4);
+      -webkit-backdrop-filter:blur(20px) saturate(1.4);
+      border-radius:20px;
+      box-shadow: 0 4px 24px rgba(28,25,23,.12), 0 1px 0 rgba(255,255,255,.8) inset;
+      border: 1px solid rgba(255,255,255,0.6);
+      padding:14px 16px;
+      z-index:50;
+      animation: bannerDrop .5s cubic-bezier(.34,1.2,.64,1) both;
+    }
+    @keyframes bannerDrop {
+      from { opacity:0; transform:translateY(-20px) scale(.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    .notif-banner.top    { top:72px; }
+    .notif-banner.mid    { top:130px; }
+    .notif-banner.older  { top:188px; opacity:.6; }
+
+    .nb-row { display:flex; align-items:flex-start; gap:10px; }
+    .nb-app-icon {
+      width:38px; height:38px; border-radius:11px; flex-shrink:0;
+      background:linear-gradient(135deg,#E07A5F,#F5A68A);
+      display:flex; align-items:center; justify-content:center;
+      font-size:20px; box-shadow:0 2px 8px rgba(224,122,95,.3);
+    }
+    .nb-content { flex:1; }
+    .nb-header  { display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; }
+    .nb-app     { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+    .nb-time    { font-size:10px; color:var(--soft); }
+    .nb-title   { font-size:14px; font-weight:700; color:var(--ink); line-height:1.3; }
+    .nb-body    { font-size:12px; color:var(--muted); margin-top:3px; line-height:1.45; }
+
+    /* expand hint */
+    .nb-expand {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-top:10px; padding-top:10px;
+      border-top:1px solid rgba(28,25,23,.06);
+    }
+    .nb-expand-label { font-size:10px; font-weight:600; color:var(--terra); }
+    .nb-chevron { font-size:12px; color:var(--terra); }
+
+    /* older banners stacked look */
+    .older .nb-title { font-size:12px; }
+    .older .nb-body  { display:none; }
+    .older .nb-expand { display:none; }
+
+    /* ── CLOCK ON LOCK SCREEN ── */
+    .lock-clock {
+      position:absolute; top:95px; left:0; right:0;
+      display:flex; flex-direction:column; align-items:center; z-index:10;
+    }
+    .lc-time {
+      font-family:'Syne',sans-serif; font-size:64px; font-weight:800;
+      color:var(--ink); letter-spacing:-2px; line-height:1;
+      opacity:.85;
+    }
+    .lc-date { font-size:14px; color:var(--muted); margin-top:4px; font-weight:500; }
+
+    /* ── BOTTOM SWIPE BAR ── */
+    .swipe-bar {
+      position:absolute; bottom:28px; left:0; right:0;
+      display:flex; align-items:center; justify-content:center; gap:6px; z-index:10;
+    }
+    .swipe-pill {
+      background:rgba(28,25,23,.12); border-radius:99px;
+      font-size:10px; font-weight:600; color:var(--muted);
+      padding:8px 20px;
+    }
+
+    /* ── HOME SCREEN WALLPAPER ── */
+    .home-wallpaper {
+      position:absolute; inset:0; z-index:0;
+      background:linear-gradient(160deg,#EDE4DC 0%,#D9CFC7 100%);
+    }
+
+    /* ── DETAIL PANEL (screen 1 expanded) ── */
+    .detail-panel {
+      position:absolute; inset:0; z-index:200;
+      background:var(--cream);
+      border-radius:44px;
+      display:flex; flex-direction:column;
+      overflow:hidden;
+    }
+
+    .dp-header {
+      padding:58px 20px 14px;
+      background:var(--white);
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; gap:12px;
+      flex-shrink:0;
+    }
+    .dp-close {
+      width:34px; height:34px; border-radius:11px;
+      background:var(--cream); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      font-size:14px; cursor:pointer; flex-shrink:0;
+      color:var(--ink);
+    }
+    .dp-title-col { flex:1; }
+    .dp-title { font-family:'Syne',sans-serif; font-size:17px; font-weight:800; color:var(--ink); }
+    .dp-sub   { font-size:11px; color:var(--soft); margin-top:1px; }
+    .dp-badge {
+      font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+      padding:5px 10px; border-radius:99px;
+      background:#ECFDF5; color:var(--mint); border:1px solid #A7F3D0;
+    }
+
+    .dp-scroll {
+      flex:1; overflow-y:auto; overflow-x:hidden; scrollbar-width:none;
+      padding-bottom:90px;
+    }
+    .dp-scroll::-webkit-scrollbar { display:none; }
+
+    /* buddy section */
+    .buddy-section {
+      margin:16px; background:var(--white);
+      border-radius:22px; border:1px solid var(--border);
+      overflow:hidden; box-shadow:0 2px 12px var(--shadow);
+    }
+    .buddy-photo-row {
+      display:flex; align-items:center; gap:14px;
+      padding:16px;
+    }
+    .buddy-av {
+      width:68px; height:68px; border-radius:18px; overflow:hidden; flex-shrink:0;
+      box-shadow:0 4px 14px var(--shadow);
+      border:3px solid var(--white);
+      outline:2px solid var(--terra);
+    }
+    .buddy-av img { width:100%; height:100%; object-fit:cover; display:block; }
+    .buddy-info { flex:1; }
+    .buddy-name-dp { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:var(--ink); letter-spacing:-.3px; }
+    .buddy-tag-row { display:flex; gap:5px; margin-top:5px; flex-wrap:wrap; }
+    .b-pill {
+      font-size:9px; font-weight:700; padding:3px 9px; border-radius:99px;
+      border:1.5px solid;
+    }
+    .b-pill-terra { color:var(--terra); border-color:#F5C9B3; background:#FEF3ED; }
+    .b-pill-mint  { color:#4A9882; border-color:#B8DDD5; background:#EDF7F4; }
+    .b-pill-sky   { color:var(--sky); border-color:#B6D9E9; background:#EBF5FA; }
+
+    /* detail rows */
+    .detail-rows { border-top:1px solid var(--border); }
+    .d-row {
+      display:flex; align-items:center; gap:12px;
+      padding:12px 16px; border-bottom:1px solid var(--border);
+    }
+    .d-row:last-child { border-bottom:none; }
+    .d-icon {
+      width:34px; height:34px; border-radius:11px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:16px; flex-shrink:0;
+    }
+    .di-peach  { background:#FEF0E8; }
+    .di-mint   { background:#EBF6F2; }
+    .di-sky    { background:#EAF4FA; }
+    .di-amber  { background:#FFFBEB; }
+    .d-label   { font-size:10px; color:var(--soft); font-weight:600; }
+    .d-value   { font-size:13px; color:var(--ink); font-weight:600; margin-top:1px; }
+
+    /* action buttons */
+    .action-bar {
+      display:flex; gap:10px;
+      padding:14px 16px;
+      border-top:1px solid var(--border);
+    }
+    .act-btn {
+      flex:1; height:48px; border-radius:14px; border:none; cursor:pointer;
+      font-size:13px; font-weight:700;
+      display:flex; align-items:center; justify-content:center; gap:6px;
+      transition:transform .12s, box-shadow .12s;
+    }
+    .act-btn:active { transform:scale(.97); }
+    .act-call {
+      background:var(--mint); color:#fff;
+      box-shadow:0 4px 16px rgba(107,175,154,.35);
+    }
+    .act-msg {
+      background:var(--sky); color:#fff;
+      box-shadow:0 4px 16px rgba(91,158,201,.35);
+    }
+
+    /* map section */
+    .map-section {
+      margin:0 16px 16px;
+      background:var(--white);
+      border-radius:22px; border:1px solid var(--border);
+      overflow:hidden; box-shadow:0 2px 12px var(--shadow);
+    }
+    .map-label {
+      padding:12px 16px 8px;
+      font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--soft);
+    }
+    .map-visual {
+      height:140px; position:relative; overflow:hidden;
+      background:linear-gradient(135deg,#EFF6EE 0%,#E8F4F0 100%);
+    }
+    /* fake map grid */
+    .map-visual::before {
+      content:''; position:absolute; inset:0;
+      background-image:
+        linear-gradient(rgba(107,175,154,.15) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(107,175,154,.15) 1px,transparent 1px);
+      background-size:24px 24px;
+    }
+    .map-route {
+      position:absolute; top:50%; left:14%;
+      width:72%; height:3px;
+      border-radius:99px;
+      background:linear-gradient(90deg,var(--terra),var(--mint));
+      transform:translateY(-50%);
+    }
+    .map-pin {
+      position:absolute; top:50%; transform:translate(-50%,-50%);
+      display:flex; flex-direction:column; align-items:center;
+    }
+    .map-pin-a { left:14%; }
+    .map-pin-b { left:86%; }
+    .pin-dot {
+      width:12px; height:12px; border-radius:50%;
+      border:2.5px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.15);
+    }
+    .pin-dot-a { background:var(--terra); }
+    .pin-dot-b { background:var(--mint); }
+    .pin-label {
+      font-size:9px; font-weight:700; color:var(--ink); margin-top:4px; white-space:nowrap;
+    }
+    .teen-marker {
+      position:absolute; top:50%; left:14%; transform:translate(-50%,-50%);
+      width:28px; height:28px; border-radius:50%;
+      background:var(--white); border:2.5px solid var(--terra);
+      display:flex; align-items:center; justify-content:center;
+      font-size:14px; box-shadow:0 2px 10px rgba(224,122,95,.3);
+      animation:markerPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes markerPulse {
+      0%,100%{box-shadow:0 0 0 0 rgba(224,122,95,.4);}
+      50%{box-shadow:0 0 0 8px rgba(224,122,95,0);}
+    }
+    .map-destination {
+      display:flex; align-items:center; gap:10px;
+      padding:12px 16px;
+    }
+    .dest-dot { width:8px; height:8px; border-radius:50%; background:var(--mint); flex-shrink:0; }
+    .dest-text { font-size:12px; font-weight:600; color:var(--ink); }
+    .dest-sub  { font-size:10px; color:var(--soft); margin-top:1px; }
+
+    /* ── SIMPLE NOTIFICATION SCREENS (2,3,4) ── */
+    .home-screen {
+      position:absolute; inset:0; z-index:0;
+      background:linear-gradient(160deg,#EDE4DC 0%,#D9CFC7 100%);
+      display:flex; flex-direction:column;
+    }
+    /* app icons grid (decorative) */
+    .app-grid {
+      position:absolute; top:90px; left:0; right:0;
+      display:grid; grid-template-columns:repeat(4,1fr);
+      gap:14px; padding:0 22px;
+      opacity:.25;
+    }
+    .app-ic {
+      width:52px; height:52px; border-radius:14px;
+      background:rgba(28,25,23,.12);
+      margin:0 auto;
+    }
+
+    /* progress tracker - screens 2/3/4 */
+    .journey-tracker {
+      position:absolute; bottom:120px; left:16px; right:16px;
+      background:rgba(255,255,255,.85);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.7);
+      box-shadow:0 4px 24px rgba(28,25,23,.1);
+      padding:16px;
+      z-index:20;
+    }
+    .jt-label { font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--soft); margin-bottom:10px; }
+    .jt-steps { display:flex; align-items:center; }
+    .jt-step {
+      display:flex; flex-direction:column; align-items:center; gap:4px; flex:1;
+    }
+    .jt-dot {
+      width:24px; height:24px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center; font-size:12px;
+      border:2px solid var(--border); background:var(--white);
+      color:var(--soft); font-weight:700; font-size:10px;
+      flex-shrink:0;
+    }
+    .jt-dot.done { background:var(--mint); border-color:var(--mint); color:#fff; }
+    .jt-dot.active { background:var(--terra); border-color:var(--terra); color:#fff;
+      box-shadow:0 0 0 4px rgba(224,122,95,.2); }
+    .jt-connector {
+      flex:1; height:2px; background:var(--border); margin-bottom:18px;
+      border-radius:99px; overflow:hidden;
+    }
+    .jt-connector.done { background:var(--mint); }
+    .jt-step-label { font-size:9px; font-weight:600; color:var(--soft); text-align:center; line-height:1.3; }
+    .jt-step-label.done  { color:var(--mint); }
+    .jt-step-label.active{ color:var(--terra); font-weight:700; }
+
+    /* ── NAV BAR ── */
+    .phone-nav {
+      position:absolute; bottom:0; left:0; right:0; height:80px; z-index:50;
+      background:rgba(255,255,255,.7); backdrop-filter:blur(20px);
+      border-top:1px solid rgba(28,25,23,.07);
+      border-radius:0 0 44px 44px;
+      display:flex; align-items:center; justify-content:space-around; padding:0 20px;
+    }
+    .pn-item {
+      display:flex; flex-direction:column; align-items:center; gap:3px;
+      font-size:10px; font-weight:600; color:var(--soft); cursor:pointer;
+    }
+    .pn-item.active { color:var(--terra); }
+    .pn-item span { font-size:22px; }
+
+    /* ── SCREEN SWITCHER (below phones) ── */
+    .switcher {
+      position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+      display:flex; gap:8px; z-index:9999;
+    }
+    .sw-btn {
+      padding:9px 18px; border-radius:99px; border:none; cursor:pointer;
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; font-weight:700;
+      background:rgba(255,255,255,.5); color:var(--muted);
+      backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,.6);
+      transition:all .2s;
+    }
+    .sw-btn.active { background:var(--terra); color:#fff; border-color:var(--terra); box-shadow:0 4px 16px rgba(224,122,95,.4); }
+
+    /* ── ALERT TOAST (drop-in) ── */
+    .alert-strip {
+      position:absolute; left:14px; right:14px; top:70px; z-index:60;
+      background:var(--ink); color:#fff;
+      border-radius:16px; padding:12px 16px;
+      display:flex; align-items:center; gap:10px;
+      box-shadow:0 6px 24px rgba(28,25,23,.25);
+      animation:stripDrop .45s cubic-bezier(.34,1.2,.64,1) both;
+    }
+    @keyframes stripDrop {
+      from{opacity:0;transform:translateY(-16px);} to{opacity:1;transform:translateY(0);}
+    }
+    .as-icon { font-size:22px; flex-shrink:0; }
+    .as-text { flex:1; }
+    .as-title { font-size:13px; font-weight:700; }
+    .as-sub   { font-size:11px; opacity:.65; margin-top:2px; }
+
+    /* screen visibility */
+    .phone-screen { display:none; }
+    .phone-screen.visible { display:flex; flex-direction:column; }
+
+    /* ── INLINE SCREENS LAYOUT ── */
+    .screens-row {
+      display:flex; gap:20px; align-items:center;
+    }
+    .phone-wrap { position:relative; }
+    .phone-label {
+      position:absolute; top:-28px; left:50%; transform:translateX(-50%);
+      font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
+      color:rgba(28,25,23,.4); white-space:nowrap;
+    }
+
+    /* CALL OVERLAY */
+    .call-overlay {
+      position:absolute; inset:0; z-index:300;
+      background:linear-gradient(160deg,#2D4A3E 0%,#1a2d26 100%);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      border-radius:44px;
+      opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    .call-overlay.show { opacity:1; pointer-events:all; }
+    .call-av {
+      width:90px; height:90px; border-radius:50%; overflow:hidden;
+      border:3px solid rgba(255,255,255,.3);
+      box-shadow:0 0 0 12px rgba(255,255,255,.07);
+    }
+    .call-av img { width:100%; height:100%; object-fit:cover; }
+    .call-name { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; color:#fff; }
+    .call-status { font-size:13px; color:rgba(255,255,255,.55); }
+    .call-actions { display:flex; gap:28px; margin-top:16px; }
+    .call-btn {
+      width:60px; height:60px; border-radius:50%; border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; font-size:24px;
+    }
+    .call-end { background:#EF4444; box-shadow:0 4px 16px rgba(239,68,68,.4); }
+    .call-mute { background:rgba(255,255,255,.15); }
+    .call-label { font-size:9px; font-weight:600; color:rgba(255,255,255,.5); margin-top:4px; text-align:center; }
+
+    /* MSG OVERLAY */
+    .msg-overlay {
+      position:absolute; inset:0; z-index:300;
+      background:var(--cream);
+      border-radius:44px;
+      display:flex; flex-direction:column;
+      opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    .msg-overlay.show { opacity:1; pointer-events:all; }
+    .msg-header {
+      padding:58px 16px 14px;
+      background:var(--white); border-bottom:1px solid var(--border);
+      display:flex; align-items:center; gap:12px;
+    }
+    .msg-av {
+      width:38px; height:38px; border-radius:12px; overflow:hidden;
+    }
+    .msg-av img { width:100%;height:100%;object-fit:cover; }
+    .msg-name { font-family:'Syne',sans-serif; font-size:15px; font-weight:800; color:var(--ink); }
+    .msg-role { font-size:10px; color:var(--soft); }
+    .msg-close {
+      margin-left:auto; width:32px;height:32px;border-radius:10px;
+      background:var(--cream);border:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;
+    }
+    .msg-body { flex:1; padding:16px; display:flex; flex-direction:column; gap:10px; overflow-y:auto; }
+    .msg-bubble {
+      max-width:75%; padding:10px 13px; border-radius:18px; font-size:13px; line-height:1.5;
+    }
+    .bubble-in  { background:var(--white); color:var(--ink); border:1px solid var(--border); border-bottom-left-radius:4px; }
+    .bubble-out { background:var(--terra); color:#fff; align-self:flex-end; border-bottom-right-radius:4px; }
+    .msg-input-row {
+      padding:12px 16px; background:var(--white); border-top:1px solid var(--border);
+      display:flex; gap:8px; align-items:center;
+    }
+    .msg-input {
+      flex:1; height:38px; border-radius:12px; border:1.5px solid var(--border);
+      background:var(--cream); padding:0 12px; font-size:13px; font-family:inherit;
+      color:var(--ink); outline:none;
+    }
+    .msg-send {
+      width:38px;height:38px;border-radius:12px;border:none;cursor:pointer;
+      background:var(--terra);color:#fff;font-size:16px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- SCREEN SWITCHER -->
+<div class="switcher">
+  <button class="sw-btn active" onclick="showScreen(1)">📱 Notif 1</button>
+  <button class="sw-btn" onclick="showScreen(2)">🛺 Picked Up</button>
+  <button class="sw-btn" onclick="showScreen(3)">📍 Halfway</button>
+  <button class="sw-btn" onclick="showScreen(4)">🏁 Dropped Off</button>
+</div>
+
+<!-- ════════════════════════════════
+     SCREEN 1 — Ride Booked + Detail
+     ════════════════════════════════ -->
+<div class="phone" id="phone1">
+  <div class="notch"></div>
+  <div class="status"><span>9:41</span><span>●●● WiFi 🔋</span></div>
+
+  <!-- LOCK SCREEN BASE -->
+  <div class="wallpaper"></div>
+  <div class="lock-clock" style="top:82px">
+    <div class="lc-time">9:41</div>
+    <div class="lc-date">Sunday, 1 June</div>
+  </div>
+
+  <!-- NOTIFICATION BANNER (clickable) -->
+  <div class="notif-banner top" id="notifBanner1" onclick="openDetail()" style="cursor:pointer;top:200px;">
+    <div class="nb-row">
+      <div class="nb-app-icon">🛺</div>
+      <div class="nb-content">
+        <div class="nb-header">
+          <div class="nb-app">TeenCab</div>
+          <div class="nb-time">now</div>
+        </div>
+        <div class="nb-title">Riya's ride is confirmed! 🎉</div>
+        <div class="nb-body">Arjun K. accepted the buddy request and is ready to ride together. Tap to see details.</div>
+        <div class="nb-expand">
+          <div class="nb-expand-label">View buddy details →</div>
+          <div class="nb-chevron">⌄</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- second older notif -->
+  <div class="notif-banner" style="top:330px;opacity:.55;">
+    <div class="nb-row">
+      <div class="nb-app-icon" style="background:linear-gradient(135deg,#6BAF9A,#A8D9CE);">📍</div>
+      <div class="nb-content">
+        <div class="nb-header">
+          <div class="nb-app">TeenCab</div>
+          <div class="nb-time">8 min ago</div>
+        </div>
+        <div class="nb-title">Riya opened TeenCab</div>
+        <div class="nb-body">Your teen started looking for a buddy ride.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="swipe-bar">
+    <div class="swipe-pill">Swipe up to unlock</div>
+  </div>
+
+  <!-- DETAIL PANEL (hidden until tap) -->
+  <div class="detail-panel" id="detailPanel" style="display:none;transform:translateY(100%);transition:transform .5s cubic-bezier(.34,1.1,.64,1);">
+    <div class="dp-header">
+      <div class="dp-close" onclick="closeDetail()">✕</div>
+      <div class="dp-title-col">
+        <div class="dp-title">Buddy Details</div>
+        <div class="dp-sub">Riya's confirmed ride partner</div>
+      </div>
+      <div class="dp-badge">✓ Verified</div>
+    </div>
+
+    <div class="dp-scroll">
+      <!-- buddy card -->
+      <div class="buddy-section">
+        <div class="buddy-photo-row">
+          <div class="buddy-av">
+            <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=300&q=80" alt="Arjun"/>
+          </div>
+          <div class="buddy-info">
+            <div class="buddy-name-dp">Arjun K.</div>
+            <div class="buddy-tag-row">
+              <div class="b-pill b-pill-terra">24 yrs</div>
+              <div class="b-pill b-pill-sky">UI/UX Designer</div>
+              <div class="b-pill b-pill-mint">⭐ 4.9</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-rows">
+          <div class="d-row">
+            <div class="d-icon di-peach">📞</div>
+            <div>
+              <div class="d-label">Phone Number</div>
+              <div class="d-value">+91 98400 12345</div>
+            </div>
+          </div>
+          <div class="d-row">
+            <div class="d-icon di-sky">🎓</div>
+            <div>
+              <div class="d-label">Occupation</div>
+              <div class="d-value">UI/UX Designer · Freelance</div>
+            </div>
+          </div>
+          <div class="d-row">
+            <div class="d-icon di-mint">🛺</div>
+            <div>
+              <div class="d-label">Total Buddy Rides</div>
+              <div class="d-value">47 rides · No incidents</div>
+            </div>
+          </div>
+          <div class="d-row">
+            <div class="d-icon di-amber">🏠</div>
+            <div>
+              <div class="d-label">Pickup Point</div>
+              <div class="d-value">Saidapet Bus Stop, Chennai</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <button class="act-btn act-call" onclick="showCall()">📞 Call Arjun</button>
+          <button class="act-btn act-msg" onclick="showMsg()">💬 Message</button>
+        </div>
+      </div>
+
+      <!-- map section -->
+      <div class="map-section">
+        <div class="map-label">Trip Route</div>
+        <div class="map-visual">
+          <div class="map-route"></div>
+          <div class="map-pin map-pin-a">
+            <div class="pin-dot pin-dot-a"></div>
+            <div class="pin-label">Saidapet</div>
+          </div>
+          <div class="map-pin map-pin-b">
+            <div class="pin-dot pin-dot-b"></div>
+            <div class="pin-label">Anna Nagar</div>
+          </div>
+          <div class="teen-marker">🧒</div>
+        </div>
+        <div class="map-destination">
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--terra);flex-shrink:0;"></div>
+              <div>
+                <div class="dest-text">From: Saidapet Bus Stop</div>
+              </div>
+            </div>
+            <div style="width:1px;height:10px;background:var(--border);margin-left:3px;"></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="dest-dot"></div>
+              <div>
+                <div class="dest-text">To: Anna Nagar, 2nd Avenue</div>
+                <div class="dest-sub">~8.4 km · Est. 22 min</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /dp-scroll -->
+
+    <!-- CALL OVERLAY -->
+    <div class="call-overlay" id="callOverlay">
+      <div class="call-av"><img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=300&q=80" alt="Arjun"/></div>
+      <div class="call-name">Arjun K.</div>
+      <div class="call-status">Calling via TeenCab…</div>
+      <div class="call-actions">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <button class="call-btn call-mute">🔇</button>
+          <div class="call-label">Mute</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <button class="call-btn call-end" onclick="hideCall()">📵</button>
+          <div class="call-label">End</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <button class="call-btn call-mute">🔊</button>
+          <div class="call-label">Speaker</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MSG OVERLAY -->
+    <div class="msg-overlay" id="msgOverlay">
+      <div class="msg-header">
+        <div class="msg-av"><img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=300&q=80" alt="Arjun"/></div>
+        <div>
+          <div class="msg-name">Arjun K.</div>
+          <div class="msg-role">Buddy Driver</div>
+        </div>
+        <div class="msg-close" onclick="hideMsg()">✕</div>
+      </div>
+      <div class="msg-body">
+        <div class="msg-bubble bubble-in">Hi! I'm Arjun. I've accepted Riya's buddy request. We'll be taking the cab from Saidapet together 🙌</div>
+        <div class="msg-bubble bubble-out">Thank you Arjun! Please keep her safe. What time are you planning to leave?</div>
+        <div class="msg-bubble bubble-in">Around 10:15 AM. I'll make sure she's safe, don't worry 😊</div>
+      </div>
+      <div class="msg-input-row">
+        <input class="msg-input" type="text" placeholder="Type a message…"/>
+        <button class="msg-send">↑</button>
+      </div>
+    </div>
+
+  </div><!-- /detail-panel -->
+
+</div><!-- /phone1 -->
+
+
+<!-- ════════════════════════════════
+     SCREEN 2 — Buddy Picked Up Teen
+     ════════════════════════════════ -->
+<div class="phone" id="phone2" style="display:none;">
+  <div class="notch"></div>
+  <div class="status"><span>10:18</span><span>●●● WiFi 🔋</span></div>
+
+  <div class="wallpaper"></div>
+  <div class="lock-clock" style="top:82px">
+    <div class="lc-time">10:18</div>
+    <div class="lc-date">Sunday, 1 June</div>
+  </div>
+
+  <!-- alert strip -->
+  <div class="alert-strip">
+    <div class="as-icon">🛺</div>
+    <div class="as-text">
+      <div class="as-title">Riya has been picked up!</div>
+      <div class="as-sub">Arjun & Riya are now in the cab · 10:18 AM</div>
+    </div>
+  </div>
+
+  <!-- main notification -->
+  <div class="notif-banner" style="top:210px;">
+    <div class="nb-row">
+      <div class="nb-app-icon">🛺</div>
+      <div class="nb-content">
+        <div class="nb-header">
+          <div class="nb-app">TeenCab</div>
+          <div class="nb-time">just now</div>
+        </div>
+        <div class="nb-title">Riya is on her way 🚀</div>
+        <div class="nb-body">Arjun picked up Riya at Saidapet Bus Stop at 10:18 AM. Heading to Anna Nagar.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- journey tracker -->
+  <div class="journey-tracker" style="bottom:100px;">
+    <div class="jt-label">Live Journey Status</div>
+    <div class="jt-steps">
+      <div class="jt-step">
+        <div class="jt-dot done">✓</div>
+        <div class="jt-step-label done">Ride<br>Booked</div>
+      </div>
+      <div class="jt-connector done"></div>
+      <div class="jt-step">
+        <div class="jt-dot active">🛺</div>
+        <div class="jt-step-label active">Picked<br>Up</div>
+      </div>
+      <div class="jt-connector"></div>
+      <div class="jt-step">
+        <div class="jt-dot">½</div>
+        <div class="jt-step-label">Half<br>Way</div>
+      </div>
+      <div class="jt-connector"></div>
+      <div class="jt-step">
+        <div class="jt-dot">🏁</div>
+        <div class="jt-step-label">Dropped<br>Off</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone-nav">
+    <div class="pn-item"><span>🏠</span>Home</div>
+    <div class="pn-item active"><span>🛺</span>Ride</div>
+    <div class="pn-item"><span>👤</span>Profile</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     SCREEN 3 — Halfway There
+     ════════════════════════════════ -->
+<div class="phone" id="phone3" style="display:none;">
+  <div class="notch"></div>
+  <div class="status"><span>10:29</span><span>●●● WiFi 🔋</span></div>
+
+  <div class="wallpaper"></div>
+  <div class="lock-clock" style="top:82px">
+    <div class="lc-time">10:29</div>
+    <div class="lc-date">Sunday, 1 June</div>
+  </div>
+
+  <!-- alert strip -->
+  <div class="alert-strip" style="background:linear-gradient(135deg,#5B9EC9,#3A7FA8);">
+    <div class="as-icon">📍</div>
+    <div class="as-text">
+      <div class="as-title">Riya is halfway there!</div>
+      <div class="as-sub">Est. 11 min remaining · All good 👍</div>
+    </div>
+  </div>
+
+  <!-- main notification -->
+  <div class="notif-banner" style="top:210px;">
+    <div class="nb-row">
+      <div class="nb-app-icon" style="background:linear-gradient(135deg,#5B9EC9,#A8D4EB);">📍</div>
+      <div class="nb-content">
+        <div class="nb-header">
+          <div class="nb-app">TeenCab</div>
+          <div class="nb-time">just now</div>
+        </div>
+        <div class="nb-title">Halfway checkpoint reached 📍</div>
+        <div class="nb-body">Riya & Arjun have passed the Teynampet checkpoint. ~11 min to Anna Nagar. Everything looks good!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- mini map progress -->
+  <div class="notif-banner" style="top:320px;padding:12px 14px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="font-size:20px;">🗺️</div>
+      <div style="flex:1;">
+        <div style="font-size:10px;font-weight:700;color:var(--soft);margin-bottom:6px;letter-spacing:.5px;">PROGRESS</div>
+        <div style="height:8px;background:var(--peach);border-radius:99px;overflow:hidden;">
+          <div style="height:100%;width:52%;background:linear-gradient(90deg,var(--terra),var(--sky));border-radius:99px;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;">
+          <div style="font-size:10px;color:var(--terra);font-weight:600;">Saidapet</div>
+          <div style="font-size:10px;color:var(--muted);font-weight:600;">52%</div>
+          <div style="font-size:10px;color:var(--mint);font-weight:600;">Anna Nagar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- journey tracker -->
+  <div class="journey-tracker" style="bottom:100px;">
+    <div class="jt-label">Live Journey Status</div>
+    <div class="jt-steps">
+      <div class="jt-step">
+        <div class="jt-dot done">✓</div>
+        <div class="jt-step-label done">Ride<br>Booked</div>
+      </div>
+      <div class="jt-connector done"></div>
+      <div class="jt-step">
+        <div class="jt-dot done">✓</div>
+        <div class="jt-step-label done">Picked<br>Up</div>
+      </div>
+      <div class="jt-connector done"></div>
+      <div class="jt-step">
+        <div class="jt-dot active">📍</div>
+        <div class="jt-step-label active">Half<br>Way</div>
+      </div>
+      <div class="jt-connector"></div>
+      <div class="jt-step">
+        <div class="jt-dot">🏁</div>
+        <div class="jt-step-label">Dropped<br>Off</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone-nav">
+    <div class="pn-item"><span>🏠</span>Home</div>
+    <div class="pn-item active"><span>🛺</span>Ride</div>
+    <div class="pn-item"><span>👤</span>Profile</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     SCREEN 4 — Dropped Off
+     ════════════════════════════════ -->
+<div class="phone" id="phone4" style="display:none;">
+  <div class="notch"></div>
+  <div class="status"><span>10:41</span><span>●●● WiFi 🔋</span></div>
+
+  <div class="wallpaper" style="background:linear-gradient(160deg,#E8F4EF 0%,#D4E8DF 100%);"></div>
+
+  <div class="lock-clock" style="top:82px">
+    <div class="lc-time" style="color:#1C4A3A;">10:41</div>
+    <div class="lc-date" style="color:#4A9882;">Sunday, 1 June</div>
+  </div>
+
+  <!-- success alert -->
+  <div class="alert-strip" style="background:linear-gradient(135deg,#6BAF9A,#4A9882);">
+    <div class="as-icon">🏁</div>
+    <div class="as-text">
+      <div class="as-title">Riya has arrived safely! 🎉</div>
+      <div class="as-sub">Dropped off at Anna Nagar · 10:41 AM</div>
+    </div>
+  </div>
+
+  <!-- main notification -->
+  <div class="notif-banner" style="top:210px; border:1.5px solid #A7F3D0;">
+    <div class="nb-row">
+      <div class="nb-app-icon" style="background:linear-gradient(135deg,#6BAF9A,#A8D9CE);">🏁</div>
+      <div class="nb-content">
+        <div class="nb-header">
+          <div class="nb-app">TeenCab</div>
+          <div class="nb-time">just now</div>
+        </div>
+        <div class="nb-title">Riya has been dropped off safely ✅</div>
+        <div class="nb-body">She arrived at Anna Nagar, 2nd Avenue at 10:41 AM. Total ride time: 23 min. Rate Arjun's buddy ride?</div>
+        <div class="nb-expand" style="border-top-color:rgba(107,175,154,.2);">
+          <div class="nb-expand-label" style="color:var(--mint);">⭐ Rate this buddy →</div>
+          <div class="nb-chevron" style="color:var(--mint);">⌄</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- summary card -->
+  <div class="notif-banner" style="top:368px;padding:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);">TRIP SUMMARY</div>
+      <div style="font-size:9px;font-weight:600;color:var(--soft);">Sun, 1 June</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
+      <div style="background:var(--peach);border-radius:12px;padding:10px 6px;">
+        <div style="font-size:18px;">🛣️</div>
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-top:3px;">8.4 km</div>
+        <div style="font-size:9px;color:var(--soft);font-weight:600;">Distance</div>
+      </div>
+      <div style="background:#EBF6F2;border-radius:12px;padding:10px 6px;">
+        <div style="font-size:18px;">⏱️</div>
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-top:3px;">23 min</div>
+        <div style="font-size:9px;color:var(--soft);font-weight:600;">Duration</div>
+      </div>
+      <div style="background:#EAF4FA;border-radius:12px;padding:10px 6px;">
+        <div style="font-size:18px;">⭐</div>
+        <div style="font-size:13px;font-weight:800;color:var(--ink);margin-top:3px;">4.9</div>
+        <div style="font-size:9px;color:var(--soft);font-weight:600;">Buddy Score</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- journey tracker — all done -->
+  <div class="journey-tracker" style="bottom:100px;">
+    <div class="jt-label">Journey Complete 🎉</div>
+    <div class="jt-steps">
+      <div class="jt-step">
+        <div class="jt-dot done">✓</div>
+        <div class="jt-step-label done">Ride<br>Booked</div>
+      </div>
+      <div class="jt-connector done"></div>
+      <div class="jt-step">
+        <div class="jt-dot done">✓</div>
+        <div class="jt-step-label done">Picked<br>Up</div>
+      </div>
+      <div class="jt-connector done"></div>
+      <div class="jt-step">
+        <div class="jt-dot done">✓</div>
+        <div class="jt-step-label done">Half<br>Way</div>
+      </div>
+      <div class="jt-connector done"></div>
+      <div class="jt-step">
+        <div class="jt-dot done">✓</div>
+        <div class="jt-step-label done">Arrived<br>Safe</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone-nav">
+    <div class="pn-item"><span>🏠</span>Home</div>
+    <div class="pn-item active"><span>🛺</span>Ride</div>
+    <div class="pn-item"><span>👤</span>Profile</div>
+  </div>
+</div>
+
+<script>
+  let current = 1;
+
+  function showScreen(n) {
+    // hide all
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById('phone' + i).style.display = 'none';
+    }
+    document.getElementById('phone' + n).style.display = 'flex';
+    current = n;
+    // update switcher buttons
+    document.querySelectorAll('.sw-btn').forEach((b, i) => {
+      b.classList.toggle('active', i + 1 === n);
+    });
+  }
+
+  function openDetail() {
+    const panel = document.getElementById('detailPanel');
+    panel.style.display = 'flex';
+    requestAnimationFrame(() => {
+      panel.style.transform = 'translateY(0)';
+    });
+  }
+  function closeDetail() {
+    const panel = document.getElementById('detailPanel');
+    panel.style.transform = 'translateY(100%)';
+    setTimeout(() => { panel.style.display = 'none'; }, 500);
+  }
+
+  function showCall() {
+    document.getElementById('callOverlay').classList.add('show');
+  }
+  function hideCall() {
+    document.getElementById('callOverlay').classList.remove('show');
+  }
+
+  function showMsg() {
+    document.getElementById('msgOverlay').classList.add('show');
+  }
+  function hideMsg() {
+    document.getElementById('msgOverlay').classList.remove('show');
+  }
+
+  // send message on enter
+  document.querySelector('.msg-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && this.value.trim()) {
+      const body = document.querySelector('.msg-body');
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble bubble-out';
+      bubble.textContent = this.value.trim();
+      body.appendChild(bubble);
+      this.value = '';
+      body.scrollTop = body.scrollHeight;
+    }
+  });
+  document.querySelector('.msg-send').addEventListener('click', function() {
+    const inp = document.querySelector('.msg-input');
+    if (inp.value.trim()) {
+      const body = document.querySelector('.msg-body');
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble bubble-out';
+      bubble.textContent = inp.value.trim();
+      body.appendChild(bubble);
+      inp.value = '';
+      body.scrollTop = body.scrollHeight;
+    }
+  });
+</script>
+</body>
+</html>
