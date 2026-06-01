@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>BuddyDate · TeenCab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300,0,9..40,400,0,9..40,500,0,9..40,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --coral:    #FF5757;
+      --bg:       #F9F9F9;
+      --surface:  #FFFFFF;
+      --text:     #1A1A1A;
+      --sub:      #8E8E93;
+      --card-r:   32px;
+      --nav-purple: #6D28D9; 
+      --nav-dark: #4C1D95;
+      --nav-gradient: linear-gradient(180deg, #8B5CF6 0%, #4C1D95 100%);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { touch-action: none; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0f0f1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ══ PHONE FRAME ══ */
+    .phone {
+      width: 375px; 
+      height: 812px;
+      background: var(--bg);
+      border-radius: 44px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3), 0 1px 0 rgba(255,255,255,.7) inset;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .notch {
+      position: absolute; top: 12px; left: 50%;
+      transform: translateX(-50%);
+      width: 110px; height: 30px;
+      background: #000;
+      border-radius: 99px;
+      z-index: 999;
+    }
+
+    .status {
+      position: absolute; top: 6px; left: 0; right: 0;
+      height: 48px;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      padding: 0 24px 6px; z-index: 998;
+    }
+    .status span { font-size: 12px; font-weight: 600; color: var(--text); opacity: .8; }
+
+    /* ══ HEADER ══ */
+    .header {
+      padding: 60px 24px 0;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      flex-shrink: 0;
+    }
+    .buddy-brand { display: flex; flex-direction: column; line-height: 1.1; }
+    .buddy-main {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px;
+      color: var(--text); letter-spacing: -0.5px;
+    }
+    .buddy-main em { font-style: normal; color: var(--coral); }
+    .buddy-sub {
+      font-size: 9px; font-weight: 700; color: var(--sub);
+      letter-spacing: 1px; text-transform: uppercase; margin-top: 4px;
+    }
+    .buddy-sub span { color: var(--coral); }
+
+    .vibe-progress { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .vibe-progress-label { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--sub); }
+    .vibe-count-text { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1; }
+    .vibe-count-text span { font-size: 12px; font-weight: 500; color: var(--sub); }
+
+    .progress-strip { margin: 15px 24px 0; height: 3px; background: rgba(0,0,0,.05); border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--coral), #FFAA3B); width: 0%; transition: width .5s ease; }
+
+    .hint-row { padding: 12px 24px 0; }
+    .hint-text { font-size: 12px; font-weight: 500; color: var(--sub); }
+
+    /* ══ CARD STACK ══ */
+    .stack-area { 
+      flex: 1; 
+      position: relative; 
+      margin: 15px 0 0; 
+      overflow: hidden; 
+      perspective: 1000px; 
+      transform-style: preserve-3d; 
+    }
+    
+    .card { 
+      position: absolute; left: 20px; right: 20px; bottom: 100px; top: 10px; 
+      background-color: #FFFFFF !important; 
+      border-radius: var(--card-r); 
+      overflow: hidden; 
+      user-select: none; 
+      will-change: transform, opacity; 
+      box-shadow: 0 15px 35px rgba(0,0,0,.12); 
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+      isolation: isolate;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+    }
+
+    .card.behind-1 { 
+      z-index: 1; 
+      pointer-events: none; 
+      transform: translateZ(-50px) scale(0.956) translateY(16px); 
+    }
+    .card.behind-2 { 
+      z-index: 0; 
+      pointer-events: none; 
+      transform: translateZ(-100px) scale(0.912) translateY(32px); 
+      opacity: .72; 
+    }
+    .card.top { 
+      z-index: 10; 
+      cursor: grab; 
+      transform: translateZ(0) scale(1) translateY(0); 
+      opacity: 1 !important; 
+      animation: cardPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .card.top.is-dragging { 
+      cursor: grabbing; 
+      transition: none !important; 
+      animation: none !important;
+    }
+    
+    @keyframes cardPop {
+      0% { transform: translateZ(0) scale(0.92) translateY(10px); opacity: 0.8; }
+      100% { transform: translateZ(0) scale(1) translateY(0); opacity: 1; }
+    }
+    
+    .card-img-wrap { height: 60%; position: relative; overflow: hidden; background: #eee; }
+    .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; display: block; }
+    
+    .stamp { position: absolute; top: 26px; font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; padding: 6px 14px; border-radius: 8px; border: 2.5px solid; opacity: 0; pointer-events: none; z-index: 20; }
+    .stamp-like { right: 16px; color: #22D3A5; border-color: #22D3A5; background: rgba(34,211,165,.1); }
+    .stamp-nope { left: 16px; color: var(--coral); border-color: var(--coral); background: rgba(255,87,87,.1); }
+    
+    .card-body { padding: 20px; display: flex; flex-direction: column; gap: 10px; background-color: #FFFFFF !important; }
+    .card-header-row { display: flex; align-items: center; gap: 10px; }
+    .card-icon { width: 24px; height: 24px; border-radius: 6px; background: #FFEBEE; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .card-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+    .card-desc { font-size: 13px; color: var(--sub); line-height: 1.5; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .tag { font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 99px; background: #F2F2F7; color: var(--text); }
+
+    /* ══ SIMPLE NAVIGATION BAR ══ */
+    .nav {
+      height: 80px;
+      background: var(--nav-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 20px;
+      border-radius: 0 0 44px 44px;
+      flex-shrink: 0;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+    }
+
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.5);
+      cursor: pointer; transition: color 0.2s ease;
+    }
+    .nav-item.active { color: #fff; }
+    .nav-item span { font-size: 20px; }
+    .nav-item:hover { color: #fff; }
+
+    /* ══ RESULTS SCREEN ══ */
+    #result-screen {
+      position: absolute; inset: 0; z-index: 300;
+      display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none;
+      transform: translateY(100%);
+      transition: transform .65s cubic-bezier(.34,1.1,.64,1), opacity .4s ease;
+      overflow: hidden;
+    }
+    #result-screen.show { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .result-full-bg { position: absolute; inset: 0; z-index: 0; }
+    .orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0; transition: opacity 1.2s ease; }
+    #result-screen.show .orb { opacity: 1; }
+    .orb-1 { width: 300px; height: 300px; top: -100px; left: -80px; }
+    .orb-2 { width: 220px; height: 220px; top: 20%; right: -70px; }
+    .result-grid { position: absolute; inset: 0; z-index: 1; background-image: linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px); background-size: 36px 36px; }
+    .result-content { position: relative; z-index: 10; display: flex; flex-direction: column; height: 100%; }
+    .result-top { padding: 52px 24px 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .result-big-emoji { font-size: 72px; display: block; }
+    .result-profile-title { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; color: #fff; line-height: 1; }
+    .result-divider { width: 40px; height: 2.5px; background: #fff; border-radius: 99px; margin: 12px auto 0; }
+    .result-stats { display: flex; margin: 16px 0 0; width: 100%; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,.1); }
+    .stat-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 12px 6px; background: rgba(255,255,255,.07); border-right: 1px solid rgba(255,255,255,.07); }
+    .stat-val { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: #fff; }
+    .stat-lbl { font-size: 8px; font-weight: 600; color: rgba(255,255,255,.4); text-transform: uppercase; }
+    .result-bottom { flex: 1; border-radius: 26px 26px 0 0; margin-top: 20px; padding: 26px 22px; display: flex; flex-direction: column; gap: 14px; position: relative; }
+    .result-desc-text { font-size: 13px; color: rgba(255,255,255,.75); line-height: 1.6; }
+    .uniqueness-section { display: flex; flex-direction: column; gap: 8px; }
+    .uniqueness-label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.4); text-transform: uppercase; }
+    .rarity-row { display: flex; align-items: center; gap: 10px; }
+    .rarity-name { font-size: 10px; color: #fff; width: 68px; }
+    .rarity-track { flex: 1; height: 5px; background: rgba(255,255,255,.1); border-radius: 99px; overflow: hidden; }
+    .rarity-fill { height: 100%; background: #fff; width: 0; transition: width 1s ease; }
+    .rarity-pct { font-size: 10px; color: #fff; width: 30px; text-align: right; }
+    .trait-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .trait-chip { padding: 6px 12px; border-radius: 99px; font-size: 11px; font-weight: 700; background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.1); }
+    .trait-chip.hot { background: #fff; color: var(--text); }
+    .btn-find-buddy { width: 100%; padding: 15px; background: #fff; color: var(--text); border: none; border-radius: 16px; font-family: 'Syne', sans-serif; font-weight: 700; cursor: pointer; }
+    .btn-share-row { display: flex; gap: 8px; }
+    .btn-share-main { flex: 1; padding: 12px; background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; cursor: pointer; font-size: 13px; }
+
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"></div>
+  <div class="status">
+    <span>9:41</span>
+    <span>📶 🔋</span>
+  </div>
+
+  <div class="header">
+    <div class="buddy-brand">
+      <div class="buddy-main">Buddy<em>Date</em></div>
+      <div class="buddy-sub">by <span>TeenCab</span></div>
+    </div>
+    <div class="vibe-progress">
+      <div class="vibe-progress-label">MATCHES</div>
+      <div class="vibe-count-text" id="counter-num">0<span>/4</span></div>
+    </div>
+  </div>
+
+  <div class="progress-strip"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="hint-row">
+    <div class="hint-text">Swipe right to vibe ⚡</div>
+  </div>
+
+  <div class="stack-area" id="stack"></div>
+
+  <div class="nav">
+    <div class="nav-item"><span>🏠</span>Home</div>
+    <div class="nav-item active"><span>✨</span>BuddyDate</div>
+    <div class="nav-item"><span>💬</span>Chats</div>
+    <div class="nav-item"><span>👤</span>Me</div>
+  </div>
+
+  <div id="result-screen">
+    <div class="result-full-bg" id="result-full-bg"></div>
+    <div class="orb orb-1" id="orb1"></div>
+    <div class="orb orb-2" id="orb2"></div>
+    <div class="result-grid"></div>
+    <div class="result-content">
+      <div class="result-top">
+        <div class="result-emoji-wrap"><span class="result-big-emoji" id="res-emoji">🎨</span></div>
+        <div class="result-profile-title" id="res-title">The Creative Soul</div>
+        <div class="result-divider"></div>
+        <div class="result-stats">
+          <div class="stat-item"><div class="stat-val" id="stat-rarity-val">—</div><div class="stat-lbl">Rarity</div></div>
+          <div class="stat-item"><div class="stat-val" id="stat-rank">—</div><div class="stat-lbl">Rank</div></div>
+          <div class="stat-item"><div class="stat-val" id="stat-users">—</div><div class="stat-lbl">Users</div></div>
+          <div class="stat-item"><div class="stat-val" id="stat-match">—</div><div class="stat-lbl">Match</div></div>
+        </div>
+      </div>
+      <div class="result-bottom" id="result-bottom">
+        <p class="result-desc-text" id="res-desc"></p>
+        <div class="uniqueness-section">
+          <div class="uniqueness-label">Vibe Rarity</div>
+          <div id="rarity-bars"></div>
+        </div>
+        <div class="trait-chips" id="res-chips"></div>
+        <div class="result-cta">
+          <button class="btn-find-buddy" onclick="restart()">🚗 Find My Buddy</button>
+          <div class="btn-share-row">
+            <button class="btn-share-main" id="btn-share">Share Vibe</button>
+            <button class="btn-share-main" style="flex:0 0 60px;" onclick="restart()">↩</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ DATA ══
+const ALL_CARDS = [
+  { title: "Social Media Growth",desc: "Analytics, hooks, and algorithms. Growing accounts from zero is your favourite puzzle.",     tags: ["Growth","Constant","Strategy"],    badge: "Business",  badgeBg: "rgba(255,170,59,.15)",  badgeColor: "#FFAA3B",  emoji: "📈", category: "business",  img: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=600&q=80" },
+  { title: "Digital Creator",    desc: "Reels, edits, and content that stops the scroll. Building something from nothing.",            tags: ["Content","Camera","Aesthetic"],   badge: "Creative",  badgeBg: "rgba(255,87,87,.15)",   badgeColor: "#FF5757",  emoji: "🎬", category: "creative",  img: "https://images.unsplash.com/photo-1598300056393-4aac492f4344?auto=format&fit=crop&w=600&q=80" },
+  { title: "Street Art",         desc: "Spray cans, bold lines, and city walls as your canvas. Art belongs everywhere.",              tags: ["Urban","Paint","Visual"],         badge: "Fine Arts", badgeBg: "rgba(255,170,59,.15)",  badgeColor: "#FFAA3B",  emoji: "🎨", category: "creative",  img: "https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?auto=format&fit=crop&w=600&q=80" },
+  { title: "Photography",        desc: "Golden hour, candid moments, and finding beauty in the ordinary. One click at a time.",       tags: ["Lens","Light","Composition"],     badge: "Creative",  badgeBg: "rgba(255,87,87,.15)",   badgeColor: "#FF5757",  emoji: "📸", category: "creative",  img: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=600&q=80" },
+  { title: "Fashion Design",     desc: "Thrifted, layered, original. Your outfit is your mood board and your statement.",             tags: ["Style","Design","Trends"],        badge: "Fashion",   badgeBg: "rgba(155,138,255,.15)", badgeColor: "#9B8AFF",  emoji: "👗", category: "creative",  img: "https://images.unsplash.com/photo-1523381210434-271e8be11523?auto=format&fit=crop&w=600&q=80" },
+  { title: "Code & Build",       desc: "Turning blank screens into apps that actually work. Terminal open, ideas running.",           tags: ["Tech","Code","Logic"],            badge: "Tech",      badgeBg: "rgba(78,168,222,.15)",  badgeColor: "#4EA8DE",  emoji: "💻", category: "tech",      img: "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?auto=format&fit=crop&w=600&q=80" },
+  { title: "Robotics & AI",      desc: "Wiring circuits, training models, and wondering if your robot will take your job.",           tags: ["Robots","AI","Engineering"],      badge: "Tech",      badgeBg: "rgba(78,168,222,.15)",  badgeColor: "#4EA8DE",  emoji: "🤖", category: "tech",      img: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80" },
+  { title: "UI/UX Design",       desc: "Every tap, every pixel, every second of someone's experience matters to you.",               tags: ["Design","Interface","User"],      badge: "Tech",      badgeBg: "rgba(78,168,222,.15)",  badgeColor: "#4EA8DE",  emoji: "🖥️", category: "tech",      img: "https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=600&q=80" },
+  { title: "Cybersecurity",      desc: "Thinking like a hacker to protect the world. Ethical, curious, and two steps ahead.",        tags: ["Security","Hacking","Logic"],     badge: "Tech",      badgeBg: "rgba(78,168,222,.15)",  badgeColor: "#4EA8DE",  emoji: "🔐", category: "tech",      img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80" },
+  { title: "Music Producer",     desc: "DAWs, sample packs, and that chord progression stuck in your head at 2 AM.",                 tags: ["Beats","Sound","Studio"],         badge: "Music",     badgeBg: "rgba(155,138,255,.15)", badgeColor: "#9B8AFF",  emoji: "🎧", category: "music",     img: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=600&q=80" },
+  { title: "Live Performer",     desc: "Stage lights, crowd energy, and giving everything in three minutes. Pure adrenaline.",        tags: ["Stage","Band","Energy"],          badge: "Music",     badgeBg: "rgba(155,138,255,.15)", badgeColor: "#9B8AFF",  emoji: "🎸", category: "music",     img: "https://images.unsplash.com/photo-1501386761578-eaa54b4e3e8c?auto=format&fit=crop&w=600&q=80" },
+  { title: "DJ & Mixing",        desc: "Reading a crowd, dropping the right track, and making a room lose its mind.",                tags: ["Mix","Crowd","Vibe"],             badge: "Music",     badgeBg: "rgba(155,138,255,.15)", badgeColor: "#9B8AFF",  emoji: "🎚️", category: "music",     img: "https://images.unsplash.com/photo-1601643157091-ce5c665179ab?auto=format&fit=crop&w=600&q=80" },
+  { title: "Songwriter",         desc: "Turning 2 AM feelings into verses that hit way too close to home.",                          tags: ["Lyrics","Chords","Feels"],        badge: "Music",     badgeBg: "rgba(155,138,255,.15)", badgeColor: "#9B8AFF",  emoji: "🎵", category: "music",     img: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=600&q=80" },
+  { title: "Fitness & Training", desc: "Early mornings, cold sessions, and the quiet satisfaction of one more rep.",                  tags: ["Gym","Athlete","Discipline"],     badge: "Sports",    badgeBg: "rgba(34,211,165,.15)", badgeColor: "#22D3A5",  emoji: "🏋️", category: "sports",    img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80" },
+  { title: "Football / Soccer",  desc: "Team play, set pieces, and the moment you've been training for years.",                      tags: ["Football","Team","Goals"],        badge: "Sports",    badgeBg: "rgba(34,211,165,.15)", badgeColor: "#22D3A5",  emoji: "⚽", category: "sports",    img: "https://images.unsplash.com/photo-1529900748604-07564a03e7a6?auto=format&fit=crop&w=600&q=80" },
+  { title: "Skateboarding",      desc: "Learning a trick for weeks and landing it once. That feeling is the whole point.",            tags: ["Skate","Streets","Flow"],         badge: "Sports",    badgeBg: "rgba(34,211,165,.15)", badgeColor: "#22D3A5",  emoji: "🛹", category: "sports",    img: "https://images.unsplash.com/photo-1520045892732-304bc3ac5d8e?auto=format&fit=crop&w=600&q=80" },
+  { title: "Gamer & Streamer",   desc: "Marathon sessions, ranked climbs, and a community that actually gets you.",                  tags: ["Gaming","Strategy","Stream"],     badge: "Gaming",    badgeBg: "rgba(78,168,222,.15)", badgeColor: "#4EA8DE",  emoji: "🎮", category: "gaming",    img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80" },
+  { title: "Game Development",   desc: "Building worlds people can get lost in. Engines, shaders, and way too many bugs.",           tags: ["Dev","Unity","Levels"],           badge: "Gaming",    badgeBg: "rgba(78,168,222,.15)", badgeColor: "#4EA8DE",  emoji: "🕹️", category: "gaming",    img: "https://images.unsplash.com/photo-1556438064-2d7646166914?auto=format&fit=crop&w=600&q=80" },
+  { title: "Young Entrepreneur", desc: "Side hustles, pitch decks, and notebooks full of 'what ifs'. Always building something.",    tags: ["Business","Ideas","Hustle"],      badge: "Business",  badgeBg: "rgba(255,170,59,.15)",  badgeColor: "#FFAA3B",  emoji: "🚀", category: "business",  img: "https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5?auto=format&fit=crop&w=600&q=80" },
+  { title: "Science & Research",  desc: "Experiments, hypotheses, and the joy of figuring something out nobody explained to you.",  tags: ["Science","Lab","Curious"],        badge: "STEM",      badgeBg: "rgba(168,230,61,.2)",   badgeColor: "#6EA803",  emoji: "🔬", category: "learning",  img: "https://images.unsplash.com/photo-1532094349884-543559d9b9f4?auto=format&fit=crop&w=600&q=80" },
+  { title: "Writing & Blogging",  desc: "Essays, stories, threads — words have weight and you choose yours carefully.",             tags: ["Write","Ideas","Voice"],          badge: "Writing",   badgeBg: "rgba(255,87,87,.15)",   badgeColor: "#FF5757",  emoji: "📝", category: "learning",  img: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=600&q=80" },
+  { title: "Travel & Explore",   desc: "New cities, street food, and conversations with strangers. The world is your classroom.",   tags: ["Travel","Adventure","Culture"],   badge: "Lifestyle", badgeBg: "rgba(34,211,165,.15)", badgeColor: "#22D3A5",  emoji: "✈️", category: "lifestyle", img: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=600&q=80" },
+  { title: "Cooking & Food",     desc: "Recipes, plating, and feeding everyone around you. The kitchen is where things happen.",   tags: ["Food","Cook","Taste"],            badge: "Lifestyle", badgeBg: "rgba(255,170,59,.15)",  badgeColor: "#FFAA3B",  emoji: "🍜", category: "lifestyle", img: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=600&q=80" },
+];
+
+const categoryPopulation = { creative: 18, gaming: 22, sports: 20, music: 12, tech: 10, business: 7, learning: 6, lifestyle: 5 };
+const NEED_APPROVALS = 4;
+let queue = [], queueIndex = 0, approvals = 0, pickedCats = [];
+const heroColors = { creative: "#E8445A", tech: "#3B9FDB", music: "#8B7AFF", sports: "#17C99A", gaming: "#4B80F7", business: "#F0A020", learning: "#7BC220", lifestyle: "#F0703A", default: "#E8445A" };
+const profiles = {
+  creative: { title: "The Creative Soul", emoji: "🎨", desc: "You see the world differently — every surface is a canvas, every moment potential content.", chips: ["Visionary","Artist","Storyteller"], rarityBars: [{ name: "Creative", pct: 18 }, { name: "Expressive", pct: 31 }, { name: "Aesthetic", pct: 27 }], rarityLabel: "Selective", rank: "Top 18%", matchPct: "94%" },
+  tech: { title: "The Builder", emoji: "⚙️", desc: "Logic meets curiosity. You love making things work and solving problems no one else even noticed.", chips: ["Problem Solver","Builder","Maker"], rarityBars: [{ name: "Technical", pct: 10 }, { name: "Logical", pct: 22 }, { name: "Curious", pct: 35 }], rarityLabel: "Rare", rank: "Top 10%", matchPct: "91%" },
+  music: { title: "The Soundmaker", emoji: "🎧", desc: "You live in frequencies. Music is your mother tongue and rhythm is your heartbeat.", chips: ["Musician","Listener","Creator"], rarityBars: [{ name: "Musical", pct: 12 }, { name: "Emotional", pct: 28 }, { name: "Creative", pct: 32 }], rarityLabel: "Rare", rank: "Top 12%", matchPct: "97%" },
+  sports: { title: "The Athlete", emoji: "⚡", desc: "Discipline, drive, and the quiet joy of pushing your limit just a little further every session.", chips: ["Active","Focused","Driven"], rarityBars: [{ name: "Athletic", pct: 20 }, { name: "Disciplined", pct: 15 }, { name: "Competitive", pct: 30 }], rarityLabel: "Common", rank: "Top 20%", matchPct: "88%" },
+  gaming: { title: "The Strategist", emoji: "🎮", desc: "Patient, tactical, and community-first. You see patterns others miss and turn them into wins.", chips: ["Gamer","Thinker","Team Player"], rarityBars: [{ name: "Gamer", pct: 22 }, { name: "Strategic", pct: 18 }, { name: "Social", pct: 40 }], rarityLabel: "Common", rank: "Top 22%", matchPct: "85%" },
+  business: { title: "The Hustler", emoji: "🚀", desc: "Ideas keep coming and you know how to move on them. Your buddy is always building something.", chips: ["Ambitious","Hustler","Visionary"], rarityBars: [{ name: "Ambitious", pct: 7 }, { name: "Driven", pct: 19 }, { name: "Creative", pct: 24 }], rarityLabel: "Very Rare", rank: "Top 7%", matchPct: "96%" },
+  learning: { title: "The Deep Thinker", emoji: "🧠", desc: "Curious about everything. You want to understand, not just know. You ask the third question.", chips: ["Curious","Articulate","Sharp"], rarityBars: [{ name: "Intellectual", pct: 6 }, { name: "Curious", pct: 14 }, { name: "Analytical", pct: 20 }], rarityLabel: "Ultra Rare", rank: "Top 6%", matchPct: "98%" },
+  lifestyle: { title: "The Connector", emoji: "🌍", desc: "You collect experiences, stories, and people. Your energy brings everyone together.", chips: ["Explorer","Warm","Social"], rarityBars: [{ name: "Social", pct: 5 }, { name: "Adventurous", pct: 22 }, { name: "Empathetic", pct: 38 }], rarityLabel: "Ultra Rare", rank: "Top 5%", matchPct: "99%" },
+  default: { title: "The One-of-a-Kind", emoji: "🌟", desc: "No single box fits you — you're a bit of everything. Unexpected, interesting, and genuinely rare.", chips: ["Unique","Open","Eclectic"], rarityBars: [{ name: "Unique", pct: 3 }, { name: "Versatile", pct: 45 }, { name: "Open", pct: 60 }], rarityLabel: "Legendary", rank: "Top 3%", matchPct: "100%" }
+};
+
+function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function initQueue() { queue = shuffle(ALL_CARDS); queueIndex = 0; approvals = 0; pickedCats = []; updateUI(); }
+function updateUI() { document.getElementById('counter-num').innerHTML = `${approvals}<span>/4</span>`; document.getElementById('progress-fill').style.width = `${(approvals / 4) * 100}%`; }
+function buildCard(data, depthClass) {
+  const c = document.createElement('div'); c.className = 'card ' + depthClass;
+  c.innerHTML = `<div class="stamp stamp-like">VIBE ⚡</div><div class="stamp stamp-nope">PASS ✕</div><div class="card-img-wrap"><img src="${data.img}" alt="${data.title}"></div><div class="card-body"><div class="card-header-row"><div class="card-icon">${data.emoji}</div><div class="card-title">${data.title}</div></div><div class="card-desc">${data.desc}</div><div class="card-tags">${data.tags.map((t,i)=>`<div class="tag">#${t}</div>`).join('')}</div></div>`;
+  return c;
+}
+
+const stackEl = document.getElementById('stack');
+
+function initialRender() {
+  stackEl.innerHTML = '';
+  for (let offset = 2; offset >= 0; offset--) {
+    const idx = queueIndex + offset;
+    if (idx >= queue.length) continue;
+    const depth = offset === 0 ? 'top' : offset === 1 ? 'behind-1' : 'behind-2';
+    const card = buildCard(queue[idx], depth);
+    if (offset === 0) attachSwipe(card, queue[idx]);
+    stackEl.appendChild(card);
+  }
+  updateUI();
+}
+
+function shiftStack() {
+  const b1 = stackEl.querySelector('.card.behind-1');
+  if (b1) {
+    b1.classList.remove('behind-1');
+    b1.classList.add('top');
+    const cardData = queue[queueIndex]; 
+    attachSwipe(b1, cardData);
+  }
+
+  const b2 = stackEl.querySelector('.card.behind-2');
+  if (b2) {
+    b2.classList.remove('behind-2');
+    b2.classList.add('behind-1');
+  }
+
+  queueIndex++;
+  if (queueIndex >= queue.length) {
+    queue = [...queue, ...shuffle(ALL_CARDS)];
+  }
+  
+  const nextIdx = queueIndex + 2; 
+  if (nextIdx < queue.length) {
+    const newCard = buildCard(queue[nextIdx], 'behind-2');
+    stackEl.appendChild(newCard);
+  }
+}
+
+function attachSwipe(card, data) {
+  const stampLike = card.querySelector('.stamp-like'), stampNope = card.querySelector('.stamp-nope');
+  let active = false, startX = 0, startY = 0, curX = 0, curY = 0, velX = 0, prevClientX = 0, prevT = 0, rafId = null, decided = false, isVertical = false, rendX = 0, rendY = 0;
+
+  function renderFrame() {
+    rafId = null;
+    if (!active && !decided) {
+      rendX += (0 - rendX) * 0.22; rendY += (0 - rendY) * 0.22;
+      if (Math.abs(rendX) > 0.1 || Math.abs(rendY) > 0.1) { applyTransform(rendX, rendY); rafId = requestAnimationFrame(renderFrame); }
+      else { rendX = 0; rendY = 0; applyTransform(0, 0); stampLike.style.opacity = '0'; stampNope.style.opacity = '0'; }
+      return;
+    }
+    if (!active) return;
+    rendX = curX; rendY = curY * 0.15;
+    applyTransform(rendX, rendY);
+    
+    const thresh = 25;
+    if (rendX > thresh) { stampLike.style.opacity = Math.min((rendX - thresh) / 60, 1); stampNope.style.opacity = '0'; }
+    else if (rendX < -thresh) { stampNope.style.opacity = Math.min((-rendX - thresh) / 60, 1); stampLike.style.opacity = '0'; }
+    else { stampLike.style.opacity = '0'; stampNope.style.opacity = '0'; }
+
+    const prog = Math.min(Math.abs(rendX) / 100, 1);
+    const b1 = stackEl.querySelector('.card.behind-1'); const b2 = stackEl.querySelector('.card.behind-2');
+    if (b1) { const s = 0.956 + prog * 0.044; const ty = 16 * (1 - prog); b1.style.transform = `translateZ(-50px) scale(${s.toFixed(4)}) translateY(${ty.toFixed(1)}px)`; b1.style.transition = 'none'; }
+    if (b2) { const s = 0.912 + prog * 0.044; const ty = 32 * (1 - prog * 0.5); const op = 0.72 + prog * 0.18; b2.style.transform = `translateZ(-100px) scale(${s.toFixed(4)}) translateY(${ty.toFixed(1)}px)`; b2.style.opacity = op.toFixed(3); b2.style.transition = 'none'; }
+    rafId = requestAnimationFrame(renderFrame);
+  }
+
+  function applyTransform(x, y) { card.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) rotate(${(x / 16).toFixed(3)}deg)`; }
+  function onStart(e) {
+    if (decided) return;
+    const pt = e.touches ? e.touches[0] : e;
+    startX = pt.clientX; startY = pt.clientY; prevClientX = pt.clientX; prevT = Date.now();
+    active = true; isVertical = false;
+    
+    card.classList.add('is-dragging'); 
+    card.style.transition = 'none'; 
+    card.style.animation = 'none';
+    card.style.transform = `translateZ(0) scale(1.03)`; 
+    
+    if (rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(renderFrame);
+  }
+  function onMove(e) {
+    if (!active || decided) return;
+    const pt = e.touches ? e.touches[0] : e;
+    curX = pt.clientX - startX; curY = pt.clientY - startY;
+    if (Math.abs(curY) > Math.abs(curX) * 1.6 && Math.abs(curY) > 8) { isVertical = true; active = false; }
+    const now = Date.now(); const dt = now - prevT;
+    if (dt > 0) velX = (pt.clientX - prevClientX) / dt;
+    prevClientX = pt.clientX; prevT = now;
+  }
+  function onEnd() {
+    if (!active || decided) return;
+    active = false; card.classList.remove('is-dragging');
+    if (curX > 88 || velX > 0.42) { decided = true; if (rafId) { cancelAnimationFrame(rafId); rafId = null; } flyOut('right'); }
+    else if (curX < -88 || velX < -0.42) { decided = true; if (rafId) { cancelAnimationFrame(rafId); rafId = null; } flyOut('left'); }
+    else { if (rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(renderFrame); }
+  }
+  function flyOut(dir) {
+    stampLike.style.opacity = '0'; stampNope.style.opacity = '0'; cleanup();
+    const targetX = dir === 'right' ? 500 : -500; const targetRot = dir === 'right' ? 28 : -28;
+    card.style.transition = 'transform 0.34s cubic-bezier(0.4,0,1,1), opacity 0.34s ease';
+    card.style.transform = `translate3d(${targetX}px, ${rendY.toFixed(1)}px, 0) rotate(${targetRot}deg)`;
+    card.style.opacity = '0';
+    dismiss(card, dir, data);
+  }
+  function cleanup() {
+    card.removeEventListener('mousedown', onStart); card.removeEventListener('touchstart', onStart);
+    document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd);
+  }
+  card._cleanup = cleanup;
+  card.addEventListener('mousedown', onStart); card.addEventListener('touchstart', onStart, { passive: true });
+  document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onEnd);
+  document.addEventListener('touchmove', onMove, { passive: true }); document.addEventListener('touchend', onEnd, { passive: true });
+}
+
+function dismiss(card, dir, data) {
+  if (dir === 'right') { pickedCats.push(data.category); approvals = Math.min(approvals + 1, NEED_APPROVALS); updateUI(); }
+  setTimeout(() => {
+    card.remove();
+    if (approvals >= NEED_APPROVALS) {
+        showResult();
+    } else {
+        shiftStack();
+    }
+  }, 300);
+}
+
+function showResult() {
+  const counts = pickedCats.reduce((a, c) => { a[c] = (a[c]||0)+1; return a; }, {});
+  const topCat = Object.keys(counts).sort((a,b) => counts[b]-counts[a])[0] || 'default';
+  const prof = profiles[topCat] || profiles.default;
+  const color = heroColors[topCat] || heroColors.default;
+  const pop = categoryPopulation[topCat] || 5;
+  const baseUsers = Math.round((pop / 100) * 180000);
+  const usersStr = baseUsers >= 1000 ? `${(baseUsers/1000).toFixed(1)}k` : baseUsers.toString();
+  document.getElementById('result-full-bg').style.background = `linear-gradient(160deg, ${color}55 0%, #0f0f1a 60%)`;
+  document.getElementById('orb1').style.background = color;
+  document.getElementById('orb2').style.background = color + 'bb';
+  document.getElementById('result-bottom').style.background = `linear-gradient(160deg, ${color}ee 0%, ${color}cc 100%)`;
+  document.getElementById('stat-rarity-val').textContent = prof.rarityLabel;
+  document.getElementById('stat-rank').textContent = prof.rank;
+  document.getElementById('stat-users').textContent = usersStr;
+  document.getElementById('stat-match').textContent = prof.matchPct;
+  document.getElementById('res-emoji').textContent = prof.emoji;
+  document.getElementById('res-title').textContent = prof.title;
+  document.getElementById('res-desc').textContent = prof.desc;
+  document.getElementById('res-chips').innerHTML = prof.chips.map((c,i)=>`<div class="trait-chip${i===0?' hot':''}">${c}</div>`).join('');
+  const barsEl = document.getElementById('rarity-bars');
+  barsEl.innerHTML = prof.rarityBars.map(b => `<div class="rarity-row"><div class="rarity-name">${b.name}</div><div class="rarity-track"><div class="rarity-fill" data-pct="${b.pct}"></div></div><div class="rarity-pct">${b.pct}%</div></div>`).join('');
+  document.getElementById('result-screen').classList.add('show');
+  setTimeout(() => { barsEl.querySelectorAll('.rarity-fill').forEach(el => { el.style.width = el.dataset.pct + '%'; }); }, 600);
+}
+
+function restart() {
+  document.getElementById('result-screen').classList.remove('show');
+  setTimeout(() => { initQueue(); initialRender(); }, 300);
+}
+
+initQueue();
+initialRender();
+</script>
+</body>
+</html>
