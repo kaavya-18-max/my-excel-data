@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Buddy Confirmed · TeenCab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream:      #FDF6EE;
+      --peach:      #FDEBD6;
+      --blush:      #F5C9B3;
+      --terra:      #E07A5F;
+      --terra-lt:   #F5A68A;
+      --ink:        #1C1917;
+      --muted:      #78716C;
+      --soft:       #A8A29E;
+      --mint:       #6BAF9A;
+      --mint-lt:    #EBF6F2;
+      --sky:        #5B9EC9;
+      --sky-lt:     #EAF4FA;
+      --lilac:      #8B77C2;
+      --lilac-lt:   #F0EBF9;
+      --amber:      #D97706;
+      --amber-lt:   #FFFBEB;
+      --card:       #FFFFFF;
+      --border:     #EDE8E3;
+      --shadow-sm:  rgba(28,25,23,0.06);
+      --shadow-md:  rgba(28,25,23,0.11);
+      --shadow-lg:  rgba(28,25,23,0.18);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { touch-action: none; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #E8DDD5;
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; overflow: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 128px;
+    }
+
+    /* ── PHONE SHELL ── */
+    .phone {
+      width: 375px; height: 812px;
+      background: var(--cream);
+      border-radius: 44px;
+      box-shadow:
+        0 30px 80px var(--shadow-lg),
+        0 2px 0 rgba(255,255,255,.9) inset,
+        0 -1px 0 rgba(28,25,23,.08) inset;
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
+      z-index: 1;
+    }
+    .notch {
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      width: 110px; height: 30px; background: #111; border-radius: 99px; z-index: 999;
+    }
+
+    /* decorative blobs */
+    .blob {
+      position: absolute; border-radius: 50%; pointer-events: none; z-index: 0;
+    }
+    .blob-a {
+      width: 220px; height: 220px; top: -70px; right: -60px;
+      background: radial-gradient(circle, #F5C9B3 0%, transparent 70%); opacity: .55;
+    }
+    .blob-b {
+      width: 160px; height: 160px; top: 45%; left: -55px;
+      background: radial-gradient(circle, #D4EAE2 0%, transparent 70%); opacity: .65;
+    }
+    .blob-c {
+      width: 100px; height: 100px; bottom: 18%; right: -25px;
+      background: radial-gradient(circle, #DDD5F0 0%, transparent 70%); opacity: .5;
+    }
+
+    /* ── SCROLL BODY ── */
+    .scroll {
+      position: relative; z-index: 10;
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      padding: 56px 0 88px;
+      scrollbar-width: none;
+    }
+    .scroll::-webkit-scrollbar { display: none; }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; margin-bottom: 10px;
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 12px;
+      background: var(--card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; color: var(--ink); cursor: pointer;
+      box-shadow: 0 2px 8px var(--shadow-sm);
+    }
+    .top-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px; font-weight: 800; color: var(--ink);
+    }
+    .top-status {
+      display: flex; align-items: center; gap: 5px;
+      background: #ECFDF5; border: 1px solid #A7F3D0;
+      border-radius: 99px; padding: 5px 11px;
+      font-size: 10px; font-weight: 700; color: var(--mint);
+    }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--mint);
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+    /* ── SUCCESS BANNER ── */
+    .success-banner {
+      margin: 0 18px 14px;
+      background: linear-gradient(135deg, var(--terra) 0%, var(--terra-lt) 100%);
+      border-radius: 22px;
+      padding: 18px 20px;
+      display: flex; gap: 14px; align-items: center;
+      box-shadow: 0 6px 24px rgba(224,122,95,.28);
+      position: relative; overflow: hidden;
+      animation: popUp .55s cubic-bezier(.34,1.1,.64,1) both;
+    }
+    .success-banner::before {
+      content: ''; position: absolute;
+      top: -28px; right: -28px;
+      width: 100px; height: 100px; border-radius: 50%;
+      background: rgba(255,255,255,.1);
+    }
+    .success-banner::after {
+      content: ''; position: absolute;
+      bottom: -14px; left: 60px;
+      width: 60px; height: 60px; border-radius: 50%;
+      background: rgba(255,255,255,.07);
+    }
+    .sb-emoji { font-size: 36px; flex-shrink: 0; line-height: 1; }
+    .sb-text { flex: 1; }
+    .sb-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px; font-weight: 900; color: #fff; line-height: 1.2;
+    }
+    .sb-sub { font-size: 11px; color: rgba(255,255,255,.75); margin-top: 5px; line-height: 1.5; }
+
+    /* ── BUDDY CARD ── */
+    .buddy-card {
+      margin: 0 18px 12px;
+      background: var(--card);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px var(--shadow-sm);
+      overflow: hidden;
+      animation: popUp .55s .06s cubic-bezier(.34,1.1,.64,1) both;
+    }
+    @keyframes popUp {
+      from { opacity: 0; transform: translateY(20px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .buddy-photo-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 18px 14px;
+    }
+    .buddy-av-wrap { position: relative; flex-shrink: 0; }
+    .buddy-av {
+      width: 72px; height: 72px; border-radius: 20px; overflow: hidden;
+      border: 3px solid var(--card);
+      outline: 2.5px solid var(--terra);
+      box-shadow: 0 4px 14px var(--shadow-md);
+    }
+    .buddy-av img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+    .verified-badge {
+      position: absolute; bottom: -4px; right: -4px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--mint); border: 2px solid var(--card);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+    }
+
+    .buddy-meta { flex: 1; }
+    .buddy-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px; font-weight: 900; color: var(--ink); letter-spacing: -.3px;
+    }
+    .buddy-chips { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+    .chip {
+      font-size: 9px; font-weight: 700; padding: 3px 9px; border-radius: 99px; border: 1.5px solid;
+    }
+    .chip-terra { color: var(--terra); border-color: #F5C9B3; background: #FEF3ED; }
+    .chip-mint  { color: #4A9882; border-color: #B8DDD5; background: var(--mint-lt); }
+    .chip-sky   { color: var(--sky); border-color: #B6D9E9; background: var(--sky-lt); }
+    .chip-lilac { color: var(--lilac); border-color: #C8BDE8; background: var(--lilac-lt); }
+
+    /* star rating row */
+    .star-row {
+      display: flex; align-items: center; gap: 4px;
+      padding: 0 18px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .stars { font-size: 13px; letter-spacing: 1px; color: var(--amber); }
+    .rating-val { font-size: 13px; font-weight: 700; color: var(--ink); }
+    .rating-count { font-size: 11px; color: var(--soft); }
+
+    /* detail rows */
+    .detail-row {
+      display: flex; align-items: center; gap: 13px;
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .d-icon-wrap {
+      width: 36px; height: 36px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 17px;
+    }
+    .dw-peach  { background: #FEF0E8; }
+    .dw-mint   { background: var(--mint-lt); }
+    .dw-sky    { background: var(--sky-lt); }
+    .dw-amber  { background: #FFFBEB; }
+    .dw-lilac  { background: var(--lilac-lt); }
+    .d-content { flex: 1; }
+    .d-label { font-size: 10px; font-weight: 600; color: var(--soft); letter-spacing: .3px; }
+    .d-value { font-size: 13px; font-weight: 700; color: var(--ink); margin-top: 2px; }
+    .d-value.mono {
+      font-family: 'Courier New', monospace; font-size: 14px; letter-spacing: 1.5px; color: var(--ink);
+    }
+    .d-copy-btn {
+      font-size: 12px; color: var(--terra); font-weight: 700; cursor: pointer;
+      padding: 4px 10px; border-radius: 8px; background: var(--peach);
+      border: 1px solid #F5C9B3; flex-shrink: 0;
+      transition: background .15s;
+    }
+    .d-copy-btn:hover { background: #F5C9B3; }
+
+    /* ── OTP CARD ── */
+    .otp-card {
+      margin: 0 18px 12px;
+      background: var(--card);
+      border-radius: 24px;
+      border: 1.5px solid #F5C9B3;
+      box-shadow: 0 4px 20px var(--shadow-sm);
+      padding: 18px 20px;
+      animation: popUp .55s .12s cubic-bezier(.34,1.1,.64,1) both;
+    }
+    .otp-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--soft); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .otp-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .otp-digits-row {
+      display: flex; justify-content: center; gap: 10px; margin-bottom: 14px;
+    }
+    .otp-digit {
+      width: 52px; height: 62px; border-radius: 16px;
+      background: var(--peach); border: 2px solid #F5C9B3;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: var(--terra);
+      box-shadow: 0 2px 10px rgba(224,122,95,.1);
+      transition: transform .1s;
+    }
+    .otp-digit:hover { transform: scale(1.05); }
+
+    .otp-instruction {
+      display: flex; align-items: flex-start; gap: 8px;
+      background: #FEF3ED; border-radius: 12px; padding: 10px 13px;
+    }
+    .otp-instruction-icon { font-size: 14px; flex-shrink: 0; line-height: 1.4; }
+    .otp-instruction-text { font-size: 11px; color: var(--muted); line-height: 1.55; }
+    .otp-instruction-text strong { color: var(--terra); }
+
+    /* ── VEHICLE CARD ── */
+    .vehicle-card {
+      margin: 0 18px 12px;
+      background: var(--card);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px var(--shadow-sm);
+      overflow: hidden;
+      animation: popUp .55s .18s cubic-bezier(.34,1.1,.64,1) both;
+    }
+    .vehicle-header {
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .vehicle-header-icon {
+      width: 32px; height: 32px; border-radius: 10px; background: var(--sky-lt);
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .vehicle-header-title {
+      font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 800; color: var(--ink);
+    }
+
+    /* cab illustration area */
+    .cab-illustration {
+      height: 90px; background: linear-gradient(135deg, #EAF4FA 0%, #F0F7EC 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .cab-illustration::before {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(91,158,201,.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(91,158,201,.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    /* road line */
+    .road-line {
+      position: absolute; bottom: 14px; left: 0; right: 0;
+      height: 2px; background: repeating-linear-gradient(90deg,
+        rgba(91,158,201,.3) 0px, rgba(91,158,201,.3) 12px,
+        transparent 12px, transparent 22px);
+    }
+    .cab-icon {
+      font-size: 46px; line-height: 1; position: relative; z-index: 1;
+      filter: drop-shadow(0 4px 8px rgba(28,25,23,.1));
+      animation: cabBounce 3s ease-in-out infinite;
+    }
+    @keyframes cabBounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-4px); }
+    }
+    .cab-plate {
+      position: absolute; bottom: 6px; right: 18px; z-index: 2;
+      background: var(--ink); color: #fff;
+      font-size: 10px; font-weight: 700; letter-spacing: 2px;
+      padding: 3px 10px; border-radius: 6px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .vehicle-rows { padding: 4px 0; }
+
+    /* ── CONTACT ACTIONS ── */
+    .contact-card {
+      margin: 0 18px 12px;
+      background: var(--card);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px var(--shadow-sm);
+      padding: 18px;
+      animation: popUp .55s .24s cubic-bezier(.34,1.1,.64,1) both;
+    }
+    .contact-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--soft); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .contact-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .contact-row { display: flex; gap: 10px; }
+    .contact-btn {
+      flex: 1; height: 52px; border-radius: 16px; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700;
+      transition: transform .12s, box-shadow .12s;
+    }
+    .contact-btn:active { transform: scale(.97); }
+    .btn-call {
+      background: var(--mint); color: #fff;
+      box-shadow: 0 4px 16px rgba(107,175,154,.3);
+    }
+    .btn-msg {
+      background: var(--sky); color: #fff;
+      box-shadow: 0 4px 16px rgba(91,158,201,.3);
+    }
+
+    /* ── NAV BAR ── */
+    .nav {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 78px; z-index: 50;
+      background: var(--card); border-top: 1px solid var(--border);
+      border-radius: 0 0 44px 44px;
+      display: flex; align-items: center; justify-content: space-around; padding: 0 20px;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 600; color: var(--soft); cursor: pointer;
+    }
+    .nav-item.active { color: var(--terra); }
+    .nav-item span { font-size: 21px; }
+
+    /* ── CALL OVERLAY ── */
+    .call-overlay {
+      position: absolute; inset: 0; z-index: 300;
+      background: linear-gradient(160deg, #2D4A3E 0%, #1A2D26 100%);
+      border-radius: 44px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    .call-overlay.show { opacity: 1; pointer-events: all; }
+    .call-rings {
+      position: relative; width: 110px; height: 110px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .call-ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 2px solid rgba(107,175,154,.3);
+      animation: ringExpand 2s ease-out infinite;
+    }
+    .call-ring:nth-child(2) { animation-delay: .6s; }
+    .call-ring:nth-child(3) { animation-delay: 1.2s; }
+    @keyframes ringExpand {
+      0%   { transform: scale(.8); opacity: .6; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+    .call-av {
+      width: 88px; height: 88px; border-radius: 50%; overflow: hidden;
+      border: 3px solid rgba(255,255,255,.25);
+      position: relative; z-index: 1;
+    }
+    .call-av img { width: 100%; height: 100%; object-fit: cover; }
+    .call-name {
+      font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 900; color: #fff;
+    }
+    .call-sub { font-size: 12px; color: rgba(255,255,255,.5); }
+    .call-timer { font-size: 15px; color: rgba(255,255,255,.6); font-weight: 600; font-family: monospace; }
+    .call-actions { display: flex; gap: 24px; margin-top: 10px; }
+    .call-action-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .call-btn-circle {
+      width: 58px; height: 58px; border-radius: 50%; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 22px;
+    }
+    .c-end  { background: #EF4444; box-shadow: 0 4px 16px rgba(239,68,68,.4); }
+    .c-mute { background: rgba(255,255,255,.15); }
+    .c-spk  { background: rgba(255,255,255,.15); }
+    .call-btn-label { font-size: 9px; color: rgba(255,255,255,.45); font-weight: 600; }
+
+    /* ── MSG OVERLAY ── */
+    .msg-overlay {
+      position: absolute; inset: 0; z-index: 300;
+      background: var(--cream); border-radius: 44px;
+      display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    .msg-overlay.show { opacity: 1; pointer-events: all; }
+    .msg-head {
+      padding: 56px 16px 12px;
+      background: var(--card); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .msg-av {
+      width: 40px; height: 40px; border-radius: 13px; overflow: hidden;
+      flex-shrink: 0;
+    }
+    .msg-av img { width: 100%; height: 100%; object-fit: cover; }
+    .msg-name-col { flex: 1; }
+    .msg-name { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 800; color: var(--ink); }
+    .msg-role { font-size: 10px; color: var(--soft); margin-top: 1px; }
+    .msg-close-btn {
+      width: 32px; height: 32px; border-radius: 10px;
+      background: var(--cream); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; cursor: pointer; color: var(--ink);
+    }
+    .msg-body {
+      flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 10px;
+      overflow-y: auto; scrollbar-width: none;
+    }
+    .msg-body::-webkit-scrollbar { display: none; }
+    .bubble-time { font-size: 9px; color: var(--soft); text-align: center; margin: 4px 0; }
+    .bubble {
+      max-width: 75%; padding: 10px 14px; border-radius: 18px;
+      font-size: 13px; line-height: 1.55;
+    }
+    .bubble-in  { background: var(--card); color: var(--ink); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .bubble-out { background: var(--terra); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .msg-input-row {
+      padding: 10px 14px 14px;
+      background: var(--card); border-top: 1px solid var(--border);
+      display: flex; gap: 8px; align-items: center;
+    }
+    .msg-inp {
+      flex: 1; height: 40px; border-radius: 12px;
+      border: 1.5px solid var(--border); background: var(--cream);
+      padding: 0 14px; font-size: 13px; font-family: inherit; color: var(--ink); outline: none;
+    }
+    .msg-inp:focus { border-color: var(--blush); }
+    .msg-send-btn {
+      width: 40px; height: 40px; border-radius: 12px; border: none; cursor: pointer;
+      background: var(--terra); color: #fff; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 3px 12px rgba(224,122,95,.3);
+    }
+
+    /* copy toast */
+    .copy-toast {
+      position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(10px);
+      background: var(--ink); color: #fff;
+      font-size: 11px; font-weight: 600; padding: 8px 16px; border-radius: 99px;
+      white-space: nowrap; z-index: 500; pointer-events: none;
+      opacity: 0; transition: opacity .2s, transform .2s;
+    }
+    .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="blob blob-a"></div>
+  <div class="blob blob-b"></div>
+  <div class="blob blob-c"></div>
+
+  <!-- COPY TOAST -->
+  <div class="copy-toast" id="copyToast">Copied!</div>
+
+  <!-- ── MAIN SCROLL ── -->
+  <div class="scroll" id="mainScroll">
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <div class="back-btn">←</div>
+      <div class="top-title">Buddy Confirmed</div>
+      <div class="top-status">
+        <div class="status-dot"></div>
+        Active
+      </div>
+    </div>
+
+    <!-- SUCCESS BANNER -->
+    <div class="success-banner">
+      <div class="sb-emoji">🎉</div>
+      <div class="sb-text">
+        <div class="sb-title">Arjun accepted<br>your ride!</div>
+        <div class="sb-sub">You're all set. Share the OTP when you meet your buddy at the pickup spot.</div>
+      </div>
+    </div>
+
+    <!-- BUDDY CARD -->
+    <div class="buddy-card">
+      <div class="buddy-photo-row">
+        <div class="buddy-av-wrap">
+          <div class="buddy-av">
+            <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=300&q=80" alt="Arjun"/>
+          </div>
+          <div class="verified-badge">✓</div>
+        </div>
+        <div class="buddy-meta">
+          <div class="buddy-name">Arjun K.</div>
+          <div class="buddy-chips">
+            <div class="chip chip-terra">24 yrs</div>
+            <div class="chip chip-sky">UI/UX Designer</div>
+            <div class="chip chip-mint">47 rides</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="star-row">
+        <div class="stars">★★★★★</div>
+        <div class="rating-val">4.9</div>
+        <div class="rating-count">· 44 reviews · No incidents</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="d-icon-wrap dw-peach">📞</div>
+        <div class="d-content">
+          <div class="d-label">Phone Number</div>
+          <div class="d-value mono">+91 98400 12345</div>
+        </div>
+        <div class="d-copy-btn" onclick="copyText('+91 98400 12345')">Copy</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="d-icon-wrap dw-sky">🎓</div>
+        <div class="d-content">
+          <div class="d-label">Occupation</div>
+          <div class="d-value">UI/UX Designer · Freelance</div>
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="d-icon-wrap dw-amber">📍</div>
+        <div class="d-content">
+          <div class="d-label">Pickup Point</div>
+          <div class="d-value">Saidapet Bus Stop, Chennai</div>
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="d-icon-wrap dw-mint">⏰</div>
+        <div class="d-content">
+          <div class="d-label">Meet By</div>
+          <div class="d-value">10:15 AM · Today</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTP CARD -->
+    <div class="otp-card">
+      <div class="otp-label">Your Ride OTP</div>
+      <div class="otp-digits-row">
+        <div class="otp-digit">4</div>
+        <div class="otp-digit">7</div>
+        <div class="otp-digit">2</div>
+        <div class="otp-digit">9</div>
+      </div>
+      <div class="otp-instruction">
+        <div class="otp-instruction-icon">🔐</div>
+        <div class="otp-instruction-text">
+          <strong>Show this OTP to Arjun</strong> when you meet at the pickup point. This verifies your booking and starts the ride. Do not share this with anyone else.
+        </div>
+      </div>
+    </div>
+
+    <!-- VEHICLE CARD -->
+    <div class="vehicle-card">
+      <div class="vehicle-header">
+        <div class="vehicle-header-icon">🚖</div>
+        <div class="vehicle-header-title">Vehicle Details</div>
+      </div>
+
+      <div class="vehicle-rows">
+        <div class="detail-row">
+          <div class="d-icon-wrap dw-sky">🚗</div>
+          <div class="d-content">
+            <div class="d-label">Vehicle</div>
+            <div class="d-value">Maruti Suzuki Swift · White</div>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="d-icon-wrap dw-peach">🪪</div>
+          <div class="d-content">
+            <div class="d-label">Number Plate</div>
+            <div class="d-value mono">TN 09 BX 4421</div>
+          </div>
+          <div class="d-copy-btn" onclick="copyText('TN 09 BX 4421')">Copy</div>
+        </div>
+        <div class="detail-row" style="border-bottom:none;">
+          <div class="d-icon-wrap dw-mint">🏢</div>
+          <div class="d-content">
+            <div class="d-label">Cab Operator</div>
+            <div class="d-value">Namma Yatri · Verified</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT ACTIONS -->
+    <div class="contact-card">
+      <div class="contact-label">Contact Buddy</div>
+      <div class="contact-row">
+        <button class="contact-btn btn-call" onclick="showCall()">
+          📞 Call Arjun
+        </button>
+        <button class="contact-btn btn-msg" onclick="showMsg()">
+          💬 Message
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /scroll -->
+
+  <!-- NAV -->
+  <div class="nav">
+    <div class="nav-item"><span>🏠</span>Home</div>
+    <div class="nav-item active"><span>👥</span>Buddy</div>
+    <div class="nav-item"><span>🛺</span>Ride</div>
+    <div class="nav-item"><span>👤</span>Profile</div>
+  </div>
+
+  <!-- ── CALL OVERLAY ── -->
+  <div class="call-overlay" id="callOverlay">
+    <div class="call-rings">
+      <div class="call-ring"></div>
+      <div class="call-ring"></div>
+      <div class="call-ring"></div>
+      <div class="call-av">
+        <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=300&q=80" alt="Arjun"/>
+      </div>
+    </div>
+    <div class="call-name">Arjun K.</div>
+    <div class="call-sub">Buddy · UI/UX Designer</div>
+    <div class="call-timer" id="callTimer">Calling…</div>
+    <div class="call-actions">
+      <div class="call-action-item">
+        <button class="call-btn-circle c-mute">🔇</button>
+        <div class="call-btn-label">Mute</div>
+      </div>
+      <div class="call-action-item">
+        <button class="call-btn-circle c-end" onclick="hideCall()">📵</button>
+        <div class="call-btn-label">End</div>
+      </div>
+      <div class="call-action-item">
+        <button class="call-btn-circle c-spk">🔊</button>
+        <div class="call-btn-label">Speaker</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MSG OVERLAY ── -->
+  <div class="msg-overlay" id="msgOverlay">
+    <div class="msg-head">
+      <div class="msg-av">
+        <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=300&q=80" alt="Arjun"/>
+      </div>
+      <div class="msg-name-col">
+        <div class="msg-name">Arjun K.</div>
+        <div class="msg-role">Buddy Driver · Active now</div>
+      </div>
+      <div class="msg-close-btn" onclick="hideMsg()">✕</div>
+    </div>
+
+    <div class="msg-body" id="msgBody">
+      <div class="bubble-time">Today, 10:02 AM</div>
+      <div class="bubble bubble-in">Hey! I accepted your buddy ride 🙌 I'll be at Saidapet Bus Stop by 10:15. Look for a white Swift — TN 09 BX 4421</div>
+      <div class="bubble bubble-out">Perfect! I'll be there. Should I wait near the main gate?</div>
+      <div class="bubble bubble-in">Yes, near the main gate works. See you soon! 👋</div>
+    </div>
+
+    <div class="msg-input-row">
+      <input class="msg-inp" id="msgInput" type="text" placeholder="Type a message…"/>
+      <button class="msg-send-btn" onclick="sendMsg()">↑</button>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<script>
+  // Call overlay + live timer
+  let callInterval = null;
+  let callSeconds  = 0;
+
+  function showCall() {
+    document.getElementById('callOverlay').classList.add('show');
+    document.getElementById('callTimer').textContent = 'Calling…';
+    callSeconds = 0;
+    // simulate connect after 2s
+    setTimeout(() => {
+      callInterval = setInterval(() => {
+        callSeconds++;
+        const m = String(Math.floor(callSeconds / 60)).padStart(2, '0');
+        const s = String(callSeconds % 60).padStart(2, '0');
+        document.getElementById('callTimer').textContent = m + ':' + s;
+      }, 1000);
+    }, 2000);
+  }
+  function hideCall() {
+    document.getElementById('callOverlay').classList.remove('show');
+    if (callInterval) { clearInterval(callInterval); callInterval = null; }
+  }
+
+  // Msg overlay
+  function showMsg() {
+    document.getElementById('msgOverlay').classList.add('show');
+    setTimeout(() => {
+      const b = document.getElementById('msgBody');
+      b.scrollTop = b.scrollHeight;
+    }, 100);
+  }
+  function hideMsg() {
+    document.getElementById('msgOverlay').classList.remove('show');
+  }
+  function sendMsg() {
+    const inp = document.getElementById('msgInput');
+    const val = inp.value.trim();
+    if (!val) return;
+    const body = document.getElementById('msgBody');
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble bubble-out';
+    bubble.textContent = val;
+    body.appendChild(bubble);
+    inp.value = '';
+    body.scrollTop = body.scrollHeight;
+  }
+  document.getElementById('msgInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendMsg();
+  });
+
+  // Copy to clipboard
+  function copyText(text) {
+    navigator.clipboard.writeText(text).catch(() => {});
+    const toast = document.getElementById('copyToast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1800);
+  }
+</script>
+</body>
+</html>
