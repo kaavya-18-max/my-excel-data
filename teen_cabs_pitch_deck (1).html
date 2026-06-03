@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>TeenCab · Elite Match</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pearl:    #FBFBFA;
+      --champagne: #F7F3EF;
+      --gold:      #C6A682;
+      --gold-light: #FDFBF7;
+      --ink:       #2D2926;
+      --ink-muted: #6B6661;
+      --ink-soft:  #A39D96;
+      --sage:      #8BA88E;
+      --slate:     #8EACC5;
+      --white:     #FFFFFF;
+      --border:    #EBE7E2;
+      --shadow-sm: 0 4px 12px rgba(0,0,0,0.03);
+      --shadow-md: 0 12px 30px rgba(45, 41, 38, 0.05);
+      --shadow-lg: 0 25px 60px rgba(45, 41, 38, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #EBE7E2;
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; overflow: hidden;
+    }
+
+    /* Subtle Grain Texture */
+    body::after {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ── PHONE SHELL ── */
+    .phone {
+      width: 375px; height: 812px;
+      background: var(--pearl);
+      border-radius: 44px;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.12), 0 0 0 12px #1C1917;
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .notch {
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 160px; height: 30px; background: #1C1917; 
+      border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; z-index: 1000;
+    }
+
+    /* ── SCROLLABLE AREA ── */
+    .scroll-wrap {
+      position: relative; z-index: 10;
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      padding-bottom: 130px; scrollbar-width: none;
+    }
+    .scroll-wrap::-webkit-scrollbar { display: none; }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      position: absolute; top: 56px; left: 0; right: 0;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 24px; z-index: 100;
+    }
+    .icon-btn {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: rgba(255,255,255,0.6); backdrop-filter: blur(10px);
+      border: 1px solid var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; cursor: pointer;
+      box-shadow: var(--shadow-sm); color: var(--ink);
+      transition: all .2s;
+    }
+    .icon-btn:active { transform: scale(0.9); }
+    .top-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--white); text-transform: uppercase; letter-spacing: 1.5px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* ── HERO SECTION ── */
+    .hero-section {
+      position: relative; height: 440px;
+      display: flex; flex-direction: column;
+    }
+    .photo-bg {
+      position: absolute; inset: 0; z-index: -1;
+      overflow: hidden;
+    }
+    .photo-bg img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 6s ease-in-out;
+    }
+    .photo-bg:hover img { transform: scale(1.1); }
+    .photo-gradient {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 30%, rgba(251,251,250,1) 95%);
+    }
+
+    .hero-content {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 0 24px 32px; text-align: center;
+    }
+    .buddy-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px; font-weight: 900; color: var(--ink);
+      line-height: 1; margin-bottom: 12px;
+    }
+    .buddy-meta {
+      font-size: 13px; color: var(--ink-muted);
+      display: flex; justify-content: center; align-items: center; gap: 10px;
+    }
+    .meta-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--gold); }
+
+    .route-pill {
+      margin: 20px auto 0; width: fit-content;
+      background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
+      color: var(--gold); font-size: 11px; font-weight: 700;
+      padding: 8px 20px; border-radius: 99px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gold-light);
+    }
+
+    .tag-container {
+      display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 20px;
+    }
+    .tag {
+      font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 99px;
+      background: rgba(255,255,255,0.6); backdrop-filter: blur(10px);
+      border: 1px solid var(--white); color: var(--ink-muted);
+    }
+
+    /* ── COMPATIBILITY ── */
+    .section-header {
+      padding: 0 24px 16px; display: flex; align-items: center; gap: 12px;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 800; color: var(--ink);
+    }
+    .section-line { flex: 1; height: 1px; background: var(--border); }
+
+    .compat-container {
+      margin: 0 20px 32px;
+      background: var(--white); border-radius: 32px;
+      padding: 24px; box-shadow: var(--shadow-md);
+      display: flex; align-items: center; gap: 28px;
+    }
+    .score-ring {
+      position: relative; width: 90px; height: 90px; flex-shrink: 0;
+    }
+    .score-ring svg { transform: rotate(-90deg); }
+    .score-text {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .score-num { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 900; color: var(--ink); }
+    .score-lbl { font-size: 9px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; }
+
+    .metrics { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+    .metric-row { display: flex; flex-direction: column; gap: 8px; }
+    .metric-info { display: flex; justify-content: space-between; align-items: center; }
+    .metric-name { font-size: 11px; font-weight: 600; color: var(--ink-muted); }
+    .metric-val { font-size: 11px; font-weight: 700; color: var(--ink); }
+    .metric-bar { height: 4px; background: var(--champagne); border-radius: 2px; overflow: hidden; }
+    .metric-fill { height: 100%; width: 0; transition: width 1.2s cubic-bezier(.4,0,.2,1); border-radius: 2px; }
+    .fill-gold { background: var(--gold); box-shadow: 0 0 8px rgba(198, 166, 130, 0.4); }
+    .fill-sage { background: var(--sage); box-shadow: 0 0 8px rgba(139, 168, 142, 0.4); }
+    .fill-slate { background: var(--slate); box-shadow: 0 0 8px rgba(142, 172, 197, 0.4); }
+
+    /* ── BENTO VIBE GRID ── */
+    .vibe-bento {
+      display: grid; 
+      grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: 120px;
+      gap: 16px; padding: 0 20px 32px;
+    }
+    .vibe-item {
+      background: var(--white); padding: 20px; border-radius: 24px;
+      box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+      transition: all .3s ease;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .vibe-item.wide { grid-column: span 2; }
+    .vibe-item:active { transform: scale(0.98); background: var(--pearl); }
+    .vibe-icon {
+      width: 36px; height: 36px; border-radius: 12px; background: var(--champagne);
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+      margin-bottom: 12px;
+    }
+    .vibe-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+    .vibe-desc { font-size: 11px; color: var(--ink-muted); line-height: 1.5; }
+
+    /* ── PERSONALITY LUXE ── */
+    .pers-card {
+      margin: 0 20px 32px;
+      background: linear-gradient(135deg, var(--white) 0%, var(--gold-light) 100%);
+      border: 1px solid var(--gold-muted);
+      border-radius: 32px; padding: 28px;
+      box-shadow: var(--shadow-md);
+      position: relative; overflow: hidden;
+    }
+    .pers-card::after {
+      content: ''; position: absolute; top: -20px; right: -20px;
+      width: 80px; height: 80px; background: rgba(198, 166, 130, 0.1); border-radius: 50%;
+    }
+    .pers-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 800; color: var(--ink); margin-bottom: 12px; }
+    .pers-text { font-size: 14px; color: var(--ink-muted); line-height: 1.7; }
+
+    /* ── CTA ── */
+    .action-wrap { padding: 0 20px 40px; display: flex; flex-direction: column; gap: 12px; }
+    .btn-main {
+      height: 60px; border-radius: 20px; border: none; cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700;
+      background: var(--ink); color: var(--white);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+      transition: all .3s ease;
+    }
+    .btn-main:active { transform: scale(0.97); }
+    .btn-sub {
+      height: 60px; border-radius: 20px; border: 1px solid var(--border);
+      background: var(--white); color: var(--ink-muted);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all .3s ease;
+    }
+    .btn-sub:active { background: var(--pearl); }
+
+    /* ── FLOATING NAV ── */
+    .nav-floating {
+      position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+      width: 280px; height: 70px;
+      background: rgba(255,255,255,0.7); backdrop-filter: blur(20px);
+      border: 1px solid var(--white);
+      display: flex; justify-content: space-around; align-items: center;
+      padding: 0 20px; border-radius: 99px; z-index: 100;
+      box-shadow: var(--shadow-lg);
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 10px; font-weight: 600; color: var(--ink-soft); cursor: pointer;
+      transition: all .2s;
+    }
+    .nav-item.active { color: var(--gold); transform: translateY(-2px); }
+    .nav-item span { font-size: 22px; }
+
+    /* ── OVERLAY ── */
+    .overlay {
+      position: absolute; inset: 0; z-index: 1000;
+      background: rgba(255,255,255,0.8); backdrop-filter: blur(20px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .4s ease;
+    }
+    .overlay.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--white); width: 300px; padding: 36px;
+      border-radius: 32px; text-align: center; box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+    }
+    .modal h3 { font-family: 'Playfair Display', serif; font-size: 26px; margin-bottom: 12px; }
+    .modal p { font-size: 14px; color: var(--ink-muted); margin-bottom: 28px; line-height: 1.6; }
+    .modal-btn {
+      width: 100%; height: 52px; border-radius: 16px; border: none;
+      background: var(--ink); color: var(--white); font-weight: 700; cursor: pointer;
+    }
+
+    /* Entrance Animations */
+    .fade-up { animation: fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"></div>
+
+  <div class="scroll-wrap" id="mainScroll">
+    <div class="top-bar">
+      <div class="icon-btn">←</div>
+      <div class="top-label">Buddy Discovery</div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero-section fade-up">
+      <div class="photo-bg">
+        <img id="buddyPhoto" src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80" alt="Buddy">
+        <div class="photo-gradient"></div>
+      </div>
+      <div class="hero-content">
+        <div class="buddy-name" id="buddyName">Arjun K.</div>
+        <div class="buddy-meta" id="buddyMeta">
+          <span>24 yrs</span> <div class="meta-sep"></div> <span>UI/UX Designer</span> <div class="meta-sep"></div> <span>2.3 km away</span>
+        </div>
+        <div class="route-pill" id="buddyRoute">Saidapet → Anna Nagar</div>
+        <div class="tag-container" id="tagRow">
+          <!-- Tags Dynamic -->
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPATIBILITY -->
+    <div class="section-header fade-up" style="animation-delay: 0.1s">
+      <div class="section-title">Compatibility</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="compat-container fade-up" style="animation-delay: 0.2s">
+      <div class="score-ring">
+        <svg width="90" height="90" viewBox="0 0 90 90">
+          <circle cx="45" cy="45" r="38" fill="none" stroke="#F2EFE9" stroke-width="6"/>
+          <circle cx="45" cy="45" r="38" fill="none" stroke="url(#ringGrad)" stroke-width="6" 
+            stroke-linecap="round" stroke-dasharray="238.76" stroke-dashoffset="238.76" id="donutCircle"/>
+          <defs>
+            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#C6A682" />
+              <stop offset="100%" stop-color="#E07A5F" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="score-text">
+          <div class="score-num" id="donutVal">87</div>
+          <div class="score-lbl">match</div>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric-row">
+          <div class="metric-info"><span class="metric-name">Vibe Sync</span><span class="metric-val" id="pct0">91%</span></div>
+          <div class="metric-bar"><div class="metric-fill fill-gold" id="fill0"></div></div>
+        </div>
+        <div class="metric-row">
+          <div class="metric-info"><span class="metric-name">Energy Level</span><span class="metric-val" id="pct1">78%</span></div>
+          <div class="metric-bar"><div class="metric-fill fill-sage" id="fill1"></div></div>
+        </div>
+        <div class="metric-row">
+          <div class="metric-info"><span class="metric-name">Mood Match</span><span class="metric-val" id="pct2">85%</span></div>
+          <div class="metric-bar"><div class="metric-fill fill-slate" id="fill2"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BENTO VIBES -->
+    <div class="section-header fade-up" style="animation-delay: 0.3s">
+      <div class="section-title">Shared Interests</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="vibe-bento" id="matchesWrap">
+      <!-- Dynamic content -->
+    </div>
+
+    <!-- PERSONALITY -->
+    <div class="pers-card fade-up" style="animation-delay: 0.4s">
+      <div class="pers-title" id="persTitle">The Creative Builder</div>
+      <div class="pers-text" id="persDesc">Arjun is a curious soul who loves blending technology with art. He usually manages the music and ensures a smooth, thoughtful ride.</div>
+    </div>
+
+    <!-- CTA -->
+    <div class="action-wrap fade-up" style="animation-delay: 0.5s">
+      <button class="btn-main" id="connectBtn" onclick="showConfirm()">Connect with Arjun</button>
+      <button class="btn-sub" onclick="findAnother()">Find Another Match</button>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="overlay" id="confirmOverlay">
+    <div class="modal">
+      <h3>Request Sent</h3>
+      <p>Your buddy request is on its way. We'll notify you as soon as they respond.</p>
+      <button class="modal-btn" onclick="closeConfirm()">Great!</button>
+    </div>
+  </div>
+
+  <!-- FLOATING NAV -->
+  <div class="nav-floating">
+    <div class="nav-item"><span>🏠</span>Home</div>
+    <div class="nav-item active"><span>👥</span>Buddy</div>
+    <div class="nav-item"><span>🛺</span>Ride</div>
+    <div class="nav-item"><span>👤</span>Profile</div>
+  </div>
+</div>
+
+<script>
+  const TOTAL = 238.76;
+  const buddies = [
+    {
+      name: 'Keerthana M.', firstName: 'Keerthana',
+      age: 22, occ: 'Digital Artist', dist: '1.8 km',
+      route: 'T. Nagar → Nungambakkam',
+      img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=600&q=80',
+      score: 92, vibes: [94, 88, 95],
+      tags: ['Creative Soul', 'Aesthetic', 'Film Buff', 'Minimalist'],
+      matches: [
+        { icon:'🎬', title:'Content Creation', desc:'Love for cinematic storytelling', wide: true },
+        { icon:'📸', title:'Photography', desc:'Capturing the golden hour', wide: false },
+        { icon:'✈️', title:'Exploration', desc:'Searching for hidden street food', wide: false },
+        { icon:'📝', title:'Journaling', desc:'Thoughts turned into art', wide: true },
+      ],
+      persTitle: 'The Storyteller',
+      persDesc: 'Keerthana turns every ordinary moment into something worth saving. She has a curated playlist for every mood and a story for every street.',
+    },
+    {
+      name: 'Dhruv S.', firstName: 'Dhruv',
+      age: 26, occ: 'Game Dev', dist: '3.1 km',
+      route: 'Velachery → Guindy',
+      img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
+      score: 79, vibes: [82, 75, 80],
+      tags: ['Gamer', 'Night Owl', 'Builder', 'Chill'],
+      matches: [
+        { icon:'🕹️', title:'Indie Games', desc:'Building immersive worlds', wide: false },
+        { icon:'🎮', title:'Ranked Grind', desc:'Competitive gaming energy', wide: false },
+        { icon:'🤖', title:'Robotics', desc:'Interested in AI & Automation', wide: true },
+        { icon:'💻', title:'Open Source', desc:'Collaborative coding spirit', wide: false },
+      ],
+      persTitle: 'The Silent Strategist',
+      persDesc: 'Dhruv is a man of few words but deep thoughts. He is the perfect co-pilot for those who appreciate a calm, focused commute.',
+    },
+    {
+      name: 'Priya N.', firstName: 'Priya',
+      age: 23, occ: 'Founder', dist: '4.2 km',
+      route: 'Adyar → Egmore',
+      img: 'https://images.unsplash.com/photo-1520810627419-35e592be9bd4?auto=format&fit=crop&w=600&q=80',
+      score: 95, vibes: [96, 93, 95],
+      tags: ['Entrepreneur', 'Connector', 'Ambitious', 'Reader'],
+      matches: [
+        { icon:'🚀', title:'Startups', desc:'Scaling ideas into reality', wide: true },
+        { icon:'🧠', title:'Psychology', desc:'Understanding human behavior', wide: false },
+        { icon:'✈️', title:'Nomad Life', desc:'Traveling the world for work', wide: false },
+        { icon:'📝', title:'Public Speaking', desc:'Sharing ideas on big stages', wide: true },
+      ],
+      persTitle: 'The Visionary',
+      persDesc: 'Priya is always three steps ahead. She brings an infectious energy to the ride and will probably inspire you to start a business by the time you arrive.',
+    }
+  ];
+
+  let currentIdx = 0;
+
+  function animateRing(score) {
+    const circle = document.getElementById('donutCircle');
+    circle.style.transition = 'none';
+    circle.style.strokeDashoffset = TOTAL;
+    setTimeout(() => {
+      circle.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)';
+      circle.style.strokeDashoffset = TOTAL - (TOTAL * score / 100);
+    }, 50);
+  }
+
+  function animateBars(vals) {
+    vals.forEach((v, i) => {
+      const fill = document.getElementById('fill' + i);
+      const pct = document.getElementById('pct' + i);
+      if (fill) fill.style.width = v + '%';
+      if (pct) pct.textContent = v + '%';
+    });
+  }
+
+  function renderBuddy() {
+    const b = buddies[currentIdx];
+    
+    document.getElementById('buddyPhoto').src = b.img;
+    document.getElementById('buddyName').textContent = b.name;
+    document.getElementById('buddyMeta').innerHTML = `<span>${b.age} yrs</span> <div class="meta-sep"></div> <span>${b.occ}</span> <div class="meta-sep"></div> <span>${b.dist} away</span>`;
+    document.getElementById('buddyRoute').textContent = b.route;
+    document.getElementById('tagRow').innerHTML = b.tags.map(t => `<div class="tag">${t}</div>`).join('');
+    
+    document.getElementById('donutVal').textContent = b.score;
+    animateRing(b.score);
+    animateBars(b.vibes);
+    
+    document.getElementById('matchesWrap').innerHTML = b.matches.map(m => `
+      <div class="vibe-item ${m.wide ? 'wide' : ''}">
+        <div class="vibe-icon">${m.icon}</div>
+        <div class="vibe-title">${m.title}</div>
+        <div class="vibe-desc">${m.desc}</div>
+      </div>
+    `).join('');
+    
+    document.getElementById('persTitle').textContent = b.persTitle;
+    document.getElementById('persDesc').textContent = b.persDesc;
+    document.getElementById('connectBtn').textContent = `Connect with ${b.firstName}`;
+  }
+
+  function findAnother() {
+    currentIdx = (currentIdx + 1) % buddies.length;
+    const wrap = document.getElementById('mainScroll');
+    wrap.style.opacity = '0';
+    wrap.style.transform = 'translateY(10px)';
+    wrap.style.transition = 'all 0.3s ease';
+
+    setTimeout(() => {
+      renderBuddy();
+      wrap.style.opacity = '1';
+      wrap.style.transform = 'translateY(0)';
+      wrap.scrollTop = 0;
+    }, 300);
+  }
+
+  function showConfirm() { document.getElementById('confirmOverlay').classList.add('show'); }
+  function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('show'); }
+
+  window.onload = () => {
+    renderBuddy();
+    setTimeout(() => animateRing(87), 300);
+    setTimeout(() => animateBars([91, 78, 85]), 400);
+  };
+</script>
+</body>
+</html>
